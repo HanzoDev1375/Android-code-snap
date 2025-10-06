@@ -58,7 +58,7 @@
                 <ir.ninjacoder.code.widget.LineNumberTextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="hello"
+                    android:text="public class Main{}"
                     android:id="@+id/editor"
                     android:gravity="top|left" />
             </LinearLayout>
