@@ -48,13 +48,24 @@ public class LayoutGroup extends LinearLayout {
     
     String code = """
       import java.io.File;
+      import static java.io.File.isFile;
+      
       public class Main(){
-      void main(String[] args){
+      private String test;
+      private File files;
+      private Path path = Paths.get("");
+      
+      public static void main(String[] args){
       
       File file = new File("");
-      if(file.isFile){
+      if(file.isFile()){
          System.out.println("Hello word");
         }
+     }
+     public static void run(int id,String from){
+     
+        //todo 
+     
      }
    }
     """;

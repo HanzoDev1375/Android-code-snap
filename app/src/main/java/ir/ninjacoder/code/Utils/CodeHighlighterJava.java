@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.text.SpannableStringBuilder;
 import ir.ninjacoder.code.Utils.CodeHighlighterJavaScript;
 import ir.ninjacoder.code.antlr4.JavaLexer;
+import ir.ninjacoder.code.colorhelper.ColorHelper;
 import java.io.StringReader;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Token;
@@ -19,7 +20,8 @@ public class CodeHighlighterJava implements Highlighter {
   public SpannableStringBuilder highlight(LangType lang, String code)
       throws Exception {
     if (lang == LangType.JAVA) {
-
+      ColorHelper colorHelper = new ColorHelper();
+      
       JavaLexer lexer = new JavaLexer(CharStreams.fromReader(new StringReader(code)));
       SpannableStringBuilder sb = new SpannableStringBuilder();
       Token token;
@@ -75,7 +77,7 @@ public class CodeHighlighterJava implements Highlighter {
           case JavaLexer.WHILE:
             sb.append(
                 token.getText(),
-                new ForegroundColorSpan(Color.parseColor("#ff8202")),
+                new ForegroundColorSpan(colorHelper.getKeyword()),
                 SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
             break;
           case JavaLexer.DECIMAL_LITERAL:
@@ -87,14 +89,19 @@ public class CodeHighlighterJava implements Highlighter {
           case JavaLexer.BOOL_LITERAL:
           case JavaLexer.CHAR_LITERAL:
           case JavaLexer.NULL_LITERAL:
+          sb.append(
+                token.getText(),
+                new ForegroundColorSpan(colorHelper.getOperator()),
+                SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+          break;
           case JavaLexer.STRING_LITERAL:
             sb.append(
                 token.getText(),
-                new ForegroundColorSpan(Color.parseColor("#3EF19E")),
+                new ForegroundColorSpan(colorHelper.getStrings()),
                 SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
             break;
           case JavaLexer.LPAREN:
-          case JavaLexer.RPAREN:
+          case JavaLexer.RPAREN: 
           case JavaLexer.LBRACK:
           case JavaLexer.RBRACK:
           case JavaLexer.SEMI:
@@ -142,7 +149,7 @@ public class CodeHighlighterJava implements Highlighter {
           case JavaLexer.AT:
             sb.append(
                 token.getText(),
-                new ForegroundColorSpan(Color.parseColor("#FFA0FF12")),
+                new ForegroundColorSpan(colorHelper.getSymbol()),
                 SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
             break;
           case JavaLexer.BOOLEAN:
@@ -156,26 +163,26 @@ public class CodeHighlighterJava implements Highlighter {
           case JavaLexer.SHORT:
             sb.append(
                 token.getText(),
-                new ForegroundColorSpan(Color.parseColor("#FFE14BFF")),
+                new ForegroundColorSpan(colorHelper.getOperator()),
                 SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
             break;
           case JavaLexer.BLOCK_COMMENT:
           case JavaLexer.LINE_COMMENT:
             sb.append(
                 token.getText(),
-                new ForegroundColorSpan(Color.parseColor("#FF434343")),
+                new ForegroundColorSpan(colorHelper.getComment()),
                 SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
             break;
           case JavaLexer.IDENTIFIER:
             {
-              int colorNormal = Color.WHITE;
+              int colorNormal =colorHelper.getTextnormal();
               boolean isClassName = false;
               if (pretoken == JavaLexer.CLASS
                   || pretoken == JavaLexer.INTERFACE
                   || pretoken == JavaLexer.ENUM
                   || pretoken == JavaLexer.EXTENDS
                   || pretoken == JavaLexer.IMPLEMENTS) {
-                colorNormal = Color.CYAN;
+                colorNormal = colorHelper.getMethod();
                 isClassName = true;
               } else if (pretoken == JavaLexer.VOID
                   || pretoken == JavaLexer.BOOLEAN
@@ -188,19 +195,19 @@ public class CodeHighlighterJava implements Highlighter {
                   || pretoken == JavaLexer.SHORT
                   || pretoken == JavaLexer.IDENTIFIER) {
                 if (lexer._input.LA(1) == '(') {
-                  colorNormal = Color.parseColor("#FFFFCF9B");
+                  colorNormal = colorHelper.getLastsymi();
                 }
               } else if (lexer._input.LA(1) == '.') {
-                colorNormal = Color.parseColor("#FFFF6B8D");
+                colorNormal = colorHelper.getLastdot();
               } else if (lexer._input.LA(1) == '[' || lexer._input.LA(1) == ']') {
-                colorNormal = Color.parseColor("#bd93f9");
+                colorNormal = colorHelper.getPrebrak();
               } else if (pretoken == JavaLexer.DOT) {
-                colorNormal = Color.parseColor("#da3633");
+                colorNormal = colorHelper.getPredot();
               } else if (!isClassName && Character.isUpperCase(token.getText().charAt(0))) {
                 Pattern pattern = Pattern.compile("^[A-Z][a-zA-Z0-9_]*$");
                 var matcher = pattern.matcher(token.getText());
                 if (matcher.matches()) {
-                  colorNormal = Color.parseColor("#8be9fd");
+                  colorNormal = colorHelper.getUppercase();
                 }
               }
 
@@ -213,7 +220,7 @@ public class CodeHighlighterJava implements Highlighter {
           default:
             sb.append(
                 token.getText(),
-                new ForegroundColorSpan(Color.WHITE),
+                new ForegroundColorSpan(colorHelper.getTextnormal()),
                 SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
             break;
         }
