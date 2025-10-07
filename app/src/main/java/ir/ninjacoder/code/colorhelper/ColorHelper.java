@@ -3,12 +3,12 @@ package ir.ninjacoder.code.colorhelper;
 import android.graphics.Color;
 
 public class ColorHelper {
-  private int keyword;
-  private int operator;
-  private int method;
-  private int variable;
-  private int symbol;
-  private int comment;
+  protected int keyword;
+  protected int operator;
+  protected int method;
+  protected int variable;
+  protected int symbol;
+  protected int comment;
   protected int lastdot;
   protected int strings;
   protected int lastsymi;
@@ -16,6 +16,7 @@ public class ColorHelper {
   protected int textnormal;
   protected int predot;
   protected int prebrak;
+  
 
   public ColorHelper() {
     applyColor();
