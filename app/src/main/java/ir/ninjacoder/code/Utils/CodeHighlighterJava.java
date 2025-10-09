@@ -4,6 +4,10 @@ import android.graphics.Color;
 import android.text.SpannableStringBuilder;
 import ir.ninjacoder.code.Utils.CodeHighlighterJavaScript;
 import ir.ninjacoder.code.antlr4.JavaLexer;
+import ir.ninjacoder.code.bracket.BracketInfo;
+import ir.ninjacoder.code.bracket.BracketManager;
+import ir.ninjacoder.code.bracket.BracketPair;
+import ir.ninjacoder.code.bracket.BracketPosition;
 import ir.ninjacoder.code.colorhelper.ColorHelper;
 import java.io.StringReader;
 import org.antlr.v4.runtime.CharStreams;
@@ -13,22 +17,38 @@ import android.text.style.BackgroundColorSpan;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import ir.ninjacoder.code.LangType;
+import java.util.Stack;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CodeHighlighterJava implements Highlighter {
+
 
   @Override
   public SpannableStringBuilder highlight(LangType lang, String code) throws Exception {
 
     ColorHelper colorHelper = new ColorHelper();
-
+     BracketManager manager = new BracketManager();
     JavaLexer lexer = new JavaLexer(CharStreams.fromReader(new StringReader(code)));
     SpannableStringBuilder sb = new SpannableStringBuilder();
     Token token;
     int type = 0;
     int pretoken = -1;
+    List<BracketPosition> bracketPositions = new ArrayList<>();
+    int currentPosition = 0;
+    manager.setRainbowBracketsEnabled(true);
     while ((token = lexer.nextToken()) != null) {
       type = token.getType();
       if (type == JavaLexer.EOF) break;
+      if (isBracketToken(type)) {
+        bracketPositions.add(
+            new BracketPosition(
+                currentPosition,
+                currentPosition + token.getText().length(),
+                token.getText().charAt(0),
+                type));
+      }
+
       switch (type) {
         case JavaLexer.WS:
           sb.append(token.getText());
@@ -146,6 +166,7 @@ public class CodeHighlighterJava implements Highlighter {
         case JavaLexer.LBRACE:
         case JavaLexer.RBRACE:
         case JavaLexer.AT:
+          // برای براکت‌ها رنگ معمولی می‌گذاریم و بعداً رنگین کمانی اعمال می‌کنیم
           sb.append(
               token.getText(),
               new ForegroundColorSpan(colorHelper.getSymbol()),
@@ -226,8 +247,23 @@ public class CodeHighlighterJava implements Highlighter {
       if (type != JavaLexer.WS) {
         pretoken = type;
       }
+      currentPosition += token.getText().length();
+    }
+
+    if (manager.getRainbowBracketsEnabled() && !bracketPositions.isEmpty()) {
+     manager. applyRainbowBrackets(sb, bracketPositions);
     }
 
     return sb;
+  }
+
+  /** بررسی آیا توکن داده شده یک براکت است */
+  private boolean isBracketToken(int tokenType) {
+    return tokenType == JavaLexer.LPAREN
+        || tokenType == JavaLexer.RPAREN
+        || tokenType == JavaLexer.LBRACE
+        || tokenType == JavaLexer.RBRACE
+        || tokenType == JavaLexer.LBRACK
+        || tokenType == JavaLexer.RBRACK;
   }
 }

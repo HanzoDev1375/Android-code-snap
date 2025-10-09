@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
           @Override
           public void onNothingSelected(AdapterView<?> ad) {}
         });
-    binding.et.getEditor().setShowlinenumber(false);
+    binding.et.getEditor().showLineNumber(true);
   }
 
   @Override

@@ -14,6 +14,7 @@ import ir.ninjacoder.code.colorhelper.ColorHelper;
 import ir.ninjacoder.code.databinding.LayoutGroupBinding;
 import ir.ninjacoder.code.Utils.ColorUtil;
 import ir.ninjacoder.code.widget.LineNumberTextView;
+import ir.ninjacoder.code.widget.SyntaxView;
 
 public class LayoutGroup extends LinearLayout {
   private LayoutGroupBinding binding;
@@ -54,7 +55,7 @@ public class LayoutGroup extends LinearLayout {
       d = Main()
       d.run(2,220,100)
     """;
-    highlightText(code, binding.editor);
+    highlightText(code, binding.editor.getCode());
     setOnTouchListener(
         (v, event) -> {
           if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -81,8 +82,8 @@ public class LayoutGroup extends LinearLayout {
   }
 
   void updateHighlight() {
-    String currentText = binding.editor.getText().toString();
-    highlightText(currentText, binding.editor);
+    String currentText = binding.editor.getCode().getText().toString();
+    highlightText(currentText, binding.editor.getCode());
   }
 
   public LangType getType() {
@@ -97,7 +98,7 @@ public class LayoutGroup extends LinearLayout {
   public ColorHelper getColor() {
     return this.color;
   }
-  public LineNumberTextView getEditor(){
+  public SyntaxView getEditor(){
     return binding.editor;
   }
 }
