@@ -16,7 +16,7 @@ public class ColorHelper {
   protected int textnormal;
   protected int predot;
   protected int prebrak;
-  
+  protected int linenumbercolor;
 
   public ColorHelper() {
     applyColor();
@@ -77,6 +77,7 @@ public class ColorHelper {
     prebrak = Color.parseColor("#FFFFB28B");
     predot = Color.parseColor("#FF90D15A");
     strings = Color.parseColor("#FF4FFF34");
+    linenumbercolor = Color.parseColor("#ffffdd");
   }
 
   public int getComment() {
@@ -141,5 +142,13 @@ public class ColorHelper {
 
   public void setStrings(int strings) {
     this.strings = strings;
+  }
+
+  public int getLinenumbercolor() {
+    return this.linenumbercolor;
+  }
+
+  public void setLinenumbercolor(int linenumbercolor) {
+    this.linenumbercolor = linenumbercolor;
   }
 }

@@ -9,14 +9,16 @@ import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.widget.EditText;
 import android.text.Layout;
+import ir.ninjacoder.code.colorhelper.ColorHelper;
 import java.util.WeakHashMap;
 
 public class LineNumberTextView extends EditText {
   private final Context context;
   private final Paint paint;
   private final Rect tempRect;
+  private boolean showlinenumber;
   private boolean isInitialized = false;
-
+  protected ColorHelper color;
   public LineNumberTextView(Context context) {
     super(context);
     this.context = context;
@@ -43,14 +45,15 @@ public class LineNumberTextView extends EditText {
 
   private void init() {
     if (isInitialized) return;
-
+    color = new ColorHelper();
     paint.setStyle(Paint.Style.FILL);
-    paint.setColor(Color.GRAY);
+    paint.setColor(color.getLinenumbercolor());
     paint.setTextSize(35);
-    paint.setTypeface(Typeface.MONOSPACE);
+   // paint.setTypeface(Typeface.MONOSPACE);
 
     setBackgroundColor(Color.TRANSPARENT);
     isInitialized = true;
+    setShowlinenumber(true);
   }
 
   @Override
@@ -66,32 +69,34 @@ public class LineNumberTextView extends EditText {
   }
 
   private void drawLineNumbers(Canvas canvas) {
+
     Layout layout = getLayout();
     if (layout == null) return;
+    if (showlinenumber) {
+      int lineCount = layout.getLineCount();
+      int visibleLineCount = getHeight() / getLineHeight();
+      int firstVisibleLine = getScrollY() / getLineHeight();
+      int lastVisibleLine = Math.min(firstVisibleLine + visibleLineCount + 1, lineCount);
 
-    int lineCount = layout.getLineCount();
-    int visibleLineCount = getHeight() / getLineHeight();
-    int firstVisibleLine = getScrollY() / getLineHeight();
-    int lastVisibleLine = Math.min(firstVisibleLine + visibleLineCount + 1, lineCount);
+      // فقط خطوط قابل مشاهده را رسم کنید
+      for (int i = firstVisibleLine; i < lastVisibleLine; i++) {
+        int baseline = getLineBounds(i, null);
+        String lineNumber = String.valueOf(i + 1);
 
-    // فقط خطوط قابل مشاهده را رسم کنید
-    for (int i = firstVisibleLine; i < lastVisibleLine; i++) {
-      int baseline = getLineBounds(i, null);
-      String lineNumber = String.valueOf(i + 1);
+        // محاسبه عرض متن برای ترازبندی
+        float textWidth = paint.measureText(lineNumber);
+        float x = 15; // فاصله از چپ
 
-      // محاسبه عرض متن برای ترازبندی
-      float textWidth = paint.measureText(lineNumber);
-      float x = 10; // فاصله از چپ
+        canvas.drawText(lineNumber, x, baseline, paint);
+      }
 
-      canvas.drawText(lineNumber, x, baseline, paint);
+      // تنظیم padding بر اساس حداکثر عرض شماره خط
+      setPaddingBasedOnLineCount(lineCount);
     }
-
-    // تنظیم padding بر اساس حداکثر عرض شماره خط
-    setPaddingBasedOnLineCount(lineCount);
   }
 
   private void setPaddingBasedOnLineCount(int lineCount) {
-    int paddingLeft;
+    int paddingLeft = 20;
     if (lineCount < 100) {
       paddingLeft = 50;
     } else if (lineCount < 1000) {
@@ -133,5 +138,13 @@ public class LineNumberTextView extends EditText {
 
     // فقط در صورت نیاز مجدداً رسم کنید
     postInvalidate();
+  }
+
+  public boolean getShowlinenumber() {
+    return this.showlinenumber;
+  }
+
+  public void setShowlinenumber(boolean showlinenumber) {
+    this.showlinenumber = showlinenumber;
   }
 }

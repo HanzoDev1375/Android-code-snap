@@ -3,6 +3,8 @@ package ir.ninjacoder.code;
 import android.content.Context;
 import android.graphics.Color;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.animation.ObjectAnimator;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -11,6 +13,7 @@ import ir.ninjacoder.code.Utils.CodeImpl;
 import ir.ninjacoder.code.colorhelper.ColorHelper;
 import ir.ninjacoder.code.databinding.LayoutGroupBinding;
 import ir.ninjacoder.code.Utils.ColorUtil;
+import ir.ninjacoder.code.widget.LineNumberTextView;
 
 public class LayoutGroup extends LinearLayout {
   private LayoutGroupBinding binding;
@@ -47,17 +50,28 @@ public class LayoutGroup extends LinearLayout {
         def __init__(): pass
         def run(self,item,object):
            print(item * 2)
-           
-      d = Main() 
+
+      d = Main()
       d.run(2,220,100)
     """;
     highlightText(code, binding.editor);
+    setOnTouchListener(
+        (v, event) -> {
+          if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            
+            ObjectAnimator.ofFloat(v, SCALE_X, 1.26f).setDuration(350).start();
+            ObjectAnimator.ofFloat(v, SCALE_Y, 1.26f).setDuration(350).start();
+          } else if (event.getAction() == MotionEvent.ACTION_UP
+              || event.getAction() == MotionEvent.ACTION_CANCEL) {
+            ObjectAnimator.ofFloat(v, SCALE_X, 1f).setDuration(350).start();
+            ObjectAnimator.ofFloat(v, SCALE_Y, 1f).setDuration(350).start();
+          }
+          return true;
+        });
   }
 
   private void highlightText(String text, EditText editText) {
-
     try {
-
       CodeImpl code = new CodeImpl();
       editText.setText(code.highlight(type, text));
 
@@ -66,15 +80,24 @@ public class LayoutGroup extends LinearLayout {
     }
   }
 
+  void updateHighlight() {
+    String currentText = binding.editor.getText().toString();
+    highlightText(currentText, binding.editor);
+  }
+
   public LangType getType() {
     return this.type;
   }
 
   public void setType(LangType type) {
     this.type = type;
+    updateHighlight();
   }
 
   public ColorHelper getColor() {
     return this.color;
+  }
+  public LineNumberTextView getEditor(){
+    return binding.editor;
   }
 }

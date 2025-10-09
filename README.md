@@ -16,7 +16,9 @@
 - [x] javascript
 - [ ] c
 - [ ] c++
-- [ ] rust
+- [x] rust
+- [ ] php
+- [ ] html
 
 
 ## Note
