@@ -17,6 +17,7 @@ public class ColorHelper {
   protected int predot;
   protected int prebrak;
   protected int linenumbercolor;
+  protected int bracketcolor;
 
   public ColorHelper() {
     applyColor();
@@ -78,6 +79,7 @@ public class ColorHelper {
     predot = Color.parseColor("#FF90D15A");
     strings = Color.parseColor("#FF4FFF34");
     linenumbercolor = Color.parseColor("#ffffdd");
+    bracketcolor = Color.parseColor("#BAFF9A67");
   }
 
   public int getComment() {
@@ -150,5 +152,13 @@ public class ColorHelper {
 
   public void setLinenumbercolor(int linenumbercolor) {
     this.linenumbercolor = linenumbercolor;
+  }
+
+  public int getBracketcolor() {
+    return this.bracketcolor;
+  }
+
+  public void setBracketcolor(int bracketcolor) {
+    this.bracketcolor = bracketcolor;
   }
 }
