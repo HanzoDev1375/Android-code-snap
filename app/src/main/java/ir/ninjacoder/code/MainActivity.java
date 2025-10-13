@@ -6,6 +6,7 @@ import android.widget.ArrayAdapter;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import ir.ninjacoder.code.databinding.ActivityMainBinding;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -39,7 +40,6 @@ public class MainActivity extends AppCompatActivity {
           @Override
           public void onNothingSelected(AdapterView<?> ad) {}
         });
-    binding.et.getEditor().showLineNumber(true);
   }
 
   @Override

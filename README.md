@@ -14,7 +14,7 @@
 - [x] java
 - [x] python
 - [x] javascript
-- [ ] c
+- [x] c
 - [ ] c++
 - [x] rust
 - [ ] php

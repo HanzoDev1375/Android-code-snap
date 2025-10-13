@@ -2,8 +2,6 @@ package ir.ninjacoder.code.Utils;
 
 import ir.ninjacoder.code.LangType;
 import android.text.SpannableStringBuilder;
-import ir.ninjacoder.code.Utils.CodeHighlighterPython;
-import ir.ninjacoder.code.Utils.CodeHighlighterRust;
 
 public class CodeImpl implements Highlighter {
 
@@ -18,6 +16,10 @@ public class CodeImpl implements Highlighter {
       return new CodeHighlighterPython().highlight(type, code);
     } else if (type == LangType.RUST) {
       return new CodeHighlighterRust().highlight(type, code);
+    } else if (type == LangType.CPP) {
+      return new CodeHighlighterCpp().highlight(type, code);
+    } else if (type == LangType.C) {
+      return new CodeHighlighterCLang().highlight(type, code);
     }
     return null;
   }

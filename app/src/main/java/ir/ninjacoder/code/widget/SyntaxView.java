@@ -18,7 +18,9 @@ public class SyntaxView extends ScrollView {
   private CodeEditText code;
   private TextView rows;
   private boolean autoIndent = false;
-  private ColorHelper color=new ColorHelper();
+  private LineNumberCalculator lineCode;
+  private ColorHelper color = new ColorHelper();
+
   public SyntaxView(Context context) {
     super(context);
     initialize(context);
@@ -33,7 +35,8 @@ public class SyntaxView extends ScrollView {
     inflate(context, R.layout.syntaxview, this);
     code = findViewById(R.id.code);
     rows = findViewById(R.id.rows);
-
+    lineCode = new LineNumberCalculator(code.getText().toString());
+    lineCode.update(code.getText().toString().length());
     code.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
     code.setSingleLine(false);
     code.setImeOptions(EditorInfo.IME_FLAG_NO_ENTER_ACTION);
@@ -149,4 +152,21 @@ public class SyntaxView extends ScrollView {
   public CodeEditText getCode() {
     return code;
   }
+
+  public int getLine() {
+    return lineCode.getLine();
+  }
+
+  public int getColumn() {
+    return lineCode.getColumn();
+  }
+
+  public int getStart() {
+    return lineCode.findLineStart();
+  }
+
+  public int getEnd() {
+    return lineCode.findLineEnd();
+  }
+
 }

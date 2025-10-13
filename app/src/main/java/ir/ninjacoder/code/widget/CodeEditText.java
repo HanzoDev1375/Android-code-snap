@@ -1,7 +1,6 @@
 package ir.ninjacoder.code.widget;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.text.Editable;
 import android.text.Spannable;
 import android.text.TextWatcher;
@@ -10,16 +9,32 @@ import android.text.style.StyleSpan;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.widget.EditText;
+import android.text.Layout;
+import android.graphics.Rect;
+import ir.ninjacoder.code.widget.ad.SuggestionAdapter;
+import java.util.HashSet;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import android.widget.MultiAutoCompleteTextView;
+import androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView;
 
-import androidx.appcompat.widget.AppCompatEditText;
 import ir.ninjacoder.code.colorhelper.ColorHelper;
+import java.util.ArrayList;
+import ir.ninjacoder.code.widget.ad.KeywordTokenizer;
+import android.content.res.Resources;
 
-public class CodeEditText extends AppCompatEditText {
+public class CodeEditText extends AppCompatMultiAutoCompleteTextView {
 
-  private ColorHelper color= new ColorHelper();
+  private ColorHelper color = new ColorHelper();
   private BackgroundColorSpan currentSpan1, currentSpan2;
   private int lastCursorPos = -1;
   private StyleSpan boldSpan1, boldSpan2;
+  private MultiAutoCompleteTextView.Tokenizer mAutoCompleteTokenizer;
+  private ArrayList<String> suggestionsList;
+  private ArrayList<String> suggestionsList1;
+
+  private boolean showInlays = true;
 
   public CodeEditText(Context context) {
     super(context);
@@ -38,6 +53,9 @@ public class CodeEditText extends AppCompatEditText {
 
   private void init() {
     setHorizontallyScrolling(true);
+    if (mAutoCompleteTokenizer == null) mAutoCompleteTokenizer = new KeywordTokenizer();
+    setTokenizer(mAutoCompleteTokenizer);
+    setDropDownWidth(Resources.getSystem().getDisplayMetrics().widthPixels / 2);
     setCursorVisible(true);
     addTextChangedListener(
         new TextWatcher() {
@@ -54,6 +72,8 @@ public class CodeEditText extends AppCompatEditText {
               highlightByCursor(cursorPos);
               lastCursorPos = cursorPos;
             }
+            // اضافه کردها
+
           }
         });
   }
@@ -103,7 +123,7 @@ public class CodeEditText extends AppCompatEditText {
   }
 
   private void applyHighlight(Editable text, int pos1, int pos2) {
-    
+
     currentSpan1 = new BackgroundColorSpan(color.getBracketcolor());
     currentSpan2 = new BackgroundColorSpan(color.getBracketcolor());
     boldSpan1 = new StyleSpan(Typeface.BOLD);
@@ -198,5 +218,131 @@ public class CodeEditText extends AppCompatEditText {
         return '[';
     }
     return 0;
+  }
+
+  @Override
+  public void showDropDown() {
+    final Layout layout = getLayout();
+    final int position = getSelectionStart();
+    final int line = layout.getLineForOffset(position);
+    final int lineBottom = layout.getLineBottom(line);
+
+    int numberOfMatchedItems = getAdapter().getCount();
+
+    int maxNumberOfSuggestions = 8;
+    int autoCompleteItemHeightInDp = (int) (50 * Resources.getSystem().getDisplayMetrics().density);
+
+    if (numberOfMatchedItems > maxNumberOfSuggestions) {
+      numberOfMatchedItems = maxNumberOfSuggestions;
+    }
+
+    int dropDownHeight = getDropDownHeight();
+
+    int modifiedDropDownHeight =
+        android.widget.LinearLayout.LayoutParams
+            .WRAP_CONTENT /*numberOfMatchedItems * autoCompleteItemHeightInDp*/;
+
+    if (dropDownHeight != modifiedDropDownHeight) {
+      dropDownHeight = modifiedDropDownHeight;
+    }
+
+    final Rect displayFrame = new Rect();
+    getGlobalVisibleRect(displayFrame);
+
+    int displayFrameHeight = displayFrame.height();
+
+    int verticalOffset = lineBottom + dropDownHeight;
+    if (verticalOffset > displayFrameHeight) {
+      verticalOffset = displayFrameHeight - autoCompleteItemHeightInDp;
+    }
+
+    setDropDownHeight(dropDownHeight);
+    setDropDownVerticalOffset(verticalOffset - displayFrameHeight - dropDownHeight);
+    setDropDownHorizontalOffset((int) layout.getPrimaryHorizontal(position));
+
+    super.showDropDown();
+  }
+
+  public void setUpListSuggestions(ArrayList<String> listStr) {
+    suggestionsList = new ArrayList<>();
+    String myWord = currentWord(this);
+    for (String word : listStr) {
+      if (word.contains(myWord)) {
+        suggestionsList.add(word);
+      }
+    }
+    SuggestionAdapter adapter = new SuggestionAdapter(getContext(), suggestionsList);
+    setAdapter(adapter);
+  }
+
+  public void setList(ArrayList<String> listStr) {
+    this.suggestionsList1 = listStr;
+    addTextChangedListener(
+        new TextWatcher() {
+          @Override
+          public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+          @Override
+          public void onTextChanged(CharSequence s, int start, int before, int count) {
+            setUpListSuggestions(suggestionsList1);
+          }
+
+          @Override
+          public void afterTextChanged(Editable s) {}
+        });
+  }
+
+  public void setListFromContent() {
+    addTextChangedListener(
+        new TextWatcher() {
+          @Override
+          public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+          @Override
+          public void onTextChanged(CharSequence s, int start, int before, int count) {
+            suggestionsList1 = new ArrayList<>();
+            Matcher m = Pattern.compile("\\w+").matcher(getText().toString());
+            while (m.find()) {
+              suggestionsList1.add(m.group());
+            }
+            setUpListSuggestions(cleanlist(suggestionsList1));
+          }
+
+          @Override
+          public void afterTextChanged(Editable s) {}
+        });
+  }
+
+  private ArrayList<String> cleanlist(ArrayList<String> listStr) {
+    ArrayList<String> myList = new ArrayList<>();
+    if (listStr != null && listStr.size() > 0) {
+      listStr.remove(suggestionsList1.size() - 1);
+    }
+    HashSet<String> list = new HashSet<>(listStr);
+    for (String one : list) {
+      myList.add(one);
+    }
+    return myList;
+  }
+
+  public String currentWord(EditText editText) {
+    Spannable textSpan = editText.getText();
+    final int selection = editText.getSelectionStart();
+    final Pattern pattern = Pattern.compile("\\w+");
+    final Matcher matcher = pattern.matcher(textSpan);
+    int start = 0;
+    int end = 0;
+
+    String currentWord = "";
+    while (matcher.find()) {
+      start = matcher.start();
+      end = matcher.end();
+      if (start <= selection && selection <= end) {
+        currentWord = textSpan.subSequence(start, end).toString();
+        break;
+      }
+    }
+
+    return currentWord;
   }
 }
