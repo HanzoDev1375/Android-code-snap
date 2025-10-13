@@ -18,6 +18,10 @@ public class ColorHelper {
   protected int prebrak;
   protected int linenumbercolor;
   protected int bracketcolor;
+  protected int htmlkeyword;
+  protected int htmlattr;
+  protected int csskeyword;
+  protected int cssoprator;
 
   public ColorHelper() {
     applyColor();
@@ -80,6 +84,10 @@ public class ColorHelper {
     strings = Color.parseColor("#FF4FFF34");
     linenumbercolor = Color.parseColor("#ffffdd");
     bracketcolor = Color.parseColor("#BAFF9A67");
+    htmlkeyword = Color.parseColor("#ff7027");
+    htmlattr = Color.parseColor("#ff4ff819");
+    csskeyword = Color.parseColor("#f63a52");
+    cssoprator = Color.parseColor("#ff8061a2");
   }
 
   public int getComment() {
@@ -160,5 +168,37 @@ public class ColorHelper {
 
   public void setBracketcolor(int bracketcolor) {
     this.bracketcolor = bracketcolor;
+  }
+
+  public int getHtmlkeyword() {
+    return this.htmlkeyword;
+  }
+
+  public void setHtmlkeyword(int htmlkeyword) {
+    this.htmlkeyword = htmlkeyword;
+  }
+
+  public int getHtmlattr() {
+    return this.htmlattr;
+  }
+
+  public void setHtmlattr(int htmlattr) {
+    this.htmlattr = htmlattr;
+  }
+
+  public int getCsskeyword() {
+    return this.csskeyword;
+  }
+
+  public void setCsskeyword(int csskeyword) {
+    this.csskeyword = csskeyword;
+  }
+
+  public int getCssoprator() {
+    return this.cssoprator;
+  }
+
+  public void setCssoprator(int cssoprator) {
+    this.cssoprator = cssoprator;
   }
 }

@@ -7,7 +7,10 @@ public enum LangType {
   JAVASCRIPT(".js"),
   RUST(".rs"),
   C(".c"),
-  CPP(".cpp");
+  CPP(".cpp"),
+  HTML(".html"),
+  PHP(".php"),
+  CSS(".css");
 
   private final String langname;
 

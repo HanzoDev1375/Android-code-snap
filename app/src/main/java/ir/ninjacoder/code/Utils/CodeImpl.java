@@ -20,6 +20,8 @@ public class CodeImpl implements Highlighter {
       return new CodeHighlighterCpp().highlight(type, code);
     } else if (type == LangType.C) {
       return new CodeHighlighterCLang().highlight(type, code);
+    }else if(type == LangType.HTML || type == LangType.PHP || type == LangType.CSS) {
+    	return new CodeHighlighterWeb().highlight(type, code);
     }
     return null;
   }

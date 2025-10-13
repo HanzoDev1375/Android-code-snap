@@ -51,4 +51,5 @@ dependencies {
     implementation("org.antlr:antlr4:4.13.2")
     // https://mvnrepository.com/artifact/org.projectlombok/lombok
     implementation("org.projectlombok:lombok:1.18.42")
+    implementation("com.google.code.gson:gson:2.13.1")
 }
