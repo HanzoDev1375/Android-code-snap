@@ -17,10 +17,9 @@ import org.antlr.v4.runtime.Token;
 public class CodeHighlighterCpp implements Highlighter {
 
   @Override
-  public SpannableStringBuilder highlight(LangType types, String code) throws Exception {
+  public SpannableStringBuilder highlight(LangType types, String code, ColorHelper colorHelper) throws Exception {
     SpannableStringBuilder sb = new SpannableStringBuilder();
     CPP14Lexer lexer = new CPP14Lexer(CharStreams.fromReader(new StringReader(code)));
-    ColorHelper colorHelper = new ColorHelper();
     BracketManager manager = new BracketManager();
     List<BracketPosition> bracketPositions = new ArrayList<>();
     int pretoken = -1;

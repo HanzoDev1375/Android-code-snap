@@ -43,6 +43,7 @@ public class SyntaxView extends ScrollView {
     code.setBackgroundColor(Color.TRANSPARENT);
     code.setSelection(code.getText().length());
     rows.setTextColor(color.getLinenumbercolor());
+    applyTheme();
     code.addTextChangedListener(
         new TextWatcher() {
           String oldText;
@@ -169,4 +170,15 @@ public class SyntaxView extends ScrollView {
     return lineCode.findLineEnd();
   }
 
+  public void applyTheme() {
+    
+    rows.setTextColor(color.getLinenumbercolor());
+    setCodeBackgroundColor(Color.TRANSPARENT); 
+    setTextColor(color.getTextnormal());
+    invalidate();
+  }
+  public void setColorHelper(ColorHelper colorHelper) {
+    this.color = colorHelper;
+    applyTheme();
+  }
 }

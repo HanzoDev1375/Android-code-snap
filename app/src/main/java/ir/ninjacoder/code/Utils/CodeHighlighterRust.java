@@ -13,11 +13,11 @@ import org.antlr.v4.runtime.Token;
 public class CodeHighlighterRust implements Highlighter {
 
   @Override
-  public SpannableStringBuilder highlight(LangType types, String code) throws Exception {
+  public SpannableStringBuilder highlight(LangType types, String code,ColorHelper color) throws Exception {
     var builder = new SpannableStringBuilder();
     var lexer = new RustLexer(CharStreams.fromReader(new StringReader(code)));
     Token token;
-    ColorHelper color = new ColorHelper();
+    
     int pretoken = -1;
     int type;
     while ((token = lexer.nextToken()) != null) {

@@ -97,8 +97,6 @@ public class CodeEditText extends AppCompatMultiAutoCompleteTextView {
     int length = text.length();
     char before = (cursorPos > 0) ? text.charAt(cursorPos - 1) : 0;
     char at = (cursorPos < length) ? text.charAt(cursorPos) : 0;
-
-    // 🔹 چک کن آیا کرسر چسبیده به براکت باز یا بسته هست
     if (isBracket(before)) {
       highlightBracketPair(cursorPos - 1);
     } else if (isBracket(at)) {

@@ -25,9 +25,7 @@ public class CodeHighlighterJava implements Highlighter {
 
 
   @Override
-  public SpannableStringBuilder highlight(LangType lang, String code) throws Exception {
-
-    ColorHelper colorHelper = new ColorHelper();
+  public SpannableStringBuilder highlight(LangType lang, String code,ColorHelper colorHelper) throws Exception {
      BracketManager manager = new BracketManager();
     JavaLexer lexer = new JavaLexer(CharStreams.fromReader(new StringReader(code)));
     SpannableStringBuilder sb = new SpannableStringBuilder();

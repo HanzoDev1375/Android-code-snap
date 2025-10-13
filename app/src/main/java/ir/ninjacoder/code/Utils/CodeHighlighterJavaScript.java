@@ -15,8 +15,8 @@ import org.antlr.v4.runtime.Token;
 public class CodeHighlighterJavaScript implements Highlighter {
 
   @Override
-  public SpannableStringBuilder highlight(LangType types, String code) throws Exception {
-    ColorHelper color = new ColorHelper();
+  public SpannableStringBuilder highlight(LangType types, String code,ColorHelper color) throws Exception {
+    
     JavaScriptLexer lexer = new JavaScriptLexer(CharStreams.fromReader(new StringReader(code)));
     SpannableStringBuilder sb = new SpannableStringBuilder();
     Token token;

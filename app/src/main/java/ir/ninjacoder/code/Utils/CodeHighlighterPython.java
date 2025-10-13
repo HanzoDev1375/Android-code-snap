@@ -14,14 +14,14 @@ import org.antlr.v4.runtime.Token;
 public class CodeHighlighterPython implements Highlighter {
 
   @Override
-  public SpannableStringBuilder highlight(LangType types, String code) throws Exception {
+  public SpannableStringBuilder highlight(LangType types, String code,ColorHelper color) throws Exception {
 
     SpannableStringBuilder builder = new SpannableStringBuilder();
     PythonLexerCompat lexer = new PythonLexerCompat(CharStreams.fromReader(new StringReader(code)));
     int type;
     int pretoken = -1;
     Token token;
-    ColorHelper color = new ColorHelper();
+     
     while ((token = lexer.nextToken()) != null) {
       type = token.getType();
       if (type == PythonLexerCompat.EOF) break;

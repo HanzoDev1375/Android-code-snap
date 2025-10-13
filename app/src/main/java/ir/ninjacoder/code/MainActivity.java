@@ -5,6 +5,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import ir.ninjacoder.code.colorhelper.ColorHelper;
+import ir.ninjacoder.code.colorhelper.ThemeManager;
 import ir.ninjacoder.code.databinding.ActivityMainBinding;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
     List<LangType> list = Arrays.asList(LangType.values());
     binding.sp.setAdapter(
         new ArrayAdapter<LangType>(
-            getBaseContext(), android.R.layout.simple_expandable_list_item_1, list));
+            getBaseContext(), android.R.layout.simple_spinner_item, list));
     int position = list.indexOf(binding.et.getType());
     if (position >= 0) {
       binding.sp.setSelection(position);
@@ -40,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
           @Override
           public void onNothingSelected(AdapterView<?> ad) {}
         });
+        binding.et.setTheme(ThemeManager.DARKTHEME);
+        setupThemeSpinner();
   }
 
   @Override
@@ -47,4 +51,28 @@ public class MainActivity extends AppCompatActivity {
     super.onDestroy();
     this.binding = null;
   }
+
+  private void setupThemeSpinner() {
+        
+        List<ThemeManager> themeList = Arrays.asList(ThemeManager.values());
+        
+        ArrayAdapter<ThemeManager> adapter = new ArrayAdapter<>(
+            this, 
+            android.R.layout.simple_spinner_item, 
+            themeList
+        );
+        binding.sptheme.setAdapter(adapter);
+        
+        binding.sptheme.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                ThemeManager selectedTheme = themeList.get(position);
+                binding.et.setTheme(selectedTheme);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+    }
 }

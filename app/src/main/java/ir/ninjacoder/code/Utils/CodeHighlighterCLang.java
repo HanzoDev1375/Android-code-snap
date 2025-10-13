@@ -16,9 +16,9 @@ import org.antlr.v4.runtime.Token;
 public class CodeHighlighterCLang implements Highlighter {
 
   @Override
-  public SpannableStringBuilder highlight(LangType types, String code) throws Exception {
+  public SpannableStringBuilder highlight(LangType types, String code,ColorHelper color) throws Exception {
     var builder = new SpannableStringBuilder();
-    ColorHelper color = new ColorHelper();
+    
     Token token;
     int type;
     int pretoken = -1;
