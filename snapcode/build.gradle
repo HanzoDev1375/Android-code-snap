@@ -1,6 +1,5 @@
 plugins {
     id 'com.android.library'
-    id 'maven-publish'
 }
 
 android {
@@ -10,6 +9,8 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 34
+        versionCode 1
+        versionName "1.0.0"
     }
     
     buildTypes {
@@ -26,24 +27,9 @@ android {
     buildFeatures {
         viewBinding true
     }
-}
-
-afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication) {
-                def releaseComponent = components.findByName('release')
-                if (releaseComponent != null) {
-                    from releaseComponent
-                } else {
-                    artifact("$buildDir/outputs/aar/${project.getName()}-release.aar")
-                }
-                
-                groupId = 'com.github.HanzoDev1375'
-                artifactId = 'CodeSnap'
-                version = '1.0.0'
-            }
-        }
+    
+    lint {
+        checkReleaseBuilds false
     }
 }
 
