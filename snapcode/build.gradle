@@ -1,6 +1,6 @@
 plugins {
     id 'com.android.library'
-    id 'maven-publish' 
+    id 'maven-publish'
 }
 
 android {
@@ -8,8 +8,8 @@ android {
     namespace 'ir.ninjacoder.codesnap'
     
     defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion 34
+        minSdk 21
+        targetSdk 34
         versionCode 1
         versionName "1.0.0"
     }
@@ -19,39 +19,38 @@ android {
             minifyEnabled false
         }
     }
-    
+    buildFeatures {
+        viewBinding true
+        
+    }
+    lint{
+        checkReleaseBuilds false
+    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
-     
-    buildFeatures {
-        viewBinding true
-    }
-    
-    lint {
-        checkReleaseBuilds false
-    }
 }
 
 dependencies {
-    implementation("com.google.android.material:material:1.12.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.2.1")
-    implementation("androidx.appcompat:appcompat:1.7.1")
-    implementation("org.antlr:antlr4:4.13.2")
-    implementation("com.google.code.gson:gson:2.13.1")
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
+    implementation 'org.antlr:antlr4:4.13.2'
+    implementation 'com.google.code.gson:gson:2.13.1'
 }
 
-
+// ساده‌ترین راه برای انتشار AAR
 afterEvaluate {
     publishing {
         publications {
-            release(MavenPublication) {
-                from components.findByName('release')
+            aar(MavenPublication) {
+                // استفاده از task دستی برای ساخت AAR
+                artifact bundleReleaseAar
                 
                 groupId = 'com.github.HanzoDev1375'
                 artifactId = 'CodeSnap'
-                version = '1.0'
+                version = '1.0.0'
             }
         }
     }
