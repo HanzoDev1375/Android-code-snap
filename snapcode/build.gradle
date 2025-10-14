@@ -39,18 +39,29 @@ dependencies {
     implementation 'org.antlr:antlr4:4.13.2'
     implementation 'com.google.code.gson:gson:2.13.1'
 }
-
-// ساده‌ترین راه برای انتشار AAR
 afterEvaluate {
     publishing {
         publications {
             aar(MavenPublication) {
-                // استفاده از task دستی برای ساخت AAR
-                artifact bundleReleaseAar
-                
+                artifact(bundleReleaseAar)
+
                 groupId = 'com.github.HanzoDev1375'
                 artifactId = 'CodeSnap'
                 version = '1.0.0'
+
+                pom {
+                    withXml {
+                        def dependenciesNode = asNode().appendNode('dependencies')
+                        configurations.implementation.allDependencies.each { dep ->
+                            if (dep.group && dep.name && dep.version) {
+                                def dependencyNode = dependenciesNode.appendNode('dependency')
+                                dependencyNode.appendNode('groupId', dep.group)
+                                dependencyNode.appendNode('artifactId', dep.name)
+                                dependencyNode.appendNode('version', dep.version)
+                            }
+                        }
+                    }
+                }
             }
         }
     }
