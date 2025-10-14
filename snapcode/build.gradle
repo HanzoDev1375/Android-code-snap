@@ -46,8 +46,8 @@ dependencies {
 afterEvaluate {
     publishing {
         publications {
-            
             release(MavenPublication) {
+                from components.findByName('release')
                 
                 groupId = 'com.github.HanzoDev1375'
                 artifactId = 'CodeSnap'
@@ -56,4 +56,3 @@ afterEvaluate {
         }
     }
 }
-
