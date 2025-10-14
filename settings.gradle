@@ -17,3 +17,4 @@ dependencyResolutionManagement {
 rootProject.name = "Code Snap"
 
 include(":app")
+include(":snapcode")
