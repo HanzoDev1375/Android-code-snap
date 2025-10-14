@@ -58,7 +58,7 @@ dependencyResolutionManagement {
 ```groovy
 
 dependencies {
-	        implementation 'com.github.HanzoDev1375:Android-code-snap:ed771aba4a'
+	        implementation 'com.github.HanzoDev1375:Android-code-snap:586598c41c'
 }
 
 
