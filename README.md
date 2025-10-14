@@ -9,7 +9,7 @@
 
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/HanzoDev1375/Android-code-snap/main/img/java.png" alt="Screenshot 1" style="width: 25%; height: auto; margin: 5px; border-radius: 9px;">
+  <img src="https://raw.githubusercontent.com/HanzoDev1375/Android-code-snap/main/img/java.png" alt="Screenshot 1" style="width:80%; height: 50%; margin: 3px;">
  
 </div>
 
