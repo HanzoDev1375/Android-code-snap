@@ -24,6 +24,8 @@
 - [x] php
 - [x] html
 - [x] css
+- [ ] kotlin
+- [ ] typescript
 
 
 ## Note

@@ -14,10 +14,12 @@ import androidx.core.content.ContextCompat;
 import ir.ninjacoder.code.databinding.ActivityMainBinding;
 import ir.ninjacoder.codesnap.LangType;
 import ir.ninjacoder.codesnap.colorhelper.ThemeManager;
+import ir.ninjacoder.codesnap.widget.editorbase.EffectType;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import kotlin.contracts.Effect;
 
 public class MainActivity extends AppCompatActivity {
   private ActivityMainBinding binding;
@@ -43,16 +45,15 @@ public class MainActivity extends AppCompatActivity {
           1000);
     }
     List<LangType> list = Arrays.asList(LangType.values());
-    binding.sp.setAdapter(
-        new ArrayAdapter<LangType>(getBaseContext(), android.R.layout.simple_spinner_item, list));
-    int position = list.indexOf(binding.et.getType());
-    if (position >= 0) {
-      binding.sp.setSelection(position);
-    }
+    var ad =
+        new ArrayAdapter<LangType>(getBaseContext(), android.R.layout.simple_spinner_item, list);
+    binding.sp.setAdapter(ad);
+    
     binding.btn.setOnClickListener(
         v -> {
           binding.et.takeScreenshot();
         });
+    ad.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     binding.sp.setOnItemSelectedListener(
         new AdapterView.OnItemSelectedListener() {
           @Override
@@ -74,6 +75,8 @@ public class MainActivity extends AppCompatActivity {
         .et
         .getEditor()
         .setFont(Typeface.createFromFile(new File("/storage/emulated/0/apk/ghostfont.ttf")));
+
+    setupef();
   }
 
   @Override
@@ -100,6 +103,31 @@ public class MainActivity extends AppCompatActivity {
 
           @Override
           public void onNothingSelected(AdapterView<?> parent) {}
+        });
+  }
+
+  void setupef() {
+    EffectType[] ts;
+    ts = EffectType.values();
+    ArrayAdapter<EffectType> adapter =
+        new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, ts);
+
+    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+    binding.speff.setAdapter(adapter);
+    binding.speff.setOnItemSelectedListener(
+        new AdapterView.OnItemSelectedListener() {
+          @Override
+          public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            EffectType selectedEffect = ts[position];
+            if (binding.et.getEditor().getCode() != null) {
+              binding.et.getEditor().getCode().setEffects(selectedEffect);
+            }
+          }
+
+          @Override
+          public void onNothingSelected(AdapterView<?> parent) {
+            
+          }
         });
   }
 }

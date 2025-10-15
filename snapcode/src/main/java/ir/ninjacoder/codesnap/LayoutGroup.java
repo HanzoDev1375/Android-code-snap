@@ -4,6 +4,7 @@ import android.animation.LayoutTransition;
 import android.content.ContentValues;
 import android.os.Build;
 import android.provider.MediaStore;
+import ir.ninjacoder.codesnap.widget.CodeEditText;
 import java.io.OutputStream;
 import java.io.IOException;
 import android.content.Context;
@@ -35,7 +36,7 @@ import java.io.FileOutputStream;
 
 public class LayoutGroup extends LinearLayout {
   private LayoutGroupBinding binding;
-  protected LangType type = LangType.PYTHON;
+  protected LangType type = LangType.JAVA;
   protected ColorHelper color;
 
   public LayoutGroup(Context c) {
@@ -63,15 +64,19 @@ public class LayoutGroup extends LinearLayout {
     binding.green.setBackground(ColorUtil.get(Color.YELLOW));
     color = new ColorHelper();
     String code =
-        """
-     class Main():
-        def __init__(): pass
-        def run(self,item,object):
-           print(item * 2)
-
-      d = Main()
-      d.run(2,220,100)
-    """;
+        "public class Main {\n"
+            + "    public static void main(String[] args) {\n"
+            + "        System.out.println(\"Hello World\");\n"
+            + "        \n"
+            + "        if (true) {\n"
+            + "            System.out.println(\"Inside if\");\n"
+            + "        }\n"
+            + "        \n"
+            + "        for (int i = 0; i < 10; i++) {\n"
+            + "            System.out.println(i);\n"
+            + "        }\n"
+            + "    }\n"
+            + "}";
     highlightText(code, binding.editor.getCode());
     color.addOnThemeChangeListener(
         new ColorHelper.OnThemeChangeListener() {
@@ -129,6 +134,10 @@ public class LayoutGroup extends LinearLayout {
     return binding.editor;
   }
 
+  public CodeEditText getCode() {
+    return getEditor().getCode();
+  }
+
   public void setTheme(ThemeManager theme) {
     color.setThememanager(theme);
   }
@@ -155,7 +164,6 @@ public class LayoutGroup extends LinearLayout {
   @Override
   protected void onDetachedFromWindow() {
     super.onDetachedFromWindow();
-    // حذف شنونده هنگام جدا شدن از ویو
     color.removeOnThemeChangeListener(
         new ColorHelper.OnThemeChangeListener() {
           @Override

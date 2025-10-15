@@ -15,6 +15,8 @@ import android.widget.EditText;
 import android.text.Layout;
 import android.graphics.Rect;
 import ir.ninjacoder.codesnap.widget.ad.SuggestionAdapter;
+import ir.ninjacoder.codesnap.widget.editorbase.EffectType;
+import ir.ninjacoder.codesnap.widget.editorbase.PowerModeEditText;
 import java.util.HashSet;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -26,7 +28,7 @@ import java.util.ArrayList;
 import ir.ninjacoder.codesnap.widget.ad.KeywordTokenizer;
 import android.content.res.Resources;
 
-public class CodeEditText extends AppCompatMultiAutoCompleteTextView {
+public class CodeEditText extends PowerModeEditText {
 
   private ColorHelper color = new ColorHelper();
   private BackgroundColorSpan currentSpan1, currentSpan2;
@@ -45,6 +47,13 @@ public class CodeEditText extends AppCompatMultiAutoCompleteTextView {
   private float minScale = 0.7f;
   private float maxScale = 2.0f;
   private boolean isZooming = false;
+
+  private OnFoldingToggleListener foldingToggleListener;
+  private boolean codeFoldingEnabled = true;
+
+  public interface OnFoldingToggleListener {
+    void onFoldingToggled(int lineNumber);
+  }
 
   public CodeEditText(Context context) {
     super(context);
@@ -103,6 +112,14 @@ public class CodeEditText extends AppCompatMultiAutoCompleteTextView {
         });
   }
 
+  public void setOnFoldingToggleListener(OnFoldingToggleListener listener) {
+    this.foldingToggleListener = listener;
+  }
+
+  public void setCodeFoldingEnabled(boolean enabled) {
+    this.codeFoldingEnabled = enabled;
+  }
+
   @Override
   public boolean onTouchEvent(MotionEvent event) {
     scaleGestureDetector.onTouchEvent(event);
@@ -132,14 +149,11 @@ public class CodeEditText extends AppCompatMultiAutoCompleteTextView {
     public boolean onScale(ScaleGestureDetector detector) {
       isZooming = true;
       float newScale = scaleFactor * detector.getScaleFactor();
-
       newScale = Math.max(minScale, Math.min(newScale, maxScale));
-
       if (Math.abs(newScale - scaleFactor) > 0.01f) {
         scaleFactor = newScale;
         applyZoom();
       }
-
       return true;
     }
 
@@ -174,26 +188,9 @@ public class CodeEditText extends AppCompatMultiAutoCompleteTextView {
     return scaleFactor;
   }
 
-  public void setMinZoom(float minZoom) {
-    this.minScale = minZoom;
-    if (scaleFactor < minScale) {
-      scaleFactor = minScale;
-      applyZoom();
-    }
-  }
-
-  public void setMaxZoom(float maxZoom) {
-    this.maxScale = maxZoom;
-    if (scaleFactor > maxScale) {
-      scaleFactor = maxScale;
-      applyZoom();
-    }
-  }
-
   private void highlightByCursor(int cursorPos) {
     Editable text = getText();
     if (text == null || text.length() == 0) return;
-
     removeOldHighlights(text);
 
     int length = text.length();
@@ -209,7 +206,6 @@ public class CodeEditText extends AppCompatMultiAutoCompleteTextView {
   private void highlightBracketPair(int pos) {
     Editable text = getText();
     if (text == null || pos < 0 || pos >= text.length()) return;
-
     removeOldHighlights(text);
     char c = text.charAt(pos);
 
@@ -223,15 +219,12 @@ public class CodeEditText extends AppCompatMultiAutoCompleteTextView {
   }
 
   private void applyHighlight(Editable text, int pos1, int pos2) {
-
     currentSpan1 = new BackgroundColorSpan(color.getBracketcolor());
     currentSpan2 = new BackgroundColorSpan(color.getBracketcolor());
     boldSpan1 = new StyleSpan(Typeface.BOLD);
     boldSpan2 = new StyleSpan(Typeface.BOLD);
-
     text.setSpan(currentSpan1, pos1, pos1 + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     text.setSpan(currentSpan2, pos2, pos2 + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-
     text.setSpan(boldSpan1, pos1, pos1 + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     text.setSpan(boldSpan2, pos2, pos2 + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
   }
@@ -241,7 +234,6 @@ public class CodeEditText extends AppCompatMultiAutoCompleteTextView {
     if (currentSpan2 != null) text.removeSpan(currentSpan2);
     if (boldSpan1 != null) text.removeSpan(boldSpan1);
     if (boldSpan2 != null) text.removeSpan(boldSpan2);
-
     currentSpan1 = null;
     currentSpan2 = null;
     boldSpan1 = null;
@@ -260,16 +252,9 @@ public class CodeEditText extends AppCompatMultiAutoCompleteTextView {
     return c == ')' || c == '}' || c == ']';
   }
 
-  private boolean isMatching(char open, char close) {
-    return (open == '(' && close == ')')
-        || (open == '{' && close == '}')
-        || (open == '[' && close == ']');
-  }
-
   private int findMatchingForward(String text, int start, char open) {
     char close = getMatchingClose(open);
     int depth = 0;
-
     for (int i = start + 1; i < text.length(); i++) {
       char c = text.charAt(i);
       if (c == open) depth++;
@@ -284,7 +269,6 @@ public class CodeEditText extends AppCompatMultiAutoCompleteTextView {
   private int findMatchingBackward(String text, int start, char close) {
     char open = getMatchingOpen(close);
     int depth = 0;
-
     for (int i = start - 1; i >= 0; i--) {
       char c = text.charAt(i);
       if (c == close) depth++;
@@ -320,47 +304,6 @@ public class CodeEditText extends AppCompatMultiAutoCompleteTextView {
     return 0;
   }
 
-  @Override
-  public void showDropDown() {
-    final Layout layout = getLayout();
-    final int position = getSelectionStart();
-    final int line = layout.getLineForOffset(position);
-    final int lineBottom = layout.getLineBottom(line);
-
-    int numberOfMatchedItems = getAdapter().getCount();
-
-    int maxNumberOfSuggestions = 8;
-    int autoCompleteItemHeightInDp = (int) (50 * Resources.getSystem().getDisplayMetrics().density);
-
-    if (numberOfMatchedItems > maxNumberOfSuggestions) {
-      numberOfMatchedItems = maxNumberOfSuggestions;
-    }
-
-    int dropDownHeight = getDropDownHeight();
-
-    int modifiedDropDownHeight = android.widget.LinearLayout.LayoutParams.WRAP_CONTENT;
-
-    if (dropDownHeight != modifiedDropDownHeight) {
-      dropDownHeight = modifiedDropDownHeight;
-    }
-
-    final Rect displayFrame = new Rect();
-    getGlobalVisibleRect(displayFrame);
-
-    int displayFrameHeight = displayFrame.height();
-
-    int verticalOffset = lineBottom + dropDownHeight;
-    if (verticalOffset > displayFrameHeight) {
-      verticalOffset = displayFrameHeight - autoCompleteItemHeightInDp;
-    }
-
-    setDropDownHeight(dropDownHeight);
-    setDropDownVerticalOffset(verticalOffset - displayFrameHeight - dropDownHeight);
-    setDropDownHorizontalOffset((int) layout.getPrimaryHorizontal(position));
-
-    super.showDropDown();
-  }
-
   public void setUpListSuggestions(ArrayList<String> listStr) {
     suggestionsList = new ArrayList<>();
     String myWord = currentWord(this);
@@ -373,56 +316,6 @@ public class CodeEditText extends AppCompatMultiAutoCompleteTextView {
     setAdapter(adapter);
   }
 
-  public void setList(ArrayList<String> listStr) {
-    this.suggestionsList1 = listStr;
-    addTextChangedListener(
-        new TextWatcher() {
-          @Override
-          public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-          @Override
-          public void onTextChanged(CharSequence s, int start, int before, int count) {
-            setUpListSuggestions(suggestionsList1);
-          }
-
-          @Override
-          public void afterTextChanged(Editable s) {}
-        });
-  }
-
-  public void setListFromContent() {
-    addTextChangedListener(
-        new TextWatcher() {
-          @Override
-          public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-          @Override
-          public void onTextChanged(CharSequence s, int start, int before, int count) {
-            suggestionsList1 = new ArrayList<>();
-            Matcher m = Pattern.compile("\\w+").matcher(getText().toString());
-            while (m.find()) {
-              suggestionsList1.add(m.group());
-            }
-            setUpListSuggestions(cleanlist(suggestionsList1));
-          }
-
-          @Override
-          public void afterTextChanged(Editable s) {}
-        });
-  }
-
-  private ArrayList<String> cleanlist(ArrayList<String> listStr) {
-    ArrayList<String> myList = new ArrayList<>();
-    if (listStr != null && listStr.size() > 0) {
-      listStr.remove(suggestionsList1.size() - 1);
-    }
-    HashSet<String> list = new HashSet<>(listStr);
-    for (String one : list) {
-      myList.add(one);
-    }
-    return myList;
-  }
-
   public String currentWord(EditText editText) {
     Spannable textSpan = editText.getText();
     final int selection = editText.getSelectionStart();
@@ -430,7 +323,6 @@ public class CodeEditText extends AppCompatMultiAutoCompleteTextView {
     final Matcher matcher = pattern.matcher(textSpan);
     int start = 0;
     int end = 0;
-
     String currentWord = "";
     while (matcher.find()) {
       start = matcher.start();
@@ -440,7 +332,14 @@ public class CodeEditText extends AppCompatMultiAutoCompleteTextView {
         break;
       }
     }
-
     return currentWord;
+  }
+
+  public EffectType getEffectType() {
+    return getEffectTypes();
+  }
+
+  public void setEffects(EffectType type) {
+    setEffect(type);
   }
 }
