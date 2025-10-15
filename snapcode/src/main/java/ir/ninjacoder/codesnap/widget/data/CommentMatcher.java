@@ -48,11 +48,11 @@ public class CommentMatcher {
         int contentStart = fstringBuilder.length();
         fstringBuilder.append(innerContent);
         int contentEnd = fstringBuilder.length();
-       fstringBuilder.setSpan(
-          new UnderlineSpan(),
-          contentStart,
-          contentEnd,
-          SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+        fstringBuilder.setSpan(
+            new UnderlineSpan(),
+            contentStart,
+            contentEnd,
+            SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
         fstringBuilder.setSpan(
             new StyleSpan(Typeface.BOLD_ITALIC),
             contentStart,
@@ -199,6 +199,156 @@ public class CommentMatcher {
     }
 
     return commentBuilder;
+  }
+
+  public static SpannableStringBuilder getKtFString(String ktStringText, ColorHelper colorHelper) {
+    SpannableStringBuilder ktStringBuilder = new SpannableStringBuilder();
+
+    // الگوی بهبود یافته برای تمپلیت‌های کاتلین
+    Pattern ktExprPattern = Pattern.compile("\\$(?:\\{(.*?)\\}|([a-zA-Z_][a-zA-Z0-9_]*))");
+    Matcher ktExprMatcher = ktExprPattern.matcher(ktStringText);
+
+    int lastEnd = 0;
+
+    while (ktExprMatcher.find()) {
+      int exprStart = ktExprMatcher.start();
+      int exprEnd = ktExprMatcher.end();
+
+      // متن عادی قبل از تمپلیت
+      if (exprStart > lastEnd) {
+        String normalText = ktStringText.substring(lastEnd, exprStart);
+        ktStringBuilder.append(
+            normalText,
+            new ForegroundColorSpan(colorHelper.getStrings()),
+            SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+      }
+
+      // محتوای درونی تمپلیت
+      String innerContent = ktExprMatcher.group(1); // برای ${...}
+      if (innerContent == null) {
+        innerContent = ktExprMatcher.group(2); // برای $متغیر
+      }
+
+      // علامت دلار
+      int dollarStart = ktStringBuilder.length();
+      ktStringBuilder.append("$");
+      int dollarEnd = ktStringBuilder.length();
+      ktStringBuilder.setSpan(
+          new StyleSpan(Typeface.BOLD),
+          dollarStart,
+          dollarEnd,
+          SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+      ktStringBuilder.setSpan(
+          new ForegroundColorSpan(colorHelper.getVariable()),
+          dollarStart,
+          dollarEnd,
+          SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+      // پردازش محتوای درونی
+      if (ktExprMatcher.group(1) != null) {
+        // حالت ${expression}
+        addBracesAndContent(ktStringBuilder, innerContent, colorHelper);
+      } else {
+        // حالت $variable
+        addVariableContent(ktStringBuilder, innerContent, colorHelper);
+      }
+
+      lastEnd = exprEnd;
+    }
+
+    // متن باقیمانده
+    if (lastEnd < ktStringText.length()) {
+      String remainingText = ktStringText.substring(lastEnd);
+      ktStringBuilder.append(
+          remainingText,
+          new ForegroundColorSpan(colorHelper.getStrings()),
+          SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+
+    return ktStringBuilder;
+  }
+
+  // متد کمکی برای اضافه کردن محتوای ${...}
+  private static void addBracesAndContent(
+      SpannableStringBuilder builder, String content, ColorHelper colorHelper) {
+    if (content == null) return;
+
+    // آکولاد باز
+    int braceStart = builder.length();
+    builder.append("{");
+    int braceEnd = builder.length();
+    builder.setSpan(
+        new StyleSpan(Typeface.BOLD),
+        braceStart,
+        braceEnd,
+        SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+    builder.setSpan(
+        new ForegroundColorSpan(colorHelper.getSymbol()),
+        braceStart,
+        braceEnd,
+        SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+    // محتوای درونی
+    if (!content.isEmpty()) {
+      int contentStart = builder.length();
+      builder.append(content);
+      int contentEnd = builder.length();
+      builder.setSpan(
+          new UnderlineSpan(),
+          contentStart,
+          contentEnd,
+          SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+      builder.setSpan(
+          new StyleSpan(Typeface.BOLD_ITALIC),
+          contentStart,
+          contentEnd,
+          SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+      builder.setSpan(
+          new ForegroundColorSpan(colorHelper.getVariable()),
+          contentStart,
+          contentEnd,
+          SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+
+    // آکولاد بسته
+    braceStart = builder.length();
+    builder.append("}");
+    braceEnd = builder.length();
+    builder.setSpan(
+        new StyleSpan(Typeface.BOLD),
+        braceStart,
+        braceEnd,
+        SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+    builder.setSpan(
+        new ForegroundColorSpan(colorHelper.getSymbol()),
+        braceStart,
+        braceEnd,
+        SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+  }
+
+  // متد کمکی برای اضافه کردن متغیر ساده
+  private static void addVariableContent(
+      SpannableStringBuilder builder, String content, ColorHelper colorHelper) {
+    if (content != null && !content.isEmpty()) {
+      int contentStart = builder.length();
+      builder.append(content);
+      int contentEnd = builder.length();
+      builder.setSpan(
+          new UnderlineSpan(),
+          contentStart,
+          contentEnd,
+          SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+      builder.setSpan(
+          new StyleSpan(Typeface.BOLD_ITALIC),
+          contentStart,
+          contentEnd,
+          SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+      builder.setSpan(
+          new ForegroundColorSpan(colorHelper.getVariable()),
+          contentStart,
+          contentEnd,
+          SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
   }
 
   class LinkDetector {

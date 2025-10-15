@@ -24,6 +24,8 @@ public class CodeImpl implements Highlighter {
       return new CodeHighlighterCLang().highlight(type, code, color);
     } else if (type == LangType.HTML || type == LangType.PHP || type == LangType.CSS) {
       return new CodeHighlighterWeb().highlight(type, code, color);
+    }else if(type == LangType.KOTLIN) {
+    	return new CodeHighlighterKt().highlight(type, code, color);
     }
     return null;
   }
