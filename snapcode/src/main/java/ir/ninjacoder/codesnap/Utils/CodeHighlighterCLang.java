@@ -10,15 +10,17 @@ import java.io.StringReader;
 import java.util.List;
 import ir.ninjacoder.codesnap.bracket.BracketPosition;
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Token;
 
 public class CodeHighlighterCLang implements Highlighter {
 
   @Override
-  public SpannableStringBuilder highlight(LangType types, String code,ColorHelper color) throws Exception {
+  public SpannableStringBuilder highlight(LangType types, String code, ColorHelper color)
+      throws Exception {
     var builder = new SpannableStringBuilder();
-    
+
     Token token;
     int type;
     int pretoken = -1;
@@ -147,22 +149,48 @@ public class CodeHighlighterCLang implements Highlighter {
         case CLexer.Identifier:
           {
             int col = color.getTextnormal();
-            if (pretoken == CLexer.Dot) col = color.getPredot();
-            if (ObjectUtils.getNextLexer(lexer, '.')) col = color.getLastdot();
-            if (pretoken == CLexer.Void) {
-              col = color.getMethod();
+            String text = token.getText();
+            if (pretoken == CLexer.Struct || pretoken == CLexer.Typedef) {
+              col = color.getMethod(); // تعریف type یا struct
+            } else if (pretoken == CLexer.Dot || pretoken == CLexer.Arrow) {
+              col = color.getPredot(); // دسترسی به member
+            } else if (pretoken == CLexer.Int
+                || pretoken == CLexer.Void
+                || pretoken == CLexer.Float
+                || pretoken == CLexer.Double
+                || pretoken == CLexer.Char
+                || pretoken == CLexer.Bool
+                || pretoken == CLexer.Short
+                || pretoken == CLexer.Long
+                || pretoken == CLexer.Unsigned
+                || pretoken == CLexer.Signed
+                || pretoken == CLexer.Identifier) {
+              if (ObjectUtils.getNextLexer(lexer, '(')) {
+                col = color.getLastsymi(); 
+              } else {
+                col = color.getMethod();
+              }
+            } else if (pretoken == CLexer.Return) {
+              col = color.getVariable();
             }
-            if (pretoken == CLexer.Int) {
-              col = color.getMethod();
-            }
-            if (pretoken == CLexer.Bool) {
-              col = color.getMethod();
-            }
-            if (ObjectUtils.getNextLexer(lexer, '(') || ObjectUtils.getNextLexer(lexer, ')'))
+            if (ObjectUtils.getNextLexer(lexer, '(')) {
+              col = color.getLastsymi(); 
+            } else if (ObjectUtils.getNextLexer(lexer, '.')) {
+              col = color.getLastdot();
+            } else if (ObjectUtils.getNextLexer(lexer, '[')) {
               col = color.getPrebrak();
-            
+            }
+
+          
+            if (Character.isUpperCase(text.charAt(0))) {
+              Pattern p = Pattern.compile("^[A-Z][a-zA-Z0-9_]*$");
+              if (p.matcher(text).matches()) {
+                col = color.getUppercase();
+              }
+            }
+
             builder.append(
-                token.getText(),
+                text,
                 new ForegroundColorSpan(col),
                 SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
             break;

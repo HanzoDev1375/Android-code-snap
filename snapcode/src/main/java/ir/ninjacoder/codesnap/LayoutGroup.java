@@ -7,6 +7,7 @@ import android.graphics.pdf.PdfDocument;
 import android.os.Build;
 import android.provider.MediaStore;
 import androidx.annotation.RequiresApi;
+import ir.ninjacoder.codesnap.colorhelper.ThemeLoader;
 import ir.ninjacoder.codesnap.widget.CodeEditText;
 import java.io.OutputStream;
 import java.io.IOException;
@@ -135,6 +136,14 @@ public class LayoutGroup extends LinearLayout {
     return this.color;
   }
 
+  public ThemeLoader getTheme() {
+    return this.color.getTheme();
+  }
+
+  public void setThemeCustom(String path) {
+    getTheme().setPath(path);
+  }
+
   public SyntaxView getEditor() {
     return binding.editor;
   }
@@ -221,7 +230,11 @@ public class LayoutGroup extends LinearLayout {
         fileName = "screenshot_" + (String) DateFormat.format("yyyy-MM-dd_HH-mm-ss", now) + ".webp";
         break;
       case PDF:
-        fileName = "screenshot_" + (String) DateFormat.format("yyyy-MM-dd_HH-mm-ss", now) + type.getLangname() + ".pdf";
+        fileName =
+            "screenshot_"
+                + (String) DateFormat.format("yyyy-MM-dd_HH-mm-ss", now)
+                + type.getLangname()
+                + ".pdf";
         break;
       default:
         fileName = "screenshot_" + (String) DateFormat.format("yyyy-MM-dd_HH-mm-ss", now) + ".png";

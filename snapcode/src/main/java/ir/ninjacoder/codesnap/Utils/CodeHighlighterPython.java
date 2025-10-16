@@ -9,6 +9,9 @@ import ir.ninjacoder.codesnap.colorhelper.ColorHelper;
 import ir.ninjacoder.codesnap.widget.data.CommentMatcher;
 import java.io.StringReader;
 import java.util.Arrays;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.regex.Pattern;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Token;
 
@@ -139,60 +142,61 @@ public class CodeHighlighterPython implements Highlighter {
 
         case PythonLexerCompat.IDENTIFIER:
           {
-            int colorid = color.getTextnormal();
+            int colorId = color.getTextnormal();
+            String text = token.getText();
 
             if (pretoken == PythonLexerCompat.CLASS || pretoken == PythonLexerCompat.DEF) {
-              colorid = color.getSymbol();
-            }
-            String[] colorRow = {"print", "range"};
-            if (token.getText().equals(Arrays.asList(colorRow))) {
-              colorid = color.getVariable();
-            }
-            if (pretoken == PythonLexerCompat.IF) {
-              colorid = color.getOperator();
-            }
-            if (pretoken == PythonLexerCompat.FROM) {
-              colorid = color.getOperator();
-            }
-            if (pretoken == PythonLexerCompat.IMPORT) {
-              colorid = color.getOperator();
+              colorId = color.getMethod();
+            } else if (pretoken == PythonLexerCompat.FROM
+                || pretoken == PythonLexerCompat.IMPORT
+                || pretoken == PythonLexerCompat.AS) {
+              colorId = color.getOperator();
+            } else if (pretoken == PythonLexerCompat.AT) {
+              colorId = color.getSymbol();
+            } else if (pretoken == PythonLexerCompat.RETURN
+                || pretoken == PythonLexerCompat.YIELD) {
+              colorId = color.getVariable();
+            } else if (pretoken == PythonLexerCompat.IF
+                || pretoken == PythonLexerCompat.ELIF
+                || pretoken == PythonLexerCompat.WHILE
+                || pretoken == PythonLexerCompat.FOR) {
+              colorId = color.getOperator();
+            } else if (pretoken == PythonLexerCompat.IDENTIFIER) {
+
+              if (ObjectUtils.getNextLexer(lexer, '(')) {
+                colorId = color.getLastsymi();
+              }
             }
 
-            if (pretoken == PythonLexerCompat.AT) {
-              colorid = color.getSymbol();
-            }
-            if (pretoken == PythonLexerCompat.LPAR || pretoken == PythonLexerCompat.RPAR) {
-              colorid = color.getPrebrak();
-            }
-            if (pretoken == PythonLexerCompat.OR
-                || pretoken == PythonLexerCompat.DOT
-                || pretoken == PythonLexerCompat.RETURN
-                || pretoken == PythonLexerCompat.YIELD
-                || pretoken == PythonLexerCompat.COLON) {
-              colorid = color.getPrebrak();
-            }
-
-            // next
             if (ObjectUtils.getNextLexer(lexer, '(')) {
-              colorid = color.getVariable();
-            }
-            if (ObjectUtils.getNextLexer(lexer, '.')) {
-              colorid = color.getLastdot();
-            }
-            if (ObjectUtils.getNextLexer(lexer, ',')) {
-              colorid = color.getLastsymi();
+              colorId = color.getVariable();
+            } else if (ObjectUtils.getNextLexer(lexer, '.')) {
+              colorId = color.getLastdot();
+            } else if (ObjectUtils.getNextLexer(lexer, '[')) {
+              colorId = color.getPrebrak();
+            } else if (ObjectUtils.getNextLexer(lexer, ':')) {
+              colorId = color.getMethod();
             }
 
-            // -> strRPAR
-            if (ObjectUtils.getNextLexer(lexer, '>')) {
-              colorid = color.getVariable();
+            Set<String> builtinFuncs =
+                new HashSet<>(
+                    Arrays.asList(
+                        "print", "range", "len", "input", "int", "str", "list", "dict", "set",
+                        "tuple", "open"));
+            if (builtinFuncs.contains(text)) {
+              colorId = color.getVariable();
             }
-            if (ObjectUtils.getNextLexer(lexer, ':')) {
-              colorid = color.getMethod();
+
+            if (Character.isUpperCase(text.charAt(0))) {
+              Pattern pattern = Pattern.compile("^[A-Z][a-zA-Z0-9_]*$");
+              if (pattern.matcher(text).matches()) {
+                colorId = color.getUppercase();
+              }
             }
+
             builder.append(
-                token.getText(),
-                new ForegroundColorSpan(colorid),
+                text,
+                new ForegroundColorSpan(colorId),
                 SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
             break;
           }

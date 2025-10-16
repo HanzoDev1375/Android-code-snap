@@ -28,9 +28,11 @@ public class ColorHelper {
   protected int cardbackground;
   protected int cardstorkecolor;
   protected ThemeManager thememanager = ThemeManager.DARKTHEME;
+  private ThemeLoader theme;
 
   public ColorHelper() {
     updateTheme();
+    theme = new ThemeLoader();
   }
 
   void updateTheme() {
@@ -80,10 +82,148 @@ public class ColorHelper {
       case CANDYTHEME:
         applyCandyTheme();
         break;
+      case AURORATHEME:
+        applyAuroraTheme();
+        break;
+      case LAVATHEME:
+        applyLavaTheme();
+        break;
+      case SANDTHEME:
+        applySandTheme();
+        break;
+      case NEONTHEME:
+        applyNeonTheme();
+        break;
+      case MOONGLOWTHEME:
+        applyMoonglowTheme();
+        break;
+      case CUSTOM:
+        customThemeFromJson();
+        break;
       default:
         applyDefaultTheme();
         break;
     }
+  }
+
+  protected void applyLavaTheme() {
+    keyword = Color.parseColor("#FFFF7E5F");
+    operator = Color.parseColor("#FFFF5533");
+    method = Color.parseColor("#FF00D47A");
+    variable = Color.parseColor("#FF8EEBFF");
+    symbol = Color.parseColor("#FFFFD166");
+    comment = Color.parseColor("#FF8A6A6A");
+    lastdot = Color.parseColor("#FFFFC27A");
+    lastsymi = Color.parseColor("#FFFF8B66");
+    uppercase = Color.parseColor("#FFFFAFAF");
+    textnormal = Color.parseColor("#FFF8F8F2");
+    prebrak = Color.parseColor("#FFFF6B4F");
+    predot = Color.parseColor("#FF22C97A");
+    strings = Color.parseColor("#FFFFC371");
+    linenumbercolor = Color.parseColor("#FFFF9F7E");
+    bracketcolor = Color.parseColor("#33FF5533");
+    htmlkeyword = Color.parseColor("#FFFF7E5F");
+    htmlattr = Color.parseColor("#FF00D47A");
+    csskeyword = Color.parseColor("#FFFFA07A");
+    cssoprator = Color.parseColor("#FFFF5533");
+    cardbackground = Color.parseColor("#FF160900");
+    cardstorkecolor = Color.parseColor("#FF402A1A");
+  }
+
+  protected void applySandTheme() {
+    keyword = Color.parseColor("#FFE4B169");
+    operator = Color.parseColor("#FFFF8C42");
+    method = Color.parseColor("#FF9DC183");
+    variable = Color.parseColor("#FF87CEEB");
+    symbol = Color.parseColor("#FFFFD97D");
+    comment = Color.parseColor("#FF9E8966");
+    lastdot = Color.parseColor("#FFFFC76B");
+    lastsymi = Color.parseColor("#FFE0A45C");
+    uppercase = Color.parseColor("#FFF1C27D");
+    textnormal = Color.parseColor("#FFF6EFD2");
+    prebrak = Color.parseColor("#FFFFA34A");
+    predot = Color.parseColor("#FFB2E59F");
+    strings = Color.parseColor("#FFEEDC9A");
+    linenumbercolor = Color.parseColor("#FFC2A76B");
+    bracketcolor = Color.parseColor("#33D1B37C");
+    htmlkeyword = Color.parseColor("#FFE4B169");
+    htmlattr = Color.parseColor("#FF9DC183");
+    csskeyword = Color.parseColor("#FF87CEEB");
+    cssoprator = Color.parseColor("#FFFF8C42");
+    cardbackground = Color.parseColor("#FF3B2F25");
+    cardstorkecolor = Color.parseColor("#FF6A5949");
+  }
+
+  protected void applyAuroraTheme() {
+    keyword = Color.parseColor("#FF7C4DFF");
+    operator = Color.parseColor("#FFFF6E6E");
+    method = Color.parseColor("#FF5EF38C");
+    variable = Color.parseColor("#FF7DD3FF");
+    symbol = Color.parseColor("#FFFFD56A");
+    comment = Color.parseColor("#FF7B6E9E");
+    lastdot = Color.parseColor("#FFFFC178");
+    lastsymi = Color.parseColor("#FF9C6BFF");
+    uppercase = Color.parseColor("#FFC2A3FF");
+    textnormal = Color.parseColor("#FFF8F8F2");
+    prebrak = Color.parseColor("#FFFF7575");
+    predot = Color.parseColor("#FF4DF2A0");
+    strings = Color.parseColor("#FFF5E8A3");
+    linenumbercolor = Color.parseColor("#FF9D89CC");
+    bracketcolor = Color.parseColor("#334D2AFF");
+    htmlkeyword = Color.parseColor("#FF9C6BFF");
+    htmlattr = Color.parseColor("#FF5EF38C");
+    csskeyword = Color.parseColor("#FF7C4DFF");
+    cssoprator = Color.parseColor("#FFFF6E6E");
+    cardbackground = Color.parseColor("#FF0B1020");
+    cardstorkecolor = Color.parseColor("#FF444566");
+  }
+
+  protected void applyNeonTheme() {
+    keyword = Color.parseColor("#FFB38CFF");
+    operator = Color.parseColor("#FFFF3B3B");
+    method = Color.parseColor("#FF00FF9E");
+    variable = Color.parseColor("#FF57E7FF");
+    symbol = Color.parseColor("#FFFFF36B");
+    comment = Color.parseColor("#FF6B6B7A");
+    lastdot = Color.parseColor("#FFFFD28F");
+    lastsymi = Color.parseColor("#FFB37FFF");
+    uppercase = Color.parseColor("#FFD89BFF");
+    textnormal = Color.parseColor("#FFF8F8F2");
+    prebrak = Color.parseColor("#FFFF5050");
+    predot = Color.parseColor("#FF00FF9E");
+    strings = Color.parseColor("#FFFFF68F");
+    linenumbercolor = Color.parseColor("#FF8AA8FF");
+    bracketcolor = Color.parseColor("#3340FF9E");
+    htmlkeyword = Color.parseColor("#FFB38CFF");
+    htmlattr = Color.parseColor("#FF00FF9E");
+    csskeyword = Color.parseColor("#FF57E7FF");
+    cssoprator = Color.parseColor("#FFFF3B3B");
+    cardbackground = Color.parseColor("#FF0A0A10");
+    cardstorkecolor = Color.parseColor("#FF26263A");
+  }
+
+  protected void applyMoonglowTheme() {
+    keyword = Color.parseColor("#FFB9E0FF");
+    operator = Color.parseColor("#FFFF9A9A");
+    method = Color.parseColor("#FF98F5D6");
+    variable = Color.parseColor("#FFB8FFFF");
+    symbol = Color.parseColor("#FFFFEAA4");
+    comment = Color.parseColor("#FF9A97B0");
+    lastdot = Color.parseColor("#FFFFF1B2");
+    lastsymi = Color.parseColor("#FFC9D6FF");
+    uppercase = Color.parseColor("#FFD6E8FF");
+    textnormal = Color.parseColor("#FFF8F8F2");
+    prebrak = Color.parseColor("#FFFF9C9C");
+    predot = Color.parseColor("#FF7FFFD4");
+    strings = Color.parseColor("#FFF6F8C6");
+    linenumbercolor = Color.parseColor("#FFB4C7FF");
+    bracketcolor = Color.parseColor("#3339D3C6");
+    htmlkeyword = Color.parseColor("#FFB9E0FF");
+    htmlattr = Color.parseColor("#FF98F5D6");
+    csskeyword = Color.parseColor("#FFB8FFFF");
+    cssoprator = Color.parseColor("#FFFF9A9A");
+    cardbackground = Color.parseColor("#FF0E1220");
+    cardstorkecolor = Color.parseColor("#FF2A3045");
   }
 
   protected void applyDefaultTheme() {
@@ -159,27 +299,28 @@ public class ColorHelper {
   }
 
   protected void applyProgrammingTheme() {
-    keyword = Color.parseColor("#FFFF79C6");
+
+    keyword = Color.parseColor("#FFBD93F9");
     operator = Color.parseColor("#FFFF5555");
     method = Color.parseColor("#FF50FA7B");
     variable = Color.parseColor("#FF8BE9FD");
     symbol = Color.parseColor("#FFFFB86C");
     comment = Color.parseColor("#FF6272A4");
-    lastdot = Color.parseColor("#FFFFF68F");
+    lastdot = Color.parseColor("#FFFFAE77");
     lastsymi = Color.parseColor("#FFFF79C6");
-    uppercase = Color.parseColor("#FFBD93F9");
+    uppercase = Color.parseColor("#FFE8A2FF");
     textnormal = Color.parseColor("#FFF8F8F2");
-    prebrak = Color.parseColor("#FFFF5555");
-    predot = Color.parseColor("#FF50FA7B");
-    strings = Color.parseColor("#FFFFF68F");
-    linenumbercolor = Color.parseColor("#FFBD93F9");
+    prebrak = Color.parseColor("#FFFF6E6E");
+    predot = Color.parseColor("#FF5EF38C");
+    strings = Color.parseColor("#FFF1FA8C");
+    linenumbercolor = Color.parseColor("#FF9999CC");
     bracketcolor = Color.parseColor("#33FF79C6");
     htmlkeyword = Color.parseColor("#FFFF79C6");
     htmlattr = Color.parseColor("#FF50FA7B");
-    csskeyword = Color.parseColor("#FF8BE9FD");
-    cssoprator = Color.parseColor("#FFFF5555");
-    cardbackground = Color.parseColor("#FF282A36");
-    cardstorkecolor = Color.parseColor("#FF928F98");
+    csskeyword = Color.parseColor("#FFBD93F9");
+    cssoprator = Color.parseColor("#FFFF79C6");
+    cardbackground = Color.parseColor("#FF1E1F29");
+    cardstorkecolor = Color.parseColor("#FF44475A");
   }
 
   protected void applyghostTheme() {
@@ -642,5 +783,18 @@ public class ColorHelper {
 
   public void setCardstorkecolor(int cardstorkecolor) {
     this.cardstorkecolor = cardstorkecolor;
+  }
+
+  public void customThemeFromJson() {
+
+    theme.applyThemeFromJson(this);
+  }
+
+  public ThemeLoader getTheme() {
+    return this.theme;
+  }
+
+  public void setTheme(ThemeLoader theme) {
+    this.theme = theme;
   }
 }

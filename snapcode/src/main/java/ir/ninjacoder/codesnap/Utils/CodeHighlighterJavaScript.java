@@ -7,7 +7,11 @@ import ir.ninjacoder.codesnap.Utils.Highlighter;
 import ir.ninjacoder.codesnap.Utils.ObjectUtils;
 import ir.ninjacoder.codesnap.antlr4.JavaScriptLexer;
 import ir.ninjacoder.codesnap.colorhelper.ColorHelper;
+import ir.ninjacoder.codesnap.widget.data.CommentMatcher;
 import java.io.StringReader;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Arrays;
 import java.util.regex.Pattern;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Token;
@@ -15,8 +19,9 @@ import org.antlr.v4.runtime.Token;
 public class CodeHighlighterJavaScript implements Highlighter {
 
   @Override
-  public SpannableStringBuilder highlight(LangType types, String code,ColorHelper color) throws Exception {
-    
+  public SpannableStringBuilder highlight(LangType types, String code, ColorHelper color)
+      throws Exception {
+
     JavaScriptLexer lexer = new JavaScriptLexer(CharStreams.fromReader(new StringReader(code)));
     SpannableStringBuilder sb = new SpannableStringBuilder();
     Token token;
@@ -89,7 +94,6 @@ public class CodeHighlighterJavaScript implements Highlighter {
         case JavaScriptLexer.BitOrAssign:
         case JavaScriptLexer.PowerAssign:
         case JavaScriptLexer.ARROW:
-        case JavaScriptLexer.BackTick:
           sb.append(
               token.getText(),
               new ForegroundColorSpan(color.getOperator()),
@@ -156,83 +160,91 @@ public class CodeHighlighterJavaScript implements Highlighter {
               new ForegroundColorSpan(color.getKeyword()),
               SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
           break;
-
         case JavaScriptLexer.Identifier:
           {
-            boolean hasfunc = false;
+            boolean hasFunc = false;
+            int colorId = color.getTextnormal();
+            String text = token.getText();
 
-            int mycolor = color.getTextnormal();
             if (pretoken == JavaScriptLexer.Import || pretoken == JavaScriptLexer.From) {
-              mycolor = color.getLastsymi();
-            }
-
-            // symbol like in vscode
-            if (pretoken == JavaScriptLexer.Dot || pretoken == JavaScriptLexer.Colon) {
-              mycolor = color.getPredot();
-            }
-            if (pretoken == JavaScriptLexer.Function_
+              colorId = color.getLastsymi();
+            } else if (pretoken == JavaScriptLexer.Dot || pretoken == JavaScriptLexer.Colon) {
+              colorId = color.getPredot();
+            } else if (pretoken == JavaScriptLexer.Function_
                 || pretoken == JavaScriptLexer.Class
                 || pretoken == JavaScriptLexer.Package
                 || pretoken == JavaScriptLexer.Export
                 || pretoken == JavaScriptLexer.Extends) {
-              hasfunc = true;
-              mycolor = color.getMethod();
-            }
-            // var
-            if (pretoken == JavaScriptLexer.Var
+              hasFunc = true;
+              colorId = color.getMethod();
+            } else if (pretoken == JavaScriptLexer.Var
                 || pretoken == JavaScriptLexer.NonStrictLet
                 || pretoken == JavaScriptLexer.StrictLet
                 || pretoken == JavaScriptLexer.Const) {
-              hasfunc = true;
-              mycolor = color.getVariable();
-            }
-            // retrun and .....
-            if (pretoken == JavaScriptLexer.Return
+              hasFunc = true;
+              colorId = color.getVariable();
+            } else if (pretoken == JavaScriptLexer.Return
                 || pretoken == JavaScriptLexer.As
                 || pretoken == JavaScriptLexer.Interface
                 || pretoken == JavaScriptLexer.Yield) {
-              hasfunc = true;
-              mycolor = color.getPrebrak();
+              hasFunc = true;
+              colorId = color.getPrebrak();
             }
 
-            // next
             if (ObjectUtils.getNextLexer(lexer, '(')) {
-              mycolor = color.getLastsymi();
+              colorId = color.getLastsymi();
+            } else if (ObjectUtils.getNextLexer(lexer, '.')) {
+              colorId = color.getLastdot();
+            } else if (ObjectUtils.getNextLexer(lexer, '$')) {
+              colorId = color.getLastsymi();
+            } else if (ObjectUtils.getNextLexer(lexer, '>')) {
+              colorId = color.getSymbol();
+            } else if (ObjectUtils.getNextLexer(lexer, ':')) {
+              colorId = color.getSymbol();
             }
-            if (ObjectUtils.getNextLexer(lexer, '.')) {
-              mycolor = color.getLastdot();
-            }
-            if (ObjectUtils.getNextLexer(lexer, '$')) {
-              mycolor = color.getLastsymi();
+            Set<String> builtinNames =
+                new HashSet<>(
+                    Arrays.asList(
+                        "console",
+                        "window",
+                        "document",
+                        "Math",
+                        "JSON",
+                        "Promise",
+                        "Array",
+                        "Object",
+                        "String",
+                        "Number",
+                        "Boolean",
+                        "Symbol",
+                        "Set",
+                        "Map",
+                        "Date"));
+            if (builtinNames.contains(text)) {
+              colorId = color.getVariable();
             }
 
-            // -> str
-            if (ObjectUtils.getNextLexer(lexer, '>')) {
-              mycolor = color.getSymbol();
-            }
-            if (ObjectUtils.getNextLexer(lexer, ':')) {
-              mycolor = color.getSymbol();
-            }
-            if (!hasfunc) {
-              Pattern pattern = Pattern.compile("\\b[A-Z][a-zA-Z]*\\b");
-              var matcher = pattern.matcher(token.getText());
-              if (matcher.matches()) {
-
-                mycolor = color.getUppercase();
+            if (!hasFunc && Character.isUpperCase(text.charAt(0))) {
+              Pattern pattern = Pattern.compile("^[A-Z][a-zA-Z0-9_]*$");
+              if (pattern.matcher(text).matches()) {
+                colorId = color.getUppercase();
               }
             }
+
             sb.append(
-                token.getText(),
-                new ForegroundColorSpan(mycolor),
+                text,
+                new ForegroundColorSpan(colorId),
                 SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
             break;
           }
-
         case JavaScriptLexer.StringLiteral:
           sb.append(
               token.getText(),
               new ForegroundColorSpan(color.getStrings()),
               SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+          break;
+        case JavaScriptLexer.BikTikString:
+          sb.append(CommentMatcher.getKtFString(token.getText(), color));
           break;
         default:
           sb.append(

@@ -105,3 +105,62 @@ adding `xml` in your activity
    //see other method in MainActivity
   
 ```
+
+
+### Custom Theme
+
+- If you don't have an application class, create one. This is an example.
+
+``` java 
+
+import android.app.Application;
+import ir.ninjacoder.codesnap.colorhelper.ThemeLoader;
+
+public class App extends Application {
+  @Override
+  public void onCreate() {
+    super.onCreate();
+    ThemeLoader.init(this);
+    // TODO: Implement this method
+  }
+}
+
+
+```
+
+- Then call `ThemeLoader.in(this);` like the code above to create a custom theme.
+- Then in Android Manifest adding `android:name=".App"` or name your app class note adding in tag `application`
+- Then the method LayoutGroup#setThemeCustom Call and submit the theme path Currently, one custom theme is supported, in the future, multiple themes will be supported if the project is supported.
+
+
+### How to create a theme custom?
+
+```json
+{
+  "keyword": "#FFBD93F9",
+  "operator": "#FFFF5555",
+  "method": "#FF50FA7B",
+  "variable": "#FF8BE9FD",
+  "symbol": "#FFFFB86C",
+  "comment": "#FF6272A4",
+  "lastdot": "#FFFFAE77",
+  "lastsymi": "#FFFF79C6",
+  "uppercase": "#FFE8A2FF",
+  "textnormal": "#FFF8F8F2",
+  "prebrak": "#FFFF6E6E",
+  "predot": "#FF5EF38C",
+  "strings": "#FFF1FA8C",
+  "linenumbercolor": "#FF9999CC",
+  "bracketcolor": "#33FF79C6",
+  "htmlkeyword": "#FFFF79C6",
+  "htmlattr": "#FF50FA7B",
+  "csskeyword": "#FFBD93F9",
+  "cssoprator": "#FFFF79C6",
+  "cardbackground": "#FF1E1F29",
+  "cardstorkecolor": "#FF44475A"
+}
+
+```
+- using in json
+
+

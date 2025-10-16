@@ -74,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
         .setFont(Typeface.createFromFile(new File("/storage/emulated/0/apk/ghostfont.ttf")));
 
     setupef();
+    binding.et.setThemeCustom("/storage/emulated/0/Apktool_M/theme.json");
   }
 
   @Override
