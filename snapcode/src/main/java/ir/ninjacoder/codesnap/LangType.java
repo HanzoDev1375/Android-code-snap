@@ -11,7 +11,8 @@ public enum LangType {
   HTML(".html"),
   PHP(".php"),
   CSS(".css"),
-  KOTLIN(".kt");
+  KOTLIN(".kt"),
+  CSHARP(".cs");
 
   private final String langname;
 

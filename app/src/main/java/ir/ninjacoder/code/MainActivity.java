@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
 
     binding.btn.setOnClickListener(
         v -> {
-          binding.et.takeScreenshot(FormatImage.PDF);
+          binding.et.takeScreenshot(FormatImage.PNG);
         });
     ad.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     binding.sp.setOnItemSelectedListener(
@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
           @Override
           public void onNothingSelected(AdapterView<?> ad) {}
         });
-    binding.et.setTheme(ThemeManager.DARKTHEME);
+    binding.et.setTheme(ThemeManager.DEFAULTTHEME);
     setupThemeSpinner();
     binding.showline.setChecked(true);
     binding.showline.setOnCheckedChangeListener(

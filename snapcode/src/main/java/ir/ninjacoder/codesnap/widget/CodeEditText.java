@@ -89,7 +89,7 @@ public class CodeEditText extends PowerModeEditText {
     setTokenizer(mAutoCompleteTokenizer);
     setDropDownWidth(Resources.getSystem().getDisplayMetrics().widthPixels / 2);
     setCursorVisible(false);
-   
+
     gestureDetector = new GestureDetector(getContext(), new GestureListener());
     scaleGestureDetector = new ScaleGestureDetector(getContext(), new ScaleListener());
 
@@ -107,6 +107,9 @@ public class CodeEditText extends PowerModeEditText {
             if (cursorPos != lastCursorPos) {
               highlightByCursor(cursorPos);
               lastCursorPos = cursorPos;
+            }
+            if (isCursorVisible()) {
+              setCursorVisible(false);
             }
           }
         });
