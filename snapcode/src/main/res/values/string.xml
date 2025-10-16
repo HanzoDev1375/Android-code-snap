@@ -1,0 +1,7 @@
+<resources>
+    <string name="errortoshat">Error taking screenshot</string>
+    <string name="savedshat">screenshot successfully saved</string>
+    <string name="pdfsave">pdf saved in the document folder</string>
+    <string name="pdferror">Error saving or writing PDF</string>
+    <string name="foldererror">Error in folder creation</string>
+</resources>

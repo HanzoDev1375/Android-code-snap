@@ -1,17 +1,24 @@
 package ir.ninjacoder.code;
 
 import android.Manifest;
+import android.content.Intent;
+import android.os.Build;
+import android.os.Environment;
+import android.provider.Settings;
+import android.net.Uri;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import ir.ninjacoder.code.databinding.ActivityMainBinding;
+import ir.ninjacoder.codesnap.FormatImage;
 import ir.ninjacoder.codesnap.LangType;
 import ir.ninjacoder.codesnap.colorhelper.ThemeManager;
 import ir.ninjacoder.codesnap.widget.editorbase.EffectType;
@@ -33,25 +40,15 @@ public class MainActivity extends AppCompatActivity {
 
     // set content view to binding's root
     setContentView(binding.getRoot());
-    if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-            == PackageManager.PERMISSION_DENIED
-        || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            == PackageManager.PERMISSION_DENIED) {
-      ActivityCompat.requestPermissions(
-          this,
-          new String[] {
-            Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE
-          },
-          1000);
-    }
+    checkAndRequestPermissions();
     List<LangType> list = Arrays.asList(LangType.values());
     var ad =
         new ArrayAdapter<LangType>(getBaseContext(), android.R.layout.simple_spinner_item, list);
     binding.sp.setAdapter(ad);
-    
+
     binding.btn.setOnClickListener(
         v -> {
-          binding.et.takeScreenshot();
+          binding.et.takeScreenshot(FormatImage.PDF);
         });
     ad.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     binding.sp.setOnItemSelectedListener(
@@ -125,9 +122,54 @@ public class MainActivity extends AppCompatActivity {
           }
 
           @Override
-          public void onNothingSelected(AdapterView<?> parent) {
-            
-          }
+          public void onNothingSelected(AdapterView<?> parent) {}
         });
+  }
+
+  private void checkAndRequestPermissions() {
+    // برای اندروید 11 (API 30) و بالاتر - مدیریت تمام فایل‌ها
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+      if (!Environment.isExternalStorageManager()) {
+        // فقط اگر مجوز مدیریت فایل وجود ندارد، درخواست شود
+        try {
+          Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+          Uri uri = Uri.parse("package:" + getPackageName());
+          intent.setData(uri);
+          startActivityForResult(intent, 10);
+        } catch (Exception ex) {
+          Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+          startActivityForResult(intent, 10);
+        }
+      }
+    } else {
+
+      if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+              == PackageManager.PERMISSION_DENIED
+          || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+              == PackageManager.PERMISSION_DENIED) {
+        ActivityCompat.requestPermissions(
+            this,
+            new String[] {
+              Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE
+            },
+            1000);
+      }
+    }
+  }
+
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+     
+    if (requestCode == 10) {
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        if (Environment.isExternalStorageManager()) {
+           return;
+        } else {
+          Toast.makeText(this, "برای عملکرد کامل اپ، مجوز دسترسی لازم است", Toast.LENGTH_LONG)
+              .show();
+        }
+      }
+    }
   }
 }

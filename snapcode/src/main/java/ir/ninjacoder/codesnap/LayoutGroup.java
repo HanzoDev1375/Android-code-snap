@@ -2,8 +2,11 @@ package ir.ninjacoder.codesnap;
 
 import android.animation.LayoutTransition;
 import android.content.ContentValues;
+import android.graphics.Paint;
+import android.graphics.pdf.PdfDocument;
 import android.os.Build;
 import android.provider.MediaStore;
+import androidx.annotation.RequiresApi;
 import ir.ninjacoder.codesnap.widget.CodeEditText;
 import java.io.OutputStream;
 import java.io.IOException;
@@ -38,6 +41,8 @@ public class LayoutGroup extends LinearLayout {
   private LayoutGroupBinding binding;
   protected LangType type = LangType.JAVA;
   protected ColorHelper color;
+  protected String fileName;
+  protected FormatImage img = FormatImage.PNG;
 
   public LayoutGroup(Context c) {
     super(c);
@@ -199,9 +204,29 @@ public class LayoutGroup extends LinearLayout {
   }
 
   public void takeScreenshot() {
+    /// png
+    takeScreenshot(img);
+  }
+
+  public void takeScreenshot(FormatImage frm) {
     Date now = new Date();
-    String fileName =
-        "screenshot_" + (String) DateFormat.format("yyyy-MM-dd_HH-mm-ss", now) + ".png";
+    switch (frm) {
+      case PNG:
+        fileName = "screenshot_" + (String) DateFormat.format("yyyy-MM-dd_HH-mm-ss", now) + ".png";
+        break;
+      case JPEG:
+        fileName = "screenshot_" + (String) DateFormat.format("yyyy-MM-dd_HH-mm-ss", now) + ".jpg";
+        break;
+      case WEBP:
+        fileName = "screenshot_" + (String) DateFormat.format("yyyy-MM-dd_HH-mm-ss", now) + ".webp";
+        break;
+      case PDF:
+        fileName = "screenshot_" + (String) DateFormat.format("yyyy-MM-dd_HH-mm-ss", now) + type.getLangname() + ".pdf";
+        break;
+      default:
+        fileName = "screenshot_" + (String) DateFormat.format("yyyy-MM-dd_HH-mm-ss", now) + ".png";
+        break;
+    }
 
     try {
       View cardView = binding.card;
@@ -209,38 +234,53 @@ public class LayoutGroup extends LinearLayout {
       cardView.post(
           () -> {
             try {
-              // ایجاد bitmap از اندازه کارت
               Bitmap bitmap =
                   Bitmap.createBitmap(
                       cardView.getWidth(), cardView.getHeight(), Bitmap.Config.ARGB_8888);
 
               Canvas canvas = new Canvas(bitmap);
-
-              // کشیدن کارت روی canvas
               cardView.draw(canvas);
-
-              // ذخیره تصویر
-              saveBitmapToMediaStore(bitmap, fileName);
+              saveBitmapToMediaStore(bitmap, fileName, frm);
 
             } catch (Exception e) {
               e.printStackTrace();
-              Toast.makeText(getContext(), "خطا در گرفتن اسکرین شات", Toast.LENGTH_SHORT).show();
+              Toast.makeText(getContext(), get(R.string.errortoshat), Toast.LENGTH_SHORT).show();
             }
           });
 
     } catch (Throwable e) {
       e.printStackTrace();
-      Toast.makeText(getContext(), "خطا در گرفتن اسکرین شات", Toast.LENGTH_SHORT).show();
+      Toast.makeText(getContext(), get(R.string.errortoshat), Toast.LENGTH_SHORT).show();
     }
   }
 
-  private void saveBitmapToMediaStore(Bitmap bitmap, String fileName) {
+  private void saveBitmapToMediaStore(Bitmap bitmap, String fileName, FormatImage im) {
+    if (im == FormatImage.PDF) {
+      saveAsPdfNative(bitmap, fileName);
+      return;
+    }
+
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
       ContentValues contentValues = new ContentValues();
       contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, fileName);
-      contentValues.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
+
+      String mimeType = "image/png";
+      switch (im) {
+        case PNG:
+          mimeType = "image/png";
+          break;
+        case JPEG:
+          mimeType = "image/jpeg";
+          break;
+        case WEBP:
+          mimeType = "image/webp";
+          break;
+      }
+      contentValues.put(MediaStore.Images.Media.MIME_TYPE, mimeType);
+
       contentValues.put(
-          MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/apk");
+          MediaStore.Images.Media.RELATIVE_PATH,
+          Environment.DIRECTORY_PICTURES + "/AndroidCodeSnap");
 
       Uri uri =
           getContext()
@@ -248,46 +288,165 @@ public class LayoutGroup extends LinearLayout {
               .insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
 
       if (uri != null) {
-        try {
-          OutputStream outputStream = getContext().getContentResolver().openOutputStream(uri);
+        try (OutputStream outputStream = getContext().getContentResolver().openOutputStream(uri)) {
           if (outputStream != null) {
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-            outputStream.close();
-            Toast.makeText(getContext(), "اسکرین شات ذخیره شد", Toast.LENGTH_SHORT).show();
+            switch (im) {
+              case PNG:
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+                break;
+              case JPEG:
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+                break;
+              case WEBP:
+                bitmap.compress(Bitmap.CompressFormat.WEBP_LOSSY, 100, outputStream);
+                break;
+            }
+            Toast.makeText(getContext(), get(R.string.savedshat), Toast.LENGTH_SHORT).show();
           }
         } catch (IOException e) {
           e.printStackTrace();
-          Toast.makeText(getContext(), "خطا در ذخیره‌سازی", Toast.LENGTH_SHORT).show();
+          Toast.makeText(
+                  getContext(), get(R.string.errortoshat) + e.getMessage(), Toast.LENGTH_LONG)
+              .show();
         }
       }
     } else {
+      // کد برای اندروید پایین‌تر از Q (بدون PDF)
       try {
         File directory =
             new File(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                "APK_Screenshots");
+                "AndroidCodeSnap");
         if (!directory.exists()) {
           directory.mkdirs();
         }
 
         File imageFile = new File(directory, fileName);
-        FileOutputStream outputStream = new FileOutputStream(imageFile);
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-        outputStream.flush();
-        outputStream.close();
+        try (FileOutputStream outputStream = new FileOutputStream(imageFile)) {
+          switch (im) {
+            case PNG:
+              bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+              break;
+            case JPEG:
+              bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+              break;
+            case WEBP:
+              bitmap.compress(Bitmap.CompressFormat.WEBP_LOSSY, 100, outputStream);
+              break;
+          }
 
-        MediaScannerConnection.scanFile(
-            getContext(),
-            new String[] {imageFile.getAbsolutePath()},
-            new String[] {"image/png"},
-            null);
+          String mimeType = "image/png";
+          switch (im) {
+            case PNG:
+              mimeType = "image/png";
+              break;
+            case JPEG:
+              mimeType = "image/jpeg";
+              break;
+            case WEBP:
+              mimeType = "image/webp";
+              break;
+          }
 
-        Toast.makeText(getContext(), "اسکرین شات ذخیره شد", Toast.LENGTH_SHORT).show();
+          MediaScannerConnection.scanFile(
+              getContext(),
+              new String[] {imageFile.getAbsolutePath()},
+              new String[] {mimeType},
+              null);
 
+          Toast.makeText(getContext(), get(R.string.savedshat), Toast.LENGTH_SHORT).show();
+        }
       } catch (IOException e) {
         e.printStackTrace();
-        Toast.makeText(getContext(), "خطا در ذخیره‌سازی", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), get(R.string.errortoshat) + e.getMessage(), Toast.LENGTH_LONG)
+            .show();
       }
     }
+  }
+
+  @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+  private void saveAsPdfNative(Bitmap bitmap, String fileName) {
+    PdfDocument document = new PdfDocument();
+
+    try {
+      PdfDocument.PageInfo pageInfo =
+          new PdfDocument.PageInfo.Builder(bitmap.getWidth(), bitmap.getHeight(), 1).create();
+
+      PdfDocument.Page page = document.startPage(pageInfo);
+      Canvas canvas = page.getCanvas();
+      canvas.drawBitmap(bitmap, 0, 0, new Paint());
+      document.finishPage(page);
+
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MediaStore.Files.FileColumns.DISPLAY_NAME, fileName);
+        contentValues.put(MediaStore.Files.FileColumns.MIME_TYPE, "application/pdf");
+        contentValues.put(
+            MediaStore.Files.FileColumns.RELATIVE_PATH,
+            Environment.DIRECTORY_DOCUMENTS + "/AndroidCodeSnap");
+
+        Uri uri =
+            getContext()
+                .getContentResolver()
+                .insert(MediaStore.Files.getContentUri("external"), contentValues);
+
+        if (uri != null) {
+          try (OutputStream out = getContext().getContentResolver().openOutputStream(uri)) {
+            document.writeTo(out);
+            Toast.makeText(getContext(), get(R.string.pdfsave), Toast.LENGTH_SHORT).show();
+          } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(getContext(), get(R.string.pdferror) + e.getMessage(), Toast.LENGTH_LONG)
+                .show();
+          }
+        } else {
+          Toast.makeText(getContext(), get(R.string.pdferror), Toast.LENGTH_SHORT).show();
+        }
+      } else {
+
+        File directory =
+            new File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS),
+                "AndroidCodeSnap");
+
+        if (!directory.exists()) {
+          boolean created = directory.mkdirs();
+          if (!created) {
+            Toast.makeText(getContext(), get(R.string.foldererror), Toast.LENGTH_SHORT).show();
+            return;
+          }
+        }
+
+        File pdfFile = new File(directory, fileName);
+        try (FileOutputStream out = new FileOutputStream(pdfFile)) {
+          document.writeTo(out);
+          MediaScannerConnection.scanFile(
+              getContext(),
+              new String[] {pdfFile.getAbsolutePath()},
+              new String[] {"application/pdf"},
+              null);
+
+          Toast.makeText(getContext(), get(R.string.pdfsave), Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+          e.printStackTrace();
+          Toast.makeText(getContext(), get(R.string.pdferror) + e.getMessage(), Toast.LENGTH_LONG)
+              .show();
+        }
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      Toast.makeText(getContext(), get(R.string.pdferror) + e.getMessage(), Toast.LENGTH_LONG)
+          .show();
+    } finally {
+      document.close();
+    }
+  }
+
+  public FormatImage getFormatImage() {
+    return this.img;
+  }
+
+  private String get(int stringres) {
+    return getContext().getString(stringres);
   }
 }

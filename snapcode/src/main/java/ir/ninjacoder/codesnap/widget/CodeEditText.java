@@ -88,8 +88,8 @@ public class CodeEditText extends PowerModeEditText {
     if (mAutoCompleteTokenizer == null) mAutoCompleteTokenizer = new KeywordTokenizer();
     setTokenizer(mAutoCompleteTokenizer);
     setDropDownWidth(Resources.getSystem().getDisplayMetrics().widthPixels / 2);
-    setCursorVisible(true);
-
+    setCursorVisible(false);
+   
     gestureDetector = new GestureDetector(getContext(), new GestureListener());
     scaleGestureDetector = new ScaleGestureDetector(getContext(), new ScaleListener());
 
