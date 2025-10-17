@@ -32,7 +32,8 @@ public class SpanStyler extends SpannableStringBuilder {
     setSpan(new ForegroundColorSpan(color), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
     return this;
   }
-  public SpanStyler addNullText(String text){
+
+  public SpanStyler addNullText(String text) {
     append(text);
     return this;
   }
@@ -131,10 +132,12 @@ public class SpanStyler extends SpannableStringBuilder {
         append(matcher.group());
         setSpan(new ForegroundColorSpan(color), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
         setSpan(new StyleSpan(Typeface.BOLD), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
+        setSpan(new UnderlineSpan(), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
 
         lastIndex = matcher.end();
       }
       if (lastIndex < text.length()) {
+
         append(text.substring(lastIndex));
       }
     } else {
@@ -143,17 +146,20 @@ public class SpanStyler extends SpannableStringBuilder {
     return this;
   }
 
-  public SpanStyler commentjs(String text, int mentionColor, int bracketColor, int contentColor) {
-    // پترن برای شناسایی @mention و {model}
+  public SpanStyler commentjs(
+      String text, int mentionColor, int bracketColor, int contentColor, int normalColor) {
     Pattern pattern = Pattern.compile("(@\\w+)|(\\{[^}]+\\})");
     Matcher matcher = pattern.matcher(text);
     int lastIndex = 0;
 
     while (matcher.find()) {
 
+      // متن قبل از match فعلی (متن معمولی)
       String before = text.substring(lastIndex, matcher.start());
       if (!before.isEmpty()) {
+        int start = length();
         append(before);
+        setSpan(new ForegroundColorSpan(normalColor), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
       }
 
       String matchedText = matcher.group();
@@ -165,7 +171,7 @@ public class SpanStyler extends SpannableStringBuilder {
         setSpan(new ForegroundColorSpan(mentionColor), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
         setSpan(new StyleSpan(Typeface.BOLD), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
       } else if (matchedText.startsWith("{")) {
-        // {model} - براکت‌ها و متن داخلش جدا رنگی می‌شوند
+        // {model}
         int bracketStart = length();
         append("{");
         setSpan(
@@ -175,7 +181,6 @@ public class SpanStyler extends SpannableStringBuilder {
             SPAN_EXCLUSIVE_EXCLUSIVE);
         setSpan(new StyleSpan(Typeface.BOLD), bracketStart, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
 
-        // متن داخل براکت
         String content = matchedText.substring(1, matchedText.length() - 1);
         int contentStart = length();
         append(content);
@@ -185,7 +190,6 @@ public class SpanStyler extends SpannableStringBuilder {
             length(),
             SPAN_EXCLUSIVE_EXCLUSIVE);
 
-        // براکت بسته
         int bracketEnd = length();
         append("}");
         setSpan(
@@ -196,9 +200,11 @@ public class SpanStyler extends SpannableStringBuilder {
       lastIndex = matcher.end();
     }
 
-    // متن باقیمانده
+    // متن باقیمانده بعد از آخرین match
     if (lastIndex < text.length()) {
+      int start = length();
       append(text.substring(lastIndex));
+      setSpan(new ForegroundColorSpan(normalColor), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
     return this;
@@ -270,108 +276,79 @@ public class SpanStyler extends SpannableStringBuilder {
     return this;
   }
 
-  public SpanStyler ktstring(
-      String text, int dollarColor, int bracketColor, int contentColor, int normalColor) {
-    Pattern pattern = Pattern.compile("\\$(?:\\{(.*?)\\}|([a-zA-Z_][a-zA-Z0-9_]*))");
+  public SpanStyler backtik(
+      String text,
+      int mentionColor,
+      int bracketColor,
+      int contentColor,
+      int dollarColor,
+      int normalColor) {
+
+    // پترن برای شناسایی @mention، {model} و $keyword
+    Pattern pattern = Pattern.compile("(@\\w+)|(\\{[^}]+\\})|(\\$\\w+)");
     Matcher matcher = pattern.matcher(text);
-    int lastEnd = 0;
+    int lastIndex = 0;
 
     while (matcher.find()) {
-      int exprStart = matcher.start();
-      int exprEnd = matcher.end();
-
-      // متن عادی قبل از $
-      if (exprStart > lastEnd) {
-        String normalText = text.substring(lastEnd, exprStart);
-        append(normalText);
-        setSpan(
-            new ForegroundColorSpan(normalColor),
-            length() - normalText.length(),
-            length(),
-            SPAN_EXCLUSIVE_EXCLUSIVE);
+      // متن معمولی قبل از match فعلی
+      String before = text.substring(lastIndex, matcher.start());
+      if (!before.isEmpty()) {
+        int start = length();
+        append(before);
+        setSpan(new ForegroundColorSpan(normalColor), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
       }
 
-      String innerContent = matcher.group(1);
-      if (innerContent != null) {
-        // حالت ${}
+      String matchedText = matcher.group();
 
-        // $ با رنگ و استایل جدا
-        int dollarStart = length();
-        append("$");
-        setSpan(
-            new ForegroundColorSpan(dollarColor), dollarStart, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
-        setSpan(new StyleSpan(Typeface.BOLD), dollarStart, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
+      if (matchedText.startsWith("@")) {
+        // @mention
+        int start = length();
+        append(matchedText);
+        setSpan(new ForegroundColorSpan(mentionColor), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
+        setSpan(new StyleSpan(Typeface.BOLD), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
 
-        // { با رنگ و استایل جدا
-        int braceStart = length();
+      } else if (matchedText.startsWith("{")) {
+        // {model}
+        int bracketStart = length();
         append("{");
         setSpan(
-            new ForegroundColorSpan(bracketColor), braceStart, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
-        setSpan(new StyleSpan(Typeface.BOLD), braceStart, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
+            new ForegroundColorSpan(bracketColor),
+            bracketStart,
+            length(),
+            SPAN_EXCLUSIVE_EXCLUSIVE);
+        setSpan(new StyleSpan(Typeface.BOLD), bracketStart, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
 
-        // محتوای داخل {}
-        if (!innerContent.isEmpty()) {
-          int contentStart = length();
-          append(innerContent);
-          setSpan(
-              new ForegroundColorSpan(contentColor),
-              contentStart,
-              length(),
-              SPAN_EXCLUSIVE_EXCLUSIVE);
-          setSpan(
-              new StyleSpan(Typeface.BOLD_ITALIC),
-              contentStart,
-              length(),
-              SPAN_EXCLUSIVE_EXCLUSIVE);
-          setSpan(new UnderlineSpan(), contentStart, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
-        }
+        String content = matchedText.substring(1, matchedText.length() - 1);
+        int contentStart = length();
+        append(content);
+        setSpan(
+            new ForegroundColorSpan(contentColor),
+            contentStart,
+            length(),
+            SPAN_EXCLUSIVE_EXCLUSIVE);
 
-        // } با رنگ و استایل جدا
-        braceStart = length();
+        int bracketEnd = length();
         append("}");
         setSpan(
-            new ForegroundColorSpan(bracketColor), braceStart, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
-        setSpan(new StyleSpan(Typeface.BOLD), braceStart, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
-      } else {
-        // حالت $variable
+            new ForegroundColorSpan(bracketColor), bracketEnd, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
+        setSpan(new StyleSpan(Typeface.BOLD), bracketEnd, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
 
-        // $ با رنگ و استایل جدا
-        int dollarStart = length();
-        append("$");
-        setSpan(
-            new ForegroundColorSpan(dollarColor), dollarStart, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
-        setSpan(new StyleSpan(Typeface.BOLD), dollarStart, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
-
-        String variable = matcher.group(2);
-        if (variable != null && !variable.isEmpty()) {
-          int contentStart = length();
-          append(variable);
-          setSpan(
-              new ForegroundColorSpan(contentColor),
-              contentStart,
-              length(),
-              SPAN_EXCLUSIVE_EXCLUSIVE);
-          setSpan(
-              new StyleSpan(Typeface.BOLD_ITALIC),
-              contentStart,
-              length(),
-              SPAN_EXCLUSIVE_EXCLUSIVE);
-          setSpan(new UnderlineSpan(), contentStart, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
-        }
+      } else if (matchedText.startsWith("$")) {
+        // $keyword
+        int start = length();
+        append(matchedText);
+        setSpan(new ForegroundColorSpan(dollarColor), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
+        setSpan(new StyleSpan(Typeface.BOLD_ITALIC), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
       }
 
-      lastEnd = matcher.end();
+      lastIndex = matcher.end();
     }
 
     // متن باقیمانده
-    if (lastEnd < text.length()) {
-      String remainingText = text.substring(lastEnd);
-      append(remainingText);
-      setSpan(
-          new ForegroundColorSpan(normalColor),
-          length() - remainingText.length(),
-          length(),
-          SPAN_EXCLUSIVE_EXCLUSIVE);
+    if (lastIndex < text.length()) {
+      int start = length();
+      append(text.substring(lastIndex));
+      setSpan(new ForegroundColorSpan(normalColor), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
     return this;

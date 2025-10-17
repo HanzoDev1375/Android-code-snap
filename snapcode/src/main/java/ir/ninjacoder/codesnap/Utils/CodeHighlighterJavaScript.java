@@ -1,17 +1,10 @@
 package ir.ninjacoder.codesnap.Utils;
 
-import android.graphics.Typeface;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.StyleSpan;
-import android.text.style.UnderlineSpan;
 import ir.ninjacoder.codesnap.LangType;
 import android.text.SpannableStringBuilder;
-import ir.ninjacoder.codesnap.Utils.Highlighter;
-import ir.ninjacoder.codesnap.Utils.ObjectUtils;
 import ir.ninjacoder.codesnap.antlr4.JavaScriptLexer;
 import ir.ninjacoder.codesnap.bracket.BracketManager;
 import ir.ninjacoder.codesnap.colorhelper.ColorHelper;
-import ir.ninjacoder.codesnap.widget.data.CommentMatcher;
 import ir.ninjacoder.codesnap.widget.data.SpanStyler;
 import java.io.StringReader;
 import java.util.List;
@@ -31,7 +24,7 @@ public class CodeHighlighterJavaScript implements Highlighter {
       throws Exception {
 
     JavaScriptLexer lexer = new JavaScriptLexer(CharStreams.fromReader(new StringReader(code)));
-    SpannableStringBuilder sb = new SpannableStringBuilder();
+    SpanStyler sb = SpanStyler.create();
     Token token;
     int type;
     int pretoken = -1;
@@ -54,7 +47,7 @@ public class CodeHighlighterJavaScript implements Highlighter {
 
       switch (type) {
         case JavaScriptLexer.WhiteSpaces:
-          sb.append(token.getText());
+          sb.addNullText(token.getText());
           break;
         case JavaScriptLexer.CloseBracket:
         case JavaScriptLexer.CloseBrace:
@@ -78,10 +71,7 @@ public class CodeHighlighterJavaScript implements Highlighter {
         case JavaScriptLexer.Multiply:
         case JavaScriptLexer.Divide:
         case JavaScriptLexer.Dot:
-          sb.append(
-              token.getText(),
-              new ForegroundColorSpan(color.getSymbol()),
-              SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+          sb.text(token.getText(), color.getSymbol());
           break;
 
         case JavaScriptLexer.Modulus:
@@ -116,15 +106,17 @@ public class CodeHighlighterJavaScript implements Highlighter {
         case JavaScriptLexer.BitOrAssign:
         case JavaScriptLexer.PowerAssign:
         case JavaScriptLexer.ARROW:
-          sb.append(
-              token.getText(),
-              new ForegroundColorSpan(color.getOperator()),
-              SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+          sb.text(token.getText(), color.getOperator());
           break;
         case JavaScriptLexer.SingleLineComment:
         case JavaScriptLexer.MultiLineComment:
         case JavaScriptLexer.HtmlComment:
-          sb.append(styler.commentjs(token.getText(),color.getComment(),color.getBracketlevel1(),color.getBracketlevel2()));
+          sb.commentjs(
+              token.getText(),
+              color.getBracketlevel3(),
+              color.getBracketlevel1(),
+              color.getBracketlevel2(),
+              color.getComment());
           break;
 
         case JavaScriptLexer.Var:
@@ -174,8 +166,7 @@ public class CodeHighlighterJavaScript implements Highlighter {
         case JavaScriptLexer.Package:
         case JavaScriptLexer.Protected:
         case JavaScriptLexer.Static:
-          
-          sb.append(styler.text(token.getText(), color.getKeyword(), true));
+          sb.text(token.getText(), color.getKeyword(), true);
           break;
 
         case JavaScriptLexer.Identifier:
@@ -252,24 +243,24 @@ public class CodeHighlighterJavaScript implements Highlighter {
               colorNormal = color.getVariable();
               shouldUnderline = false;
             }
-            styler.text(token.getText(), colorNormal, isbold, shouldUnderline);
-            sb.append(styler);
+            sb.text(token.getText(), colorNormal, isbold, shouldUnderline);
+
             break;
           }
         case JavaScriptLexer.StringLiteral:
-          sb.append(
-              token.getText(),
-              new ForegroundColorSpan(color.getStrings()),
-              SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+          sb.text(token.getText(), color.getStrings());
           break;
         case JavaScriptLexer.BikTikString:
-          sb.append(CommentMatcher.getKtFString(token.getText(), color));
+          sb.backtik(
+              token.getText(),
+              color.getStrings(),
+              color.getBracketlevel1(),
+              color.getBracketlevel2(),
+              color.getBracketlevel3(),
+              color.getStrings());
           break;
         default:
-          sb.append(
-              token.getText(),
-              new ForegroundColorSpan(color.getTextnormal()),
-              SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+          sb.text(token.getText(), color.getTextnormal());
           break;
       }
       if (type != JavaScriptLexer.WhiteSpaces) {

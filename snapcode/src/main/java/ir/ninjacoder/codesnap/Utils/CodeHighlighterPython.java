@@ -1,12 +1,9 @@
 package ir.ninjacoder.codesnap.Utils;
 
-import android.text.style.ForegroundColorSpan;
 import ir.ninjacoder.codesnap.LangType;
 import android.text.SpannableStringBuilder;
-import ir.ninjacoder.codesnap.Utils.Highlighter;
 import ir.ninjacoder.codesnap.antlr4.PythonLexerCompat;
 import ir.ninjacoder.codesnap.colorhelper.ColorHelper;
-import ir.ninjacoder.codesnap.widget.data.CommentMatcher;
 import ir.ninjacoder.codesnap.widget.data.SpanStyler;
 import java.io.StringReader;
 import java.util.Arrays;

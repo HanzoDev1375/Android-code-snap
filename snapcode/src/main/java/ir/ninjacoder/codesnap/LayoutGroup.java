@@ -64,7 +64,7 @@ public class LayoutGroup extends LinearLayout {
       removeAllViews();
       addView(binding.getRoot());
     }
-    
+
     setLayoutParams(
         new ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -75,6 +75,7 @@ public class LayoutGroup extends LinearLayout {
     manager = new BracketManager(color);
     String code =
         "public class Main {\n"
+            + "//code by @ghost {data}\n\n "
             + "    public static void main(String[] args) {\n"
             + "        System.out.println(\"Hello World\");\n"
             + "        \n"
@@ -89,11 +90,8 @@ public class LayoutGroup extends LinearLayout {
             + "}";
     highlightText(code, binding.editor.getCode());
     color.addOnThemeChangeListener(
-        new ColorHelper.OnThemeChangeListener() {
-          @Override
-          public void onThemeChanged() {
-            updateTheme();
-          }
+        () -> {
+          updateTheme();
         });
 
     applyInitialTheme();

@@ -1,12 +1,10 @@
 package ir.ninjacoder.codesnap.Utils;
 
-import android.text.style.ForegroundColorSpan;
 import ir.ninjacoder.codesnap.LangType;
 import ir.ninjacoder.codesnap.antlr4.kotlin.KotlinLexer;
 import ir.ninjacoder.codesnap.bracket.BracketManager;
 import ir.ninjacoder.codesnap.colorhelper.ColorHelper;
 import android.text.SpannableStringBuilder;
-import ir.ninjacoder.codesnap.widget.data.CommentMatcher;
 import ir.ninjacoder.codesnap.widget.data.SpanStyler;
 import java.io.StringReader;
 import java.util.Arrays;
@@ -167,8 +165,13 @@ public class CodeHighlighterKt implements Highlighter {
           span.text(token.getText(), color.getSymbol());
           break;
         case KotlinLexer.STRING:
-          span.fstring(
-              token.getText(), color.bracketlevel1, color.bracketlevel3, color.getStrings());
+           span.backtik(
+              token.getText(),
+              color.getStrings(),
+              color.getBracketlevel1(),
+              color.getBracketlevel2(),
+              color.getBracketlevel3(),
+              color.getStrings());
           break;
         case KotlinLexer.Identifier:
           {
