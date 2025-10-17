@@ -7,6 +7,7 @@ import ir.ninjacoder.codesnap.bracket.BracketManager;
 import ir.ninjacoder.codesnap.colorhelper.ColorHelper;
 import android.text.SpannableStringBuilder;
 import ir.ninjacoder.codesnap.widget.data.CommentMatcher;
+import ir.ninjacoder.codesnap.widget.data.SpanStyler;
 import java.io.StringReader;
 import java.util.Arrays;
 import java.util.List;
@@ -20,7 +21,7 @@ public class CodeHighlighterKt implements Highlighter {
   @Override
   public SpannableStringBuilder highlight(LangType type2, String code, ColorHelper color)
       throws Exception {
-    var builder = new SpannableStringBuilder();
+
     Token token;
     int type;
     var manager = new BracketManager();
@@ -28,6 +29,7 @@ public class CodeHighlighterKt implements Highlighter {
     List<BracketPosition> bracketPositions = new ArrayList<>();
     int currentPosition = 0;
     manager.setRainbowBracketsEnabled(true);
+    SpanStyler span = SpanStyler.create();
     var lexer = new KotlinLexer(CharStreams.fromReader(new StringReader(code)));
     while ((token = lexer.nextToken()) != null) {
       type = token.getType();
@@ -42,7 +44,7 @@ public class CodeHighlighterKt implements Highlighter {
       }
       switch (type) {
         case KotlinLexer.WS:
-          builder.append(token.getText());
+          span.addNullText(token.getText());
           break;
 
         case KotlinLexer.ANNOTATION:
@@ -106,10 +108,7 @@ public class CodeHighlighterKt implements Highlighter {
         case KotlinLexer.AS:
         case KotlinLexer.IS:
         case KotlinLexer.IN:
-          builder.append(
-              token.getText(),
-              new ForegroundColorSpan(color.getKeyword()),
-              SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+          span.text(token.getText(), color.getKeyword());
           break;
         case KotlinLexer.RealLiteral:
         case KotlinLexer.FloatLiteral:
@@ -121,10 +120,7 @@ public class CodeHighlighterKt implements Highlighter {
         case KotlinLexer.BooleanLiteral:
         case KotlinLexer.NullLiteral:
         case KotlinLexer.HexLiteral:
-          builder.append(
-              token.getText(),
-              new ForegroundColorSpan(color.getOperator()),
-              SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+          span.text(token.getText(), color.getOperator());
           break;
         case KotlinLexer.RESERVED:
         case KotlinLexer.DOT:
@@ -168,13 +164,11 @@ public class CodeHighlighterKt implements Highlighter {
         case KotlinLexer.HASH:
         case KotlinLexer.LCURL:
         case KotlinLexer.RCURL:
-          builder.append(
-              token.getText(),
-              new ForegroundColorSpan(color.getSymbol()),
-              SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+          span.text(token.getText(), color.getSymbol());
           break;
         case KotlinLexer.STRING:
-          builder.append(CommentMatcher.getKtFString(token.getText(), color));
+          span.fstring(
+              token.getText(), color.bracketlevel1, color.bracketlevel3, color.getStrings());
           break;
         case KotlinLexer.Identifier:
           {
@@ -294,18 +288,12 @@ public class CodeHighlighterKt implements Highlighter {
               mcolor = color.getMethod();
             }
 
-            builder.append(
-                token.getText(),
-                new ForegroundColorSpan(mcolor),
-                SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+            span.text(token.getText(), mcolor);
             break;
           }
 
         default:
-          builder.append(
-              token.getText(),
-              new ForegroundColorSpan(color.getTextnormal()),
-              SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+          span.text(token.getText(), color.getTextnormal());
           break;
       }
       if (type != KotlinLexer.WS) {
@@ -314,9 +302,9 @@ public class CodeHighlighterKt implements Highlighter {
       currentPosition += token.getText().length();
     }
     if (manager.getRainbowBracketsEnabled() && !bracketPositions.isEmpty()) {
-      manager.applyRainbowBrackets(builder, bracketPositions);
+      manager.applyRainbowBrackets(span, bracketPositions);
     }
-    return builder;
+    return span;
   }
 
   boolean isBracketToken(int type) {

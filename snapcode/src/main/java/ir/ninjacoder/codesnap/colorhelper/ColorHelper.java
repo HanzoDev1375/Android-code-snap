@@ -29,6 +29,13 @@ public class ColorHelper {
   protected int cardstorkecolor;
   protected ThemeManager thememanager = ThemeManager.DARKTHEME;
   private ThemeLoader theme;
+  public int bracketlevel1;
+  public int bracketlevel2;
+  public int bracketlevel3;
+  public int bracketlevel4;
+  public int bracketlevel5;
+  public int bracketlevel6;
+  public int bracketlevel7;
 
   public ColorHelper() {
     updateTheme();
@@ -36,6 +43,7 @@ public class ColorHelper {
   }
 
   void updateTheme() {
+
     switch (thememanager) {
       case DEFAULTTHEME:
         applyDefaultTheme();
@@ -128,9 +136,17 @@ public class ColorHelper {
     cssoprator = Color.parseColor("#FFFF5533");
     cardbackground = Color.parseColor("#FF160900");
     cardstorkecolor = Color.parseColor("#FF402A1A");
+    bracketlevel1 = Color.parseColor("#FFFF7E5F");
+    bracketlevel2 = Color.parseColor("#FF7ED957");
+    bracketlevel3 = Color.parseColor("#FF5DADEC");
+    bracketlevel4 = Color.parseColor("#FFF2A65A");
+    bracketlevel5 = Color.parseColor("#FFBB86FC");
+    bracketlevel6 = Color.parseColor("#FFFFD166");
+    bracketlevel7 = Color.parseColor("#FF06D6A0");
   }
 
   protected void applySandTheme() {
+
     keyword = Color.parseColor("#FFE4B169");
     operator = Color.parseColor("#FFFF8C42");
     method = Color.parseColor("#FF9DC183");
@@ -152,6 +168,13 @@ public class ColorHelper {
     cssoprator = Color.parseColor("#FFFF8C42");
     cardbackground = Color.parseColor("#FF3B2F25");
     cardstorkecolor = Color.parseColor("#FF6A5949");
+    bracketlevel1 = Color.parseColor("#FFFF7E5F");
+    bracketlevel2 = Color.parseColor("#FF7ED957");
+    bracketlevel3 = Color.parseColor("#FF5DADEC");
+    bracketlevel4 = Color.parseColor("#FFF2A65A");
+    bracketlevel5 = Color.parseColor("#FFBB86FC");
+    bracketlevel6 = Color.parseColor("#FFFFD166");
+    bracketlevel7 = Color.parseColor("#FF06D6A0");
   }
 
   protected void applyAuroraTheme() {
@@ -176,6 +199,13 @@ public class ColorHelper {
     cssoprator = Color.parseColor("#FFFF6E6E");
     cardbackground = Color.parseColor("#FF0B1020");
     cardstorkecolor = Color.parseColor("#FF444566");
+    bracketlevel1 = Color.parseColor("#FFFF7E5F");
+    bracketlevel2 = Color.parseColor("#FF7ED957");
+    bracketlevel3 = Color.parseColor("#FF5DADEC");
+    bracketlevel4 = Color.parseColor("#FFF2A65A");
+    bracketlevel5 = Color.parseColor("#FFBB86FC");
+    bracketlevel6 = Color.parseColor("#FFFFD166");
+    bracketlevel7 = Color.parseColor("#FF06D6A0");
   }
 
   protected void applyNeonTheme() {
@@ -200,6 +230,13 @@ public class ColorHelper {
     cssoprator = Color.parseColor("#FFFF3B3B");
     cardbackground = Color.parseColor("#FF0A0A10");
     cardstorkecolor = Color.parseColor("#FF26263A");
+    bracketlevel1 = Color.parseColor("#FFFF7E5F");
+    bracketlevel2 = Color.parseColor("#FF7ED957");
+    bracketlevel3 = Color.parseColor("#FF5DADEC");
+    bracketlevel4 = Color.parseColor("#FFF2A65A");
+    bracketlevel5 = Color.parseColor("#FFBB86FC");
+    bracketlevel6 = Color.parseColor("#FFFFD166");
+    bracketlevel7 = Color.parseColor("#FF06D6A0");
   }
 
   protected void applyMoonglowTheme() {
@@ -224,6 +261,13 @@ public class ColorHelper {
     cssoprator = Color.parseColor("#FFFF9A9A");
     cardbackground = Color.parseColor("#FF0E1220");
     cardstorkecolor = Color.parseColor("#FF2A3045");
+    bracketlevel1 = Color.parseColor("#FFFF7E5F");
+    bracketlevel2 = Color.parseColor("#FF7ED957");
+    bracketlevel3 = Color.parseColor("#FF5DADEC");
+    bracketlevel4 = Color.parseColor("#FFF2A65A");
+    bracketlevel5 = Color.parseColor("#FFBB86FC");
+    bracketlevel6 = Color.parseColor("#FFFFD166");
+    bracketlevel7 = Color.parseColor("#FF06D6A0");
   }
 
   protected void applyDefaultTheme() {
@@ -248,6 +292,13 @@ public class ColorHelper {
     cssoprator = Color.parseColor("#FFDCDCAA");
     cardbackground = Color.parseColor("#FF141118");
     cardstorkecolor = Color.parseColor("#FF928F98");
+    bracketlevel1 = Color.parseColor("#FFFF7E5F");
+    bracketlevel2 = Color.parseColor("#FF7ED957");
+    bracketlevel3 = Color.parseColor("#FF5DADEC");
+    bracketlevel4 = Color.parseColor("#FFF2A65A");
+    bracketlevel5 = Color.parseColor("#FFBB86FC");
+    bracketlevel6 = Color.parseColor("#FFFFD166");
+    bracketlevel7 = Color.parseColor("#FF06D6A0");
   }
 
   protected void applyDarkTheme() {
@@ -272,6 +323,13 @@ public class ColorHelper {
     cssoprator = Color.parseColor("#FF56B6C2");
     cardbackground = Color.parseColor("#FF141118");
     cardstorkecolor = Color.parseColor("#FF928F98");
+    bracketlevel1 = Color.parseColor("#FFFF7E5F");
+    bracketlevel2 = Color.parseColor("#FF7ED957");
+    bracketlevel3 = Color.parseColor("#FF5DADEC");
+    bracketlevel4 = Color.parseColor("#FFF2A65A");
+    bracketlevel5 = Color.parseColor("#FFBB86FC");
+    bracketlevel6 = Color.parseColor("#FFFFD166");
+    bracketlevel7 = Color.parseColor("#FF06D6A0");
   }
 
   protected void applyLightTheme() {
@@ -295,6 +353,13 @@ public class ColorHelper {
     csskeyword = Color.parseColor("#FFD33682");
     cssoprator = Color.parseColor("#FF2AA198");
     cardbackground = Color.parseColor("#FFFEF7FF");
+    bracketlevel1 = Color.parseColor("#FFFF7E5F");
+    bracketlevel2 = Color.parseColor("#FF7ED957");
+    bracketlevel3 = Color.parseColor("#FF5DADEC");
+    bracketlevel4 = Color.parseColor("#FFF2A65A");
+    bracketlevel5 = Color.parseColor("#FFBB86FC");
+    bracketlevel6 = Color.parseColor("#FFFFD166");
+    bracketlevel7 = Color.parseColor("#FF06D6A0");
     cardstorkecolor = Color.parseColor("#FF928F98");
   }
 
@@ -321,6 +386,13 @@ public class ColorHelper {
     cssoprator = Color.parseColor("#FFFF79C6");
     cardbackground = Color.parseColor("#FF1E1F29");
     cardstorkecolor = Color.parseColor("#FF44475A");
+    bracketlevel1 = Color.parseColor("#FFFF7E5F");
+    bracketlevel2 = Color.parseColor("#FF7ED957");
+    bracketlevel3 = Color.parseColor("#FF5DADEC");
+    bracketlevel4 = Color.parseColor("#FFF2A65A");
+    bracketlevel5 = Color.parseColor("#FFBB86FC");
+    bracketlevel6 = Color.parseColor("#FFFFD166");
+    bracketlevel7 = Color.parseColor("#FF06D6A0");
   }
 
   protected void applyghostTheme() {
@@ -345,6 +417,13 @@ public class ColorHelper {
     cssoprator = Color.parseColor("#FF98FB98");
     cardbackground = Color.parseColor("#FF0A0A0A");
     cardstorkecolor = Color.parseColor("#FF928F98");
+    bracketlevel1 = Color.parseColor("#FFFF7E5F");
+    bracketlevel2 = Color.parseColor("#FF7ED957");
+    bracketlevel3 = Color.parseColor("#FF5DADEC");
+    bracketlevel4 = Color.parseColor("#FFF2A65A");
+    bracketlevel5 = Color.parseColor("#FFBB86FC");
+    bracketlevel6 = Color.parseColor("#FFFFD166");
+    bracketlevel7 = Color.parseColor("#FF06D6A0");
   }
 
   protected void applyOceanTheme() {
@@ -369,6 +448,13 @@ public class ColorHelper {
     cssoprator = Color.parseColor("#FF48D1CC");
     cardbackground = Color.parseColor("#FF001F3F");
     cardstorkecolor = Color.parseColor("#FF928F98");
+    bracketlevel1 = Color.parseColor("#FFFF7E5F");
+    bracketlevel2 = Color.parseColor("#FF7ED957");
+    bracketlevel3 = Color.parseColor("#FF5DADEC");
+    bracketlevel4 = Color.parseColor("#FFF2A65A");
+    bracketlevel5 = Color.parseColor("#FFBB86FC");
+    bracketlevel6 = Color.parseColor("#FFFFD166");
+    bracketlevel7 = Color.parseColor("#FF06D6A0");
   }
 
   protected void applySunsetTheme() {
@@ -393,6 +479,13 @@ public class ColorHelper {
     cssoprator = Color.parseColor("#FFFFD700");
     cardbackground = Color.parseColor("#FF140000");
     cardstorkecolor = Color.parseColor("#FF928F98");
+    bracketlevel1 = Color.parseColor("#FFFF7E5F");
+    bracketlevel2 = Color.parseColor("#FF7ED957");
+    bracketlevel3 = Color.parseColor("#FF5DADEC");
+    bracketlevel4 = Color.parseColor("#FFF2A65A");
+    bracketlevel5 = Color.parseColor("#FFBB86FC");
+    bracketlevel6 = Color.parseColor("#FFFFD166");
+    bracketlevel7 = Color.parseColor("#FF06D6A0");
   }
 
   protected void applyForestTheme() {
@@ -417,6 +510,13 @@ public class ColorHelper {
     cssoprator = Color.parseColor("#FF8FBC8F");
     cardbackground = Color.parseColor("#FF00180B");
     cardstorkecolor = Color.parseColor("#FF928F98");
+    bracketlevel1 = Color.parseColor("#FFFF7E5F");
+    bracketlevel2 = Color.parseColor("#FF7ED957");
+    bracketlevel3 = Color.parseColor("#FF5DADEC");
+    bracketlevel4 = Color.parseColor("#FFF2A65A");
+    bracketlevel5 = Color.parseColor("#FFBB86FC");
+    bracketlevel6 = Color.parseColor("#FFFFD166");
+    bracketlevel7 = Color.parseColor("#FF06D6A0");
   }
 
   protected void applyRoyalTheme() {
@@ -441,6 +541,13 @@ public class ColorHelper {
     cssoprator = Color.parseColor("#FFFFD700");
     cardbackground = Color.parseColor("#FF0A0011");
     cardstorkecolor = Color.parseColor("#FF928F98");
+    bracketlevel1 = Color.parseColor("#FFFF7E5F");
+    bracketlevel2 = Color.parseColor("#FF7ED957");
+    bracketlevel3 = Color.parseColor("#FF5DADEC");
+    bracketlevel4 = Color.parseColor("#FFF2A65A");
+    bracketlevel5 = Color.parseColor("#FFBB86FC");
+    bracketlevel6 = Color.parseColor("#FFFFD166");
+    bracketlevel7 = Color.parseColor("#FF06D6A0");
   }
 
   protected void applyCyberpunkTheme() {
@@ -465,6 +572,13 @@ public class ColorHelper {
     cssoprator = Color.parseColor("#FFFFFF00");
     cardbackground = Color.parseColor("#FF000000");
     cardstorkecolor = Color.parseColor("#FF928F98");
+    bracketlevel1 = Color.parseColor("#FFFF7E5F");
+    bracketlevel2 = Color.parseColor("#FF7ED957");
+    bracketlevel3 = Color.parseColor("#FF5DADEC");
+    bracketlevel4 = Color.parseColor("#FFF2A65A");
+    bracketlevel5 = Color.parseColor("#FFBB86FC");
+    bracketlevel6 = Color.parseColor("#FFFFD166");
+    bracketlevel7 = Color.parseColor("#FF06D6A0");
   }
 
   protected void applyWarmTheme() {
@@ -489,6 +603,13 @@ public class ColorHelper {
     cssoprator = Color.parseColor("#FFD2B48C");
     cardbackground = Color.parseColor("#FF160900");
     cardstorkecolor = Color.parseColor("#FFFFC59C");
+    bracketlevel1 = Color.parseColor("#FFFF7E5F");
+    bracketlevel2 = Color.parseColor("#FF7ED957");
+    bracketlevel3 = Color.parseColor("#FF5DADEC");
+    bracketlevel4 = Color.parseColor("#FFF2A65A");
+    bracketlevel5 = Color.parseColor("#FFBB86FC");
+    bracketlevel6 = Color.parseColor("#FFFFD166");
+    bracketlevel7 = Color.parseColor("#FF06D6A0");
   }
 
   protected void applyIceTheme() {
@@ -513,6 +634,13 @@ public class ColorHelper {
     cssoprator = Color.parseColor("#FFF0F8FF");
     cardbackground = Color.parseColor("#FF001526");
     cardstorkecolor = Color.parseColor("#FF9BD0FF");
+    bracketlevel1 = Color.parseColor("#FFFF7E5F");
+    bracketlevel2 = Color.parseColor("#FF7ED957");
+    bracketlevel3 = Color.parseColor("#FF5DADEC");
+    bracketlevel4 = Color.parseColor("#FFF2A65A");
+    bracketlevel5 = Color.parseColor("#FFBB86FC");
+    bracketlevel6 = Color.parseColor("#FFFFD166");
+    bracketlevel7 = Color.parseColor("#FF06D6A0");
   }
 
   protected void applyRetroTheme() {
@@ -537,6 +665,13 @@ public class ColorHelper {
     cssoprator = Color.parseColor("#FF1E90FF");
     cardbackground = Color.parseColor("#FF230112");
     cardstorkecolor = Color.parseColor("#DEFFC2E1");
+    bracketlevel1 = Color.parseColor("#FFFF7E5F");
+    bracketlevel2 = Color.parseColor("#FF7ED957");
+    bracketlevel3 = Color.parseColor("#FF5DADEC");
+    bracketlevel4 = Color.parseColor("#FFF2A65A");
+    bracketlevel5 = Color.parseColor("#FFBB86FC");
+    bracketlevel6 = Color.parseColor("#FFFFD166");
+    bracketlevel7 = Color.parseColor("#FF06D6A0");
   }
 
   protected void applyMidnightTheme() {
@@ -561,6 +696,13 @@ public class ColorHelper {
     cssoprator = Color.parseColor("#FF6A5ACD");
     cardbackground = Color.parseColor("#FF08080D");
     cardstorkecolor = Color.parseColor("#C8B3B3FF");
+    bracketlevel1 = Color.parseColor("#FFFF7E5F");
+    bracketlevel2 = Color.parseColor("#FF7ED957");
+    bracketlevel3 = Color.parseColor("#FF5DADEC");
+    bracketlevel4 = Color.parseColor("#FFF2A65A");
+    bracketlevel5 = Color.parseColor("#FFBB86FC");
+    bracketlevel6 = Color.parseColor("#FFFFD166");
+    bracketlevel7 = Color.parseColor("#FF06D6A0");
   }
 
   protected void applyCandyTheme() {
@@ -585,6 +727,13 @@ public class ColorHelper {
     cssoprator = Color.parseColor("#FFFFD700");
     cardbackground = Color.parseColor("#FF1A1011");
     cardstorkecolor = Color.parseColor("#CEFFB9C3");
+    bracketlevel1 = Color.parseColor("#FFFF7E5F");
+    bracketlevel2 = Color.parseColor("#FF7ED957");
+    bracketlevel3 = Color.parseColor("#FF5DADEC");
+    bracketlevel4 = Color.parseColor("#FFF2A65A");
+    bracketlevel5 = Color.parseColor("#FFBB86FC");
+    bracketlevel6 = Color.parseColor("#FFFFD166");
+    bracketlevel7 = Color.parseColor("#FF06D6A0");
   }
 
   public int getKeyword() {
@@ -796,5 +945,61 @@ public class ColorHelper {
 
   public void setTheme(ThemeLoader theme) {
     this.theme = theme;
+  }
+
+  public int getBracketlevel1() {
+    return this.bracketlevel1;
+  }
+
+  public void setBracketlevel1(int bracketlevel1) {
+    this.bracketlevel1 = bracketlevel1;
+  }
+
+  public int getBracketlevel2() {
+    return this.bracketlevel2;
+  }
+
+  public void setBracketlevel2(int bracketlevel2) {
+    this.bracketlevel2 = bracketlevel2;
+  }
+
+  public int getBracketlevel3() {
+    return this.bracketlevel3;
+  }
+
+  public void setBracketlevel3(int bracketlevel3) {
+    this.bracketlevel3 = bracketlevel3;
+  }
+
+  public int getBracketlevel4() {
+    return this.bracketlevel4;
+  }
+
+  public void setBracketlevel4(int bracketlevel4) {
+    this.bracketlevel4 = bracketlevel4;
+  }
+
+  public int getBracketlevel5() {
+    return this.bracketlevel5;
+  }
+
+  public void setBracketlevel5(int bracketlevel5) {
+    this.bracketlevel5 = bracketlevel5;
+  }
+
+  public int getBracketlevel6() {
+    return this.bracketlevel6;
+  }
+
+  public void setBracketlevel6(int bracketlevel6) {
+    this.bracketlevel6 = bracketlevel6;
+  }
+
+  public int getBracketlevel7() {
+    return this.bracketlevel7;
+  }
+
+  public void setBracketlevel7(int bracketlevel7) {
+    this.bracketlevel7 = bracketlevel7;
   }
 }

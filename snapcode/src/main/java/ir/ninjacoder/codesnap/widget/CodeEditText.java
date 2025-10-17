@@ -71,7 +71,7 @@ public class CodeEditText extends PowerModeEditText {
   }
 
   public void setOnTextSizeChangedListener(OnTextSizeChangedListener listener) {
-    this.textSizeChangedListener = listener;
+    if (listener != null) this.textSizeChangedListener = listener;
   }
 
   private void applyZoom() {

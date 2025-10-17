@@ -2,6 +2,7 @@ package ir.ninjacoder.codesnap.bracket;
 
 import android.graphics.Color;
 import android.text.SpannableStringBuilder;
+import ir.ninjacoder.codesnap.colorhelper.ColorHelper;
 import java.util.List;
 import java.util.Stack;
 import java.util.ArrayList;
@@ -10,24 +11,38 @@ import android.text.style.ForegroundColorSpan;
 public class BracketManager {
 
   private boolean rainbowBracketsEnabled = true;
+  private ColorHelper color;
+  private int[] rainbowColors;
 
-  private int[] rainbowColors = {
-    Color.parseColor("#FF6666"), // قرمز
-    Color.parseColor("#FF9966"), // نارنجی
-    Color.parseColor("#FFCC66"), // زرد
-    Color.parseColor("#99CC66"), // سبز
-    Color.parseColor("#66CCCC"), // فیروزه‌ای
-    Color.parseColor("#6699CC"), // آبی
-    Color.parseColor("#9966CC") // بنفش
-  };
+  public BracketManager(ColorHelper color) {
+    this.color = color;
+    updateRainbowColors();
+  }
+  
+  public BracketManager(){
+    color = new ColorHelper();
+    updateRainbowColors();
+  }
 
-  /** تنظیم رنگ‌های دلخواه برای براکت رنگین کمانی */
+  public void updateRainbowColors() {
+    this.rainbowColors =
+        new int[] {
+          color.getBracketlevel1(),
+          color.getBracketlevel2(),
+          color.getBracketlevel3(),
+          color.getBracketlevel4(),
+          color.getBracketlevel5(),
+          color.getBracketlevel6(),
+          color.getBracketlevel7()
+        };
+  }
   public void setRainbowColors(int[] colors) {
     this.rainbowColors = colors;
   }
 
   public void applyRainbowBrackets(
       SpannableStringBuilder sb, List<BracketPosition> bracketPositions) {
+    updateRainbowColors();
     Stack<BracketInfo> stack = new Stack<>();
     List<BracketPair> bracketPairs = new ArrayList<>();
     for (BracketPosition bp : bracketPositions) {

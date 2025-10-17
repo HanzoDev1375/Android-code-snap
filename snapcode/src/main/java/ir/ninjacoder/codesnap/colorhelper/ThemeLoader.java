@@ -52,11 +52,12 @@ public class ThemeLoader {
 
   public void applyThemeFromJson(ColorHelper color) {
     if (path != null) {
-
       if (!path.isEmpty()) {
-
         JSONObject json = loadThemeFromPath(path);
-        if (json == null) return;
+        if (json == null) {
+          Toast.makeText(context, "JSON file not found", Toast.LENGTH_SHORT).show();
+          return;
+        }
         try {
           color.keyword = Color.parseColor(json.getString("keyword"));
           color.operator = Color.parseColor(json.getString("operator"));
@@ -79,11 +80,25 @@ public class ThemeLoader {
           color.cssoprator = Color.parseColor(json.getString("cssoprator"));
           color.cardbackground = Color.parseColor(json.getString("cardbackground"));
           color.cardstorkecolor = Color.parseColor(json.getString("cardstorkecolor"));
+
+          // اصلاح شده - بدون فضای اضافی
+          color.setBracketlevel1(Color.parseColor(json.getString("bracketlevel1")));
+          color.setBracketlevel2(Color.parseColor(json.getString("bracketlevel2")));
+          color.bracketlevel3 = Color.parseColor(json.getString("bracketlevel3"));
+          color.bracketlevel4 = Color.parseColor(json.getString("bracketlevel4"));
+          color.bracketlevel5 = Color.parseColor(json.getString("bracketlevel5"));
+          color.bracketlevel6 = Color.parseColor(json.getString("bracketlevel6"));
+          color.bracketlevel7 = Color.parseColor(json.getString("bracketlevel7"));
+
+          Toast.makeText(context, "Theme applied successfully", Toast.LENGTH_SHORT).show();
+
         } catch (Exception e) {
           e.printStackTrace();
         }
       }
-    } else Toast.makeText(context, "Path the empty", 2).show();
+    } else {
+      Toast.makeText(context, "Path is empty", Toast.LENGTH_SHORT).show();
+    }
   }
 
   public String getPath() {

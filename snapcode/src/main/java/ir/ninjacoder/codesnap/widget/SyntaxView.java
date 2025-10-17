@@ -50,12 +50,14 @@ public class SyntaxView extends ScrollView {
     rows = findViewById(R.id.rows);
     lineCode = new LineNumberCalculator(code.getText().toString());
     foldingManager = new CodeFoldingManager(color);
-
+    code.setTextSize(14);
+    rows.setTextSize(14);
     code.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
     code.setSingleLine(false);
     code.setOnTextSizeChangedListener(
         size -> {
           rows.setTextSize(size);
+          updateLineNumbers();
         });
     code.setImeOptions(EditorInfo.IME_FLAG_NO_ENTER_ACTION);
     code.setBackgroundColor(Color.TRANSPARENT);
@@ -68,7 +70,7 @@ public class SyntaxView extends ScrollView {
         });
 
     applyTheme();
-    
+    updateLineNumbers();
     textWatcher =
         new TextWatcher() {
           @Override
@@ -250,6 +252,7 @@ public class SyntaxView extends ScrollView {
                 }
               });
     }
+    updateLineNumbers();
   }
 
   public void setFont(Typeface tf) {
@@ -266,7 +269,10 @@ public class SyntaxView extends ScrollView {
   }
 
   public void setText(String text) {
+    code.removeTextChangedListener(textWatcher);
     code.setText(text);
+    updateLineNumbers();
+    code.addTextChangedListener(textWatcher);
   }
 
   public String getText() {
@@ -340,5 +346,26 @@ public class SyntaxView extends ScrollView {
   public void setColorHelper(ColorHelper colorHelper) {
     this.color = colorHelper;
     applyTheme();
+  }
+
+  private void updateLineNumbers() {
+    String text = code.getText().toString();
+    int numLines = text.isEmpty() ? 1 : countLines(text);
+
+    StringBuilder linesText = new StringBuilder();
+    for (int i = 1; i <= numLines; i++) {
+      linesText.append(i).append("\n");
+    }
+    rows.setText(linesText.toString());
+  }
+
+  private int countLines(String text) {
+    int count = 1;
+    for (int i = 0; i < text.length(); i++) {
+      if (text.charAt(i) == '\n') {
+        count++;
+      }
+    }
+    return count;
   }
 }

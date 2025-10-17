@@ -1,14 +1,22 @@
 package ir.ninjacoder.codesnap.Utils;
 
+import android.graphics.Typeface;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
+import android.text.style.UnderlineSpan;
 import ir.ninjacoder.codesnap.LangType;
 import android.text.SpannableStringBuilder;
 import ir.ninjacoder.codesnap.Utils.Highlighter;
 import ir.ninjacoder.codesnap.Utils.ObjectUtils;
 import ir.ninjacoder.codesnap.antlr4.JavaScriptLexer;
+import ir.ninjacoder.codesnap.bracket.BracketManager;
 import ir.ninjacoder.codesnap.colorhelper.ColorHelper;
 import ir.ninjacoder.codesnap.widget.data.CommentMatcher;
+import ir.ninjacoder.codesnap.widget.data.SpanStyler;
 import java.io.StringReader;
+import java.util.List;
+import ir.ninjacoder.codesnap.bracket.BracketPosition;
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Arrays;
@@ -27,9 +35,23 @@ public class CodeHighlighterJavaScript implements Highlighter {
     Token token;
     int type;
     int pretoken = -1;
+    BracketManager manager = new BracketManager();
+    List<BracketPosition> bracketPositions = new ArrayList<>();
+    int currentPosition = 0;
+    manager.setRainbowBracketsEnabled(true);
     while ((token = lexer.nextToken()) != null) {
       type = token.getType();
       if (type == JavaScriptLexer.EOF) break;
+      if (isBracketToken(type)) {
+        bracketPositions.add(
+            new BracketPosition(
+                currentPosition,
+                currentPosition + token.getText().length(),
+                token.getText().charAt(0),
+                type));
+      }
+      SpanStyler styler = SpanStyler.create();
+
       switch (type) {
         case JavaScriptLexer.WhiteSpaces:
           sb.append(token.getText());
@@ -102,10 +124,7 @@ public class CodeHighlighterJavaScript implements Highlighter {
         case JavaScriptLexer.SingleLineComment:
         case JavaScriptLexer.MultiLineComment:
         case JavaScriptLexer.HtmlComment:
-          sb.append(
-              token.getText(),
-              new ForegroundColorSpan(color.getComment()),
-              SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+          sb.append(styler.commentjs(token.getText(),color.getComment(),color.getBracketlevel1(),color.getBracketlevel2()));
           break;
 
         case JavaScriptLexer.Var:
@@ -155,53 +174,61 @@ public class CodeHighlighterJavaScript implements Highlighter {
         case JavaScriptLexer.Package:
         case JavaScriptLexer.Protected:
         case JavaScriptLexer.Static:
-          sb.append(
-              token.getText(),
-              new ForegroundColorSpan(color.getKeyword()),
-              SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+          
+          sb.append(styler.text(token.getText(), color.getKeyword(), true));
           break;
+
         case JavaScriptLexer.Identifier:
           {
-            boolean hasFunc = false;
-            int colorId = color.getTextnormal();
-            String text = token.getText();
+            int colorNormal = color.getTextnormal();
+            boolean isClassName = false;
+            boolean isbold = false;
+            boolean shouldUnderline = true;
 
-            if (pretoken == JavaScriptLexer.Import || pretoken == JavaScriptLexer.From) {
-              colorId = color.getLastsymi();
-            } else if (pretoken == JavaScriptLexer.Dot || pretoken == JavaScriptLexer.Colon) {
-              colorId = color.getPredot();
-            } else if (pretoken == JavaScriptLexer.Function_
+            if (pretoken == JavaScriptLexer.Function_
                 || pretoken == JavaScriptLexer.Class
                 || pretoken == JavaScriptLexer.Package
                 || pretoken == JavaScriptLexer.Export
-                || pretoken == JavaScriptLexer.Extends) {
-              hasFunc = true;
-              colorId = color.getMethod();
+                || pretoken == JavaScriptLexer.Extends
+                || pretoken == JavaScriptLexer.Identifier) {
+              colorNormal = color.getMethod();
+              isClassName = true;
+              shouldUnderline = false;
             } else if (pretoken == JavaScriptLexer.Var
                 || pretoken == JavaScriptLexer.NonStrictLet
                 || pretoken == JavaScriptLexer.StrictLet
-                || pretoken == JavaScriptLexer.Const) {
-              hasFunc = true;
-              colorId = color.getVariable();
-            } else if (pretoken == JavaScriptLexer.Return
-                || pretoken == JavaScriptLexer.As
+                || pretoken == JavaScriptLexer.Const
                 || pretoken == JavaScriptLexer.Interface
+                || pretoken == JavaScriptLexer.Return
+                || pretoken == JavaScriptLexer.As
                 || pretoken == JavaScriptLexer.Yield) {
-              hasFunc = true;
-              colorId = color.getPrebrak();
+              colorNormal = color.getVariable();
+              isbold = true;
+              shouldUnderline = false;
+              if (lexer._input.LA(1) == '(') {
+                colorNormal = color.getLastsymi();
+              }
+            } else if (lexer._input.LA(1) == '.') {
+              colorNormal = color.getLastdot();
+              shouldUnderline = false;
+            } else if (lexer._input.LA(1) == '[' || lexer._input.LA(1) == ']') {
+              colorNormal = color.getPrebrak();
+              shouldUnderline = false;
+            } else if (pretoken == JavaScriptLexer.Dot || pretoken == JavaScriptLexer.Colon) {
+              colorNormal = color.getPredot();
+              shouldUnderline = false;
+            } else if (lexer._input.LA(1) == '>' || pretoken == JavaScriptLexer.LessThan) {
+              colorNormal = color.getHtmlkeyword();
+              shouldUnderline = false;
+            } else if (!isClassName && Character.isUpperCase(token.getText().charAt(0))) {
+              Pattern pattern = Pattern.compile("^[A-Z][a-zA-Z0-9_]*$");
+              var matcher = pattern.matcher(token.getText());
+              if (matcher.matches()) {
+                colorNormal = color.getUppercase();
+                shouldUnderline = false;
+              }
             }
 
-            if (ObjectUtils.getNextLexer(lexer, '(')) {
-              colorId = color.getLastsymi();
-            } else if (ObjectUtils.getNextLexer(lexer, '.')) {
-              colorId = color.getLastdot();
-            } else if (ObjectUtils.getNextLexer(lexer, '$')) {
-              colorId = color.getLastsymi();
-            } else if (ObjectUtils.getNextLexer(lexer, '>')) {
-              colorId = color.getSymbol();
-            } else if (ObjectUtils.getNextLexer(lexer, ':')) {
-              colorId = color.getSymbol();
-            }
             Set<String> builtinNames =
                 new HashSet<>(
                     Arrays.asList(
@@ -220,21 +247,13 @@ public class CodeHighlighterJavaScript implements Highlighter {
                         "Set",
                         "Map",
                         "Date"));
-            if (builtinNames.contains(text)) {
-              colorId = color.getVariable();
-            }
 
-            if (!hasFunc && Character.isUpperCase(text.charAt(0))) {
-              Pattern pattern = Pattern.compile("^[A-Z][a-zA-Z0-9_]*$");
-              if (pattern.matcher(text).matches()) {
-                colorId = color.getUppercase();
-              }
+            if (builtinNames.contains(token.getText())) {
+              colorNormal = color.getVariable();
+              shouldUnderline = false;
             }
-
-            sb.append(
-                text,
-                new ForegroundColorSpan(colorId),
-                SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+            styler.text(token.getText(), colorNormal, isbold, shouldUnderline);
+            sb.append(styler);
             break;
           }
         case JavaScriptLexer.StringLiteral:
@@ -256,7 +275,20 @@ public class CodeHighlighterJavaScript implements Highlighter {
       if (type != JavaScriptLexer.WhiteSpaces) {
         pretoken = type;
       }
+      currentPosition += token.getText().length();
+    }
+    if (manager.getRainbowBracketsEnabled() && !bracketPositions.isEmpty()) {
+      manager.applyRainbowBrackets(sb, bracketPositions);
     }
     return sb;
+  }
+
+  boolean isBracketToken(int type) {
+    return type == JavaScriptLexer.OpenBracket
+        || type == JavaScriptLexer.CloseBracket
+        || type == JavaScriptLexer.OpenParen
+        || type == JavaScriptLexer.CloseParen
+        || type == JavaScriptLexer.OpenBrace
+        || type == JavaScriptLexer.CloseBrace;
   }
 }

@@ -7,6 +7,7 @@ import ir.ninjacoder.codesnap.Utils.Highlighter;
 import ir.ninjacoder.codesnap.antlr4.PythonLexerCompat;
 import ir.ninjacoder.codesnap.colorhelper.ColorHelper;
 import ir.ninjacoder.codesnap.widget.data.CommentMatcher;
+import ir.ninjacoder.codesnap.widget.data.SpanStyler;
 import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Set;
@@ -26,25 +27,21 @@ public class CodeHighlighterPython implements Highlighter {
     int type;
     int pretoken = -1;
     Token token;
-
+    SpanStyler span = SpanStyler.create();
     while ((token = lexer.nextToken()) != null) {
       type = token.getType();
       if (type == PythonLexerCompat.EOF) break;
       switch (type) {
         case PythonLexerCompat.WS:
-          builder.append(token.getText());
+          span.addNullText(token.getText());
           break;
         case PythonLexerCompat.LBRACE:
         case PythonLexerCompat.LPAR:
         case PythonLexerCompat.LSQB:
-
         case PythonLexerCompat.RBRACE:
         case PythonLexerCompat.RPAR:
         case PythonLexerCompat.RSQB:
-          builder.append(
-              token.getText(),
-              new ForegroundColorSpan(color.getSymbol()),
-              SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+          span.text(token.getText(), color.getSymbol());
           break;
         case PythonLexerCompat.AND:
         case PythonLexerCompat.AS:
@@ -84,10 +81,7 @@ public class CodeHighlighterPython implements Highlighter {
         case PythonLexerCompat.NAME_OR_TYPE:
         case PythonLexerCompat.NAME_OR_MATCH:
         case PythonLexerCompat.NAME_OR_CASE:
-          builder.append(
-              token.getText(),
-              new ForegroundColorSpan(color.getKeyword()),
-              SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+          span.text(token.getText(), color.getKeyword());
           break;
         case PythonLexerCompat.DOT:
         case PythonLexerCompat.STAR:
@@ -123,30 +117,26 @@ public class CodeHighlighterPython implements Highlighter {
         case PythonLexerCompat.ELLIPSIS:
         case PythonLexerCompat.COLONEQUAL:
         case PythonLexerCompat.EXCLAMATION:
-          builder.append(
-              token.getText(),
-              new ForegroundColorSpan(color.getSymbol()),
-              SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+          span.text(token.getText(), color.getSymbol());
           break;
         case PythonLexerCompat.FSTRING:
         case PythonLexerCompat.STRING:
         case PythonLexerCompat.NUMBER:
-          builder.append(CommentMatcher.getFString(token.getText(), color));
+          span.fstring(
+              token.getText(), color.bracketlevel2, color.bracketlevel7, color.getComment());
           break;
         case PythonLexerCompat.COMMENT:
-          builder.append(
-              token.getText(),
-              new ForegroundColorSpan(color.getComment()),
-              SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+          span.text(token.getText(), color.getComment());
           break;
 
         case PythonLexerCompat.IDENTIFIER:
           {
             int colorId = color.getTextnormal();
             String text = token.getText();
-
+            boolean isbold = false;
             if (pretoken == PythonLexerCompat.CLASS || pretoken == PythonLexerCompat.DEF) {
               colorId = color.getMethod();
+              isbold=true;
             } else if (pretoken == PythonLexerCompat.FROM
                 || pretoken == PythonLexerCompat.IMPORT
                 || pretoken == PythonLexerCompat.AS) {
@@ -194,20 +184,14 @@ public class CodeHighlighterPython implements Highlighter {
               }
             }
 
-            builder.append(
-                text,
-                new ForegroundColorSpan(colorId),
-                SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+            span.text(text, colorId,isbold);
             break;
           }
         default:
-          builder.append(
-              token.getText(),
-              new ForegroundColorSpan(color.getTextnormal()),
-              SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+          span.text(token.getText(), color.getTextnormal());
       }
       if (type != PythonLexerCompat.WS) pretoken = type;
     }
-    return builder;
+    return span;
   }
 }

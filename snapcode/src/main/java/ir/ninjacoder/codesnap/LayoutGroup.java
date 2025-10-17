@@ -7,6 +7,7 @@ import android.graphics.pdf.PdfDocument;
 import android.os.Build;
 import android.provider.MediaStore;
 import androidx.annotation.RequiresApi;
+import ir.ninjacoder.codesnap.bracket.BracketManager;
 import ir.ninjacoder.codesnap.colorhelper.ThemeLoader;
 import ir.ninjacoder.codesnap.widget.CodeEditText;
 import java.io.OutputStream;
@@ -43,6 +44,7 @@ public class LayoutGroup extends LinearLayout {
   protected LangType type = LangType.JAVA;
   protected ColorHelper color;
   protected String fileName;
+  private BracketManager manager;
   protected FormatImage img = FormatImage.PNG;
 
   public LayoutGroup(Context c) {
@@ -62,6 +64,7 @@ public class LayoutGroup extends LinearLayout {
       removeAllViews();
       addView(binding.getRoot());
     }
+    
     setLayoutParams(
         new ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -69,6 +72,7 @@ public class LayoutGroup extends LinearLayout {
     binding.blue.setBackground(ColorUtil.get(Color.GREEN));
     binding.green.setBackground(ColorUtil.get(Color.YELLOW));
     color = new ColorHelper();
+    manager = new BracketManager(color);
     String code =
         "public class Main {\n"
             + "    public static void main(String[] args) {\n"
@@ -172,6 +176,7 @@ public class LayoutGroup extends LinearLayout {
     binding.getRoot().setCardBackgroundColor(color.getCardbackground());
     binding.getRoot().setStrokeColor(color.getCardstorkecolor());
     updateHighlight();
+    manager.updateRainbowColors();
     setLayoutChange();
   }
 
