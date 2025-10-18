@@ -34,10 +34,10 @@
 - It is currently a test program, but will become a library in the future.
 
 ## Features
-- [ ] Screenshot capability in Png, jpg, webp format
+- [x] Screenshot capability in Png, jpg, webp format
 - [ ] Format and screenshot
 - [x] Custom theme
-- [ ] Custom editor
+- [x] Custom editor
 
 
 ## How to using
@@ -61,7 +61,7 @@ dependencyResolutionManagement {
 ```groovy
 
 dependencies {
-	        implementation 'com.github.HanzoDev1375:Android-code-snap:087d678231'
+	        implementation 'com.github.HanzoDev1375:Android-code-snap:1.0.1'
 }
 
 
