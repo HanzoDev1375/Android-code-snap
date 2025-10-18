@@ -206,7 +206,9 @@ public class CodeHighlighterJava implements Highlighter {
               colorNormal = colorHelper.getLastdot();
             } else if (lexer._input.LA(1) == '[' || lexer._input.LA(1) == ']') {
               colorNormal = colorHelper.getPrebrak();
-            } else if (pretoken == JavaLexer.DOT) {
+            } else if(lexer._input.LA(2) == '{'){
+              colorNormal = colorHelper.getBracketlevel1();
+            }else if (pretoken == JavaLexer.DOT) {
               colorNormal = colorHelper.getPredot();
             } else if (!isClassName && Character.isUpperCase(token.getText().charAt(0))) {
               Pattern pattern = Pattern.compile("^[A-Z][a-zA-Z0-9_]*$");

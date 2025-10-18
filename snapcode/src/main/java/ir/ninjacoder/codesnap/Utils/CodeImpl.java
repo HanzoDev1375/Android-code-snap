@@ -2,7 +2,6 @@ package ir.ninjacoder.codesnap.Utils;
 
 import ir.ninjacoder.codesnap.LangType;
 import android.text.SpannableStringBuilder;
-import ir.ninjacoder.codesnap.Utils.CodeHighlighterCsharp;
 import ir.ninjacoder.codesnap.colorhelper.ColorHelper;
 
 public class CodeImpl implements Highlighter {
@@ -29,8 +28,11 @@ public class CodeImpl implements Highlighter {
       return new CodeHighlighterKt().highlight(type, code, color);
     } else if (type == LangType.CSHARP) {
       return new CodeHighlighterCsharp().highlight(type, code, color);
+    } else if (type == LangType.TYPESCRIPT) {
+      return new CodeHighlighterTs().highlight(type, code, color);
+    } else if (type == LangType.GRADLE) {
+      return new CodeHighlighterGradle().highlight(type, code, color);
     }
-
     return null;
   }
 }
