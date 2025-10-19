@@ -19,13 +19,14 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import ir.ninjacoder.codesnap.LangType;
 import ir.ninjacoder.codesnap.R;
 import ir.ninjacoder.codesnap.colorhelper.ColorHelper;
 import ir.ninjacoder.codesnap.folding.CodeFoldingManager;
+import ir.ninjacoder.codesnap.widget.data.InlayTextSpan;
 
 public class SyntaxView extends ScrollView {
   private CodeEditText code;
-  private TextView rows;
   private boolean autoIndent = false;
   private LineNumberCalculator lineCode;
   private ColorHelper color = new ColorHelper();
@@ -47,27 +48,15 @@ public class SyntaxView extends ScrollView {
   private void initialize(Context context) {
     inflate(context, R.layout.syntaxview, this);
     code = findViewById(R.id.code);
-    rows = findViewById(R.id.rows);
     lineCode = new LineNumberCalculator(code.getText().toString());
     foldingManager = new CodeFoldingManager(color);
     code.setTextSize(14);
-    rows.setTextSize(14);
     code.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
     code.setSingleLine(false);
-    code.setOnTextSizeChangedListener(
-        size -> {
-          rows.setTextSize(size);
-          updateLineNumbers();
-        });
     code.setImeOptions(EditorInfo.IME_FLAG_NO_ENTER_ACTION);
     code.setBackgroundColor(Color.TRANSPARENT);
     code.setSelection(code.getText().length());
-    rows.setTextColor(color.getLinenumbercolor());
-
-    code.setOnFoldingToggleListener(
-        line -> {
-          toggleFoldingAtLine(line);
-        });
+    code.setLineNumberColor(color.getLinenumbercolor());
 
     applyTheme();
     updateLineNumbers();
@@ -85,7 +74,6 @@ public class SyntaxView extends ScrollView {
             for (int i = 1; i <= numLines; i++) {
               linesText.append(i).append("\n");
             }
-            rows.setText(linesText.toString());
 
             if (codeFoldingEnabled) {
               foldingManager.detectFoldingRegions(s.toString());
@@ -223,11 +211,11 @@ public class SyntaxView extends ScrollView {
 
   public void showLineNumber(boolean show) {
     if (show) {
-      rows.setVisibility(VISIBLE);
-      rows.setAlpha(0f);
-      rows.setScaleX(0.8f);
-      rows.setScaleY(0.8f);
-      rows.animate()
+      code.setShowLineNumbers(show);
+      code.setAlpha(0f);
+      code.setScaleX(0.8f);
+      code.setScaleY(0.8f);
+      code.animate()
           .alpha(1f)
           .scaleX(1f)
           .scaleY(1f)
@@ -235,7 +223,7 @@ public class SyntaxView extends ScrollView {
           .setInterpolator(new OvershootInterpolator(1.0f))
           .setListener(null);
     } else {
-      rows.animate()
+      code.animate()
           .alpha(0f)
           .scaleX(0.8f)
           .scaleY(0.8f)
@@ -245,10 +233,10 @@ public class SyntaxView extends ScrollView {
               new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                  rows.setVisibility(GONE);
-                  rows.setAlpha(1f);
-                  rows.setScaleX(1f);
-                  rows.setScaleY(1f);
+                  code.setShowLineNumbers(show);
+                  code.setAlpha(1f);
+                  code.setScaleX(1f);
+                  code.setScaleY(1f);
                 }
               });
     }
@@ -257,7 +245,6 @@ public class SyntaxView extends ScrollView {
 
   public void setFont(Typeface tf) {
     code.setTypeface(tf);
-    rows.setTypeface(tf);
   }
 
   public void setTypeFaceEditor(Typeface f) {
@@ -265,7 +252,7 @@ public class SyntaxView extends ScrollView {
   }
 
   public void setTypeFaceLineNumber(Typeface d) {
-    rows.setTypeface(d);
+    code.setLineNumberTypeFace(d);
   }
 
   public void setText(String text) {
@@ -281,16 +268,13 @@ public class SyntaxView extends ScrollView {
 
   public void setTextSize(float size) {
     code.setTextSize(size);
-    rows.setTextSize(size);
   }
 
   public void setTextColor(int color) {
     code.setTextColor(color);
   }
 
-  void setLineNumberBackgroundColor(int color) {
-    rows.setBackgroundColor(color);
-  }
+  void setLineNumberBackgroundColor(int color) {}
 
   void setCodeBackgroundColor(int color) {
     code.setBackgroundColor(color);
@@ -300,9 +284,7 @@ public class SyntaxView extends ScrollView {
     code.setPadding(left, top, right, bottom);
   }
 
-  public void setLineNumberPadding(int left, int top, int right, int bottom) {
-    rows.setPadding(left, top, right, bottom);
-  }
+  public void setLineNumberPadding(int left, int top, int right, int bottom) {}
 
   public void setHint(String hint) {
     code.setHint(hint);
@@ -337,7 +319,7 @@ public class SyntaxView extends ScrollView {
   }
 
   public void applyTheme() {
-    rows.setTextColor(color.getLinenumbercolor());
+
     setCodeBackgroundColor(Color.TRANSPARENT);
     setTextColor(color.getTextnormal());
     invalidate();
@@ -356,7 +338,6 @@ public class SyntaxView extends ScrollView {
     for (int i = 1; i <= numLines; i++) {
       linesText.append(i).append("\n");
     }
-    rows.setText(linesText.toString());
   }
 
   private int countLines(String text) {

@@ -103,7 +103,7 @@ adding `xml` in your activity
   //how to select theme ?
   editor.setTheme(#ThemeManager);
    //see other method in MainActivity
-  
+  editor.setText(#String);
 ```
 
 

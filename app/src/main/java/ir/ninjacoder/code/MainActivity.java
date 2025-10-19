@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
@@ -20,13 +21,13 @@ import androidx.core.content.ContextCompat;
 import ir.ninjacoder.code.databinding.ActivityMainBinding;
 import ir.ninjacoder.codesnap.FormatImage;
 import ir.ninjacoder.codesnap.LangType;
+import ir.ninjacoder.codesnap.Utils.CodeImpl;
+import ir.ninjacoder.codesnap.colorhelper.ColorHelper;
 import ir.ninjacoder.codesnap.colorhelper.ThemeManager;
 import ir.ninjacoder.codesnap.widget.editorbase.EffectType;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import kotlin.contracts.Effect;
 
 public class MainActivity extends AppCompatActivity {
   private ActivityMainBinding binding;
@@ -50,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
         v -> {
           binding.et.takeScreenshot(FormatImage.PNG);
         });
+    
     ad.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     binding.sp.setOnItemSelectedListener(
         new AdapterView.OnItemSelectedListener() {
@@ -68,12 +70,29 @@ public class MainActivity extends AppCompatActivity {
         (is, c) -> {
           binding.et.getEditor().showLineNumber(c);
         });
+        String code  = """
+          public class Main{
+           
+            public void runItem() {
+              int id = 0;
+              if(id == 0) System.out.println("Hello");
+             
+            }
+          
+          }
+        """;
+     binding.et.setText(code);
     binding
         .et
         .getEditor()
         .setFont(Typeface.createFromFile(new File("/storage/emulated/0/apk/ghostfont.ttf")));
+    getWindow()
+        .setSoftInputMode(
+            WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE
+                | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
     setupef();
+
     binding.et.setThemeCustom("/storage/emulated/0/Apktool_M/theme.json");
   }
 
@@ -161,11 +180,11 @@ public class MainActivity extends AppCompatActivity {
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
-     
+
     if (requestCode == 10) {
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         if (Environment.isExternalStorageManager()) {
-           return;
+          return;
         } else {
           Toast.makeText(this, "برای عملکرد کامل اپ، مجوز دسترسی لازم است", Toast.LENGTH_LONG)
               .show();

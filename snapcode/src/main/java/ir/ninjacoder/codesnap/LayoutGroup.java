@@ -5,7 +5,16 @@ import android.content.ContentValues;
 import android.graphics.Paint;
 import android.graphics.pdf.PdfDocument;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.TextWatcher;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.BackgroundColorSpan;
+import android.text.style.StyleSpan;
 import androidx.annotation.RequiresApi;
 import ir.ninjacoder.codesnap.bracket.BracketManager;
 import ir.ninjacoder.codesnap.colorhelper.ThemeLoader;
@@ -73,22 +82,22 @@ public class LayoutGroup extends LinearLayout {
     binding.green.setBackground(ColorUtil.get(Color.YELLOW));
     color = new ColorHelper();
     manager = new BracketManager(color);
-    String code =
-        "public class Main {\n"
-            + "//code by @ghost {data}\n\n "
-            + "    public static void main(String[] args) {\n"
-            + "        System.out.println(\"Hello World\");\n"
-            + "        \n"
-            + "        if (true) {\n"
-            + "            System.out.println(\"Inside if\");\n"
-            + "        }\n"
-            + "        \n"
-            + "        for (int i = 0; i < 10; i++) {\n"
-            + "            System.out.println(i);\n"
-            + "        }\n"
-            + "    }\n"
-            + "}";
-    highlightText(code, binding.editor.getCode());
+    
+    getCode()
+        .addTextChangedListener(
+            new TextWatcher() {
+
+              @Override
+              public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {}
+
+              @Override
+              public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {}
+
+              @Override
+              public void afterTextChanged(Editable arg0) {
+              //  highlightText(arg0.toString(), binding.editor.getCode());
+              }
+            });
     color.addOnThemeChangeListener(
         () -> {
           updateTheme();
@@ -109,15 +118,111 @@ public class LayoutGroup extends LinearLayout {
           return true;
         });
   }
-
+  
+  public void setText(String text){
+    highlightText(text, binding.editor.getCode());
+  }
   private void highlightText(String text, EditText editText) {
     try {
       CodeImpl code = new CodeImpl();
-      editText.setText(code.highlight(type, text, color));
+      final SpannableStringBuilder highlightedText = code.highlight(type, text, color);
+
+      // اول متن رو ساده ست کن
+      editText.setText(text);
+
+      // انیمیشن بهینه‌شده
+      animateOptimizedColorWave(editText, highlightedText);
 
     } catch (Exception e) {
       e.printStackTrace();
     }
+  }
+
+  private void animateOptimizedColorWave(
+      final EditText editText, final SpannableStringBuilder highlightedText) {
+    final Editable editableText = editText.getText();
+    final int totalLength = highlightedText.length();
+    final int chunkSize = Math.max(100, totalLength / 30); // اندازه chunk داینامیک
+    final long frameDelay = 90; // تأخیر کمتر
+
+    new Handler(Looper.getMainLooper())
+        .post(
+            new Runnable() {
+              int currentPos = 0;
+
+              @Override
+              public void run() {
+                if (currentPos < totalLength) {
+                  int endPos = Math.min(currentPos + chunkSize, totalLength);
+
+                  // فقط اسپن‌های مربوط به این بخش رو اعمال کن
+                  Object[] spans = highlightedText.getSpans(currentPos, endPos, Object.class);
+                  for (Object span : spans) {
+                    int start = highlightedText.getSpanStart(span);
+                    int end = highlightedText.getSpanEnd(span);
+
+                    // فقط اگر اسپن در محدوده فعلی هست
+                    if (start < endPos && end > currentPos) {
+                      Object newSpan = copySpan(span);
+                      editableText.setSpan(newSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    }
+                  }
+
+                  currentPos = endPos;
+                  editText.postDelayed(this, frameDelay);
+                }
+              }
+            });
+  }
+
+  // یا این نسخه ساده‌تر و سریع‌تر:
+  private void animateFastColorWave(
+      final EditText editText, final SpannableStringBuilder highlightedText) {
+    final Editable editableText = editText.getText();
+    final int totalLength = highlightedText.length();
+    final int steps = 10; // فریم‌های کمتر
+    final long delay = 30;
+
+    new Handler(Looper.getMainLooper())
+        .post(
+            new Runnable() {
+              int currentStep = 0;
+
+              @Override
+              public void run() {
+                if (currentStep <= steps) {
+                  float progress = (float) currentStep / steps;
+                  int currentPos = (int) (totalLength * progress);
+
+                  // فقط اسپن‌های جدید رو اضافه کن
+                  Object[] spans =
+                      highlightedText.getSpans(currentPos - 100, currentPos, Object.class);
+                  for (Object span : spans) {
+                    int start = highlightedText.getSpanStart(span);
+                    int end = highlightedText.getSpanEnd(span);
+                    if (end <= currentPos
+                        && editableText.getSpans(start, end, span.getClass()).length == 0) {
+                      editableText.setSpan(
+                          copySpan(span), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    }
+                  }
+
+                  currentStep++;
+                  editText.postDelayed(this, delay);
+                }
+              }
+            });
+  }
+
+  private Object copySpan(Object span) {
+    if (span instanceof ForegroundColorSpan) {
+      return new ForegroundColorSpan(((ForegroundColorSpan) span).getForegroundColor());
+    } else if (span instanceof BackgroundColorSpan) {
+      return new BackgroundColorSpan(((BackgroundColorSpan) span).getBackgroundColor());
+    } else if (span instanceof StyleSpan) {
+      return new StyleSpan(((StyleSpan) span).getStyle());
+    }
+    return span;
   }
 
   void updateHighlight() {
@@ -132,6 +237,10 @@ public class LayoutGroup extends LinearLayout {
   public void setType(LangType type) {
     this.type = type;
     updateHighlight();
+  }
+
+  public boolean getFilePath(String path) {
+    return this.type.hasFile(path);
   }
 
   public ColorHelper getColor() {

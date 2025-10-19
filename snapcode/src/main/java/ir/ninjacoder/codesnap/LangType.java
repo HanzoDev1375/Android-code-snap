@@ -1,5 +1,7 @@
 package ir.ninjacoder.codesnap;
 
+import java.util.Arrays;
+
 public enum LangType {
   JAVA(".java"),
   PYTHON(".py"),
@@ -23,5 +25,18 @@ public enum LangType {
 
   public String getLangname() {
     return this.langname;
+  }
+
+  public LangType getLangTypeFromPath(String filePath) {
+    for (LangType lang : LangType.values()) {
+      if (filePath.endsWith(lang.getLangname())) {
+        return lang;
+      }
+    }
+    return null;
+  }
+
+  public  boolean hasFile(String file) {
+    return Arrays.stream(LangType.values()).allMatch(it -> file.endsWith(it.getLangname()));
   }
 }

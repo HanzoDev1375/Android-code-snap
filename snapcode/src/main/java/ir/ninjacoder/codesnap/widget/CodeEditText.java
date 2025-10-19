@@ -2,31 +2,34 @@ package ir.ninjacoder.codesnap.widget;
 
 import android.content.Context;
 import android.text.Editable;
+import android.text.Layout;
 import android.text.Spannable;
+import android.text.Spanned;
 import android.text.TextWatcher;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.StyleSpan;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.GestureDetector;
 import android.view.ScaleGestureDetector;
 import android.widget.EditText;
-import android.text.Layout;
-import android.graphics.Rect;
-import ir.ninjacoder.codesnap.widget.ad.SuggestionAdapter;
-import ir.ninjacoder.codesnap.widget.editorbase.EffectType;
-import ir.ninjacoder.codesnap.widget.editorbase.PowerModeEditText;
-import java.util.HashSet;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Color;
+import android.content.res.Resources;
+import android.widget.MultiAutoCompleteTextView;
+import ir.ninjacoder.codesnap.widget.data.*;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
-import android.widget.MultiAutoCompleteTextView;
-import androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView;
+import java.util.ArrayList;
 
 import ir.ninjacoder.codesnap.colorhelper.ColorHelper;
-import java.util.ArrayList;
+import ir.ninjacoder.codesnap.widget.ad.SuggestionAdapter;
 import ir.ninjacoder.codesnap.widget.ad.KeywordTokenizer;
-import android.content.res.Resources;
+import ir.ninjacoder.codesnap.widget.editorbase.EffectType;
+import ir.ninjacoder.codesnap.widget.editorbase.PowerModeEditText;
 
 public class CodeEditText extends PowerModeEditText {
 
@@ -38,22 +41,32 @@ public class CodeEditText extends PowerModeEditText {
   private ArrayList<String> suggestionsList;
   private ArrayList<String> suggestionsList1;
 
-  private boolean showInlays = true;
+  public interface OnTextSizeChangedListener {
+    void onTextSizeChanged(float newSize);
+  }
+
+  public interface OnFoldingToggleListener {
+    void onFoldingToggled(int lineNumber);
+  }
+
   private OnTextSizeChangedListener textSizeChangedListener;
 
   private GestureDetector gestureDetector;
   private ScaleGestureDetector scaleGestureDetector;
   private float scaleFactor = 1.0f;
-  private float minScale = 0.7f;
-  private float maxScale = 2.0f;
+  private final float minScale = 0.7f;
+  private final float maxScale = 2.5f;
   private boolean isZooming = false;
 
   private OnFoldingToggleListener foldingToggleListener;
   private boolean codeFoldingEnabled = true;
-
-  public interface OnFoldingToggleListener {
-    void onFoldingToggled(int lineNumber);
-  }
+  private boolean showLineNumbers = true;
+  private int lineNumberWidth = 0;
+  private Paint lineNumberPaint;
+  private Paint lineNumberBackgroundPaint;
+  private int lineNumberPadding = 16;
+  private float baseTextSize;
+  private float lineNumberTextSize;
 
   public CodeEditText(Context context) {
     super(context);
@@ -71,20 +84,91 @@ public class CodeEditText extends PowerModeEditText {
   }
 
   public void setOnTextSizeChangedListener(OnTextSizeChangedListener listener) {
-    if (listener != null) this.textSizeChangedListener = listener;
+    this.textSizeChangedListener = listener;
+  }
+
+  public void setOnFoldingToggleListener(OnFoldingToggleListener listener) {
+    this.foldingToggleListener = listener;
+  }
+
+  public void setCodeFoldingEnabled(boolean enabled) {
+    this.codeFoldingEnabled = enabled;
+    invalidate();
+  }
+
+  public boolean isCodeFoldingEnabled() {
+    return codeFoldingEnabled;
+  }
+
+  public void addInlayAuto(String target, String hint, InlayTextSpan.Mode mode) {
+    Editable text = getText();
+    if (text == null || target == null || target.isEmpty()) return;
+
+    String content = text.toString();
+    int index = content.indexOf(target);
+    if (index == -1) return;
+
+    // از layout اندروید برای به‌دست آوردن خط و ستون استفاده می‌کنیم
+    Layout layout = getLayout();
+    if (layout == null) return;
+
+    int line = layout.getLineForOffset(index);
+    int lineStart = layout.getLineStart(line);
+    int column = index - lineStart;
+
+    addInlayAt(line, column, hint, mode);
+  }
+
+  public void addInlayAt(int line, int column, String hint, InlayTextSpan.Mode mode) {
+    Editable text = getText();
+    if (text == null) return;
+
+    Layout layout = getLayout();
+    if (layout == null) return;
+
+    // به دست آوردن offset دقیق از روی خط و ستون
+    int lineStart = layout.getLineStart(line);
+    int offset = lineStart + column;
+
+    if (offset < 0 || offset > text.length()) return;
+
+    int bgColor = Color.argb(60, 128, 128, 128);
+    int textColor = Color.GRAY;
+
+    InlayTextSpan span = new InlayTextSpan(hint, bgColor, textColor, mode);
+    text.setSpan(
+        span, offset, offset + targetLengthSafe(text, offset), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+    invalidate();
+  }
+  private int targetLengthSafe(CharSequence text, int start) {
+    int end = start;
+    while (end < text.length() && Character.isJavaIdentifierPart(text.charAt(end))) end++;
+    return end - start;
   }
 
   private void applyZoom() {
-    float newSize = 14 * scaleFactor;
-    setTextSize(newSize);
+
+    float newSize = baseTextSize * scaleFactor;
+
+    super.setTextSize(TypedValue.COMPLEX_UNIT_PX, newSize);
+
+    if (lineNumberPaint != null) {
+      lineNumberPaint.setTextSize(newSize);
+    }
+
     if (textSizeChangedListener != null) {
       textSizeChangedListener.onTextSizeChanged(newSize);
     }
+
+    updateLineNumberWidth();
     requestLayout();
+    invalidate();
   }
 
   private void init() {
     setHorizontallyScrolling(true);
+    post(() -> resetZoom());
     if (mAutoCompleteTokenizer == null) mAutoCompleteTokenizer = new KeywordTokenizer();
     setTokenizer(mAutoCompleteTokenizer);
     setDropDownWidth(Resources.getSystem().getDisplayMetrics().widthPixels / 2);
@@ -93,6 +177,11 @@ public class CodeEditText extends PowerModeEditText {
     gestureDetector = new GestureDetector(getContext(), new GestureListener());
     scaleGestureDetector = new ScaleGestureDetector(getContext(), new ScaleListener());
 
+    baseTextSize = getTextSize();
+    lineNumberTextSize = baseTextSize;
+    setHint("Type code ");
+    setHintTextColor(color.getLastsymi());
+    initLineNumberPaints();
     addTextChangedListener(
         new TextWatcher() {
           @Override
@@ -111,16 +200,166 @@ public class CodeEditText extends PowerModeEditText {
             if (isCursorVisible()) {
               setCursorVisible(false);
             }
+            updateLineNumberWidth();
+            invalidate();
           }
         });
   }
 
-  public void setOnFoldingToggleListener(OnFoldingToggleListener listener) {
-    this.foldingToggleListener = listener;
+  private void initLineNumberPaints() {
+    lineNumberPaint = new Paint();
+    lineNumberPaint.setAntiAlias(true);
+    lineNumberPaint.setTextSize(baseTextSize * scaleFactor);
+    lineNumberPaint.setColor(color.getLinenumbercolor());
+    lineNumberPaint.setTextAlign(Paint.Align.RIGHT);
+
+    lineNumberBackgroundPaint = new Paint();
+    lineNumberBackgroundPaint.setColor(Color.TRANSPARENT);
   }
 
-  public void setCodeFoldingEnabled(boolean enabled) {
-    this.codeFoldingEnabled = enabled;
+  private void updateLineNumberWidth() {
+    if (!showLineNumbers) {
+      lineNumberWidth = 0;
+      setPadding(0, getPaddingTop(), getPaddingRight(), getPaddingBottom());
+      return;
+    }
+
+    int lineCount = getLineCount();
+    int maxDigits = Math.max(1, String.valueOf(Math.max(lineCount, 1)).length());
+
+    float charWidth = lineNumberPaint.measureText("0");
+    float textWidth = charWidth * (maxDigits + 1);
+    lineNumberWidth = (int) textWidth + lineNumberPadding * 2;
+
+    setPadding(lineNumberWidth, getPaddingTop(), getPaddingRight(), getPaddingBottom());
+  }
+
+  public void setLineNumberColor(int color) {
+    lineNumberPaint.setColor(color);
+  }
+
+  @Override
+  protected void onDraw(Canvas canvas) {
+
+    canvas.save();
+
+    if (showLineNumbers) {
+      drawLineNumbers(canvas);
+    }
+
+    canvas.clipRect(lineNumberWidth, 0, getWidth(), getHeight());
+
+    super.onDraw(canvas);
+
+    canvas.restore();
+  }
+
+  private void drawLineNumbers(Canvas canvas) {
+    if (getLayout() == null) return;
+
+    int baseline;
+    int lineCount = getLineCount();
+    int currentLine = getCurrentLine();
+
+    canvas.drawRect(0, 0, lineNumberWidth, getHeight(), lineNumberBackgroundPaint);
+
+    Paint separatorPaint = new Paint();
+    separatorPaint.setColor(color.getLinenumbercolor());
+    separatorPaint.setAlpha(50);
+    canvas.drawLine(lineNumberWidth - 1, 0, lineNumberWidth - 1, getHeight(), separatorPaint);
+
+    for (int i = 0; i < lineCount; i++) {
+      baseline = getLineBounds(i, null);
+
+      if (i == currentLine) {
+        lineNumberPaint.setColor(color.getLinenumbercolor());
+        lineNumberPaint.setTypeface(Typeface.DEFAULT_BOLD);
+      } else {
+        lineNumberPaint.setColor(color.getLinenumbercolor());
+        lineNumberPaint.setTypeface(Typeface.DEFAULT);
+      }
+
+      String lineNumber = String.valueOf(i + 1);
+      canvas.drawText(lineNumber, lineNumberWidth - lineNumberPadding, baseline, lineNumberPaint);
+    }
+  }
+
+  private int getCurrentLine() {
+    if (getLayout() == null) return 0;
+
+    int selectionStart = getSelectionStart();
+    return getLayout().getLineForOffset(selectionStart);
+  }
+
+  @Override
+  protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+    super.onSizeChanged(w, h, oldw, oldh);
+    updateLineNumberWidth();
+  }
+
+  @Override
+  protected void onTextChanged(CharSequence text, int start, int lengthBefore, int lengthAfter) {
+    super.onTextChanged(text, start, lengthBefore, lengthAfter);
+    updateLineNumberWidth();
+  }
+
+  /** override setTextSize‌ها تا baseTextSize به صورت ناخواسته آپدیت نشود. */
+  @Override
+  public void setTextSize(float size) {
+
+    super.setTextSize(size);
+    this.baseTextSize = getTextSize();
+    this.lineNumberTextSize = baseTextSize;
+    updateLineNumberWidth();
+  }
+
+  @Override
+  public void setTextSize(int unit, float size) {
+
+    super.setTextSize(unit, size);
+    this.baseTextSize = getTextSize();
+    this.lineNumberTextSize = baseTextSize;
+    updateLineNumberWidth();
+  }
+
+  public void setBaseTextSizePx(float px) {
+    this.baseTextSize = px;
+    this.lineNumberTextSize = px;
+    applyZoom();
+  }
+
+  public void setShowLineNumbers(boolean show) {
+    this.showLineNumbers = show;
+    updateLineNumberWidth();
+    invalidate();
+  }
+
+  public boolean isShowingLineNumbers() {
+    return showLineNumbers;
+  }
+
+  public void setLineNumberBackgroundColor(int color) {
+    lineNumberBackgroundPaint.setColor(color);
+    invalidate();
+  }
+
+  public void setLineNumberPadding(int padding) {
+    this.lineNumberPadding = padding;
+    updateLineNumberWidth();
+    invalidate();
+  }
+
+  public void setLineNumberTextSize(float size) {
+    this.lineNumberTextSize = size;
+    if (lineNumberPaint != null) {
+      lineNumberPaint.setTextSize(size * scaleFactor);
+      updateLineNumberWidth();
+    }
+    invalidate();
+  }
+
+  public float getLineNumberTextSize() {
+    return lineNumberTextSize;
   }
 
   @Override
@@ -163,6 +402,7 @@ public class CodeEditText extends PowerModeEditText {
     @Override
     public void onScaleEnd(ScaleGestureDetector detector) {
       isZooming = false;
+      invalidate();
       super.onScaleEnd(detector);
     }
   }
@@ -170,6 +410,13 @@ public class CodeEditText extends PowerModeEditText {
   public void resetZoom() {
     scaleFactor = 1.0f;
     applyZoom();
+
+    postDelayed(
+        () -> {
+          updateLineNumberWidth();
+          invalidate();
+        },
+        50);
   }
 
   public void zoomIn() {
@@ -204,6 +451,8 @@ public class CodeEditText extends PowerModeEditText {
     } else if (isBracket(at)) {
       highlightBracketPair(cursorPos);
     }
+
+    invalidate();
   }
 
   private void highlightBracketPair(int pos) {
@@ -344,5 +593,9 @@ public class CodeEditText extends PowerModeEditText {
 
   public void setEffects(EffectType type) {
     setEffect(type);
+  }
+
+  public void setLineNumberTypeFace(Typeface f) {
+    lineNumberBackgroundPaint.setTypeface(f);
   }
 }

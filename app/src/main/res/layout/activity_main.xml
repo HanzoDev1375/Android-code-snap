@@ -33,6 +33,7 @@
         android:id="@+id/speff">
 
     </Spinner>
+
     <ScrollView
         android:layout_height="match_parent"
         android:layout_width="match_parent">
@@ -64,6 +65,7 @@
                 android:layout_marginTop="10dp"
                 android:id="@+id/showline"
                 android:text="show line number" />
+
 
         </LinearLayout>
 
