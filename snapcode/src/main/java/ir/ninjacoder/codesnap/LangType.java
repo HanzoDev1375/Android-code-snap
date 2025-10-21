@@ -15,7 +15,8 @@ public enum LangType {
   CSS(".css"),
   KOTLIN(".kt"),
   CSHARP(".cs"),
-  GRADLE(".gradle");
+  GRADLE(".gradle"),
+  DART(".dart");
 
   private final String langname;
 
@@ -36,7 +37,7 @@ public enum LangType {
     return null;
   }
 
-  public  boolean hasFile(String file) {
+  public boolean hasFile(String file) {
     return Arrays.stream(LangType.values()).allMatch(it -> file.endsWith(it.getLangname()));
   }
 }

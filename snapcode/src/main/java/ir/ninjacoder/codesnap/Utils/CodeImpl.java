@@ -32,6 +32,8 @@ public class CodeImpl implements Highlighter {
       return new CodeHighlighterTs().highlight(type, code, color);
     } else if (type == LangType.GRADLE) {
       return new CodeHighlighterGradle().highlight(type, code, color);
+    } else if (type == LangType.DART) {
+      return new CodeHighlighterDart().highlight(type, code, color);
     }
     return null;
   }

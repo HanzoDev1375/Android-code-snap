@@ -118,9 +118,14 @@ public class CodeHighlighterPython implements Highlighter {
           break;
         case PythonLexerCompat.FSTRING:
         case PythonLexerCompat.STRING:
-        case PythonLexerCompat.NUMBER:
           span.fstring(
-              token.getText(), color.bracketlevel2, color.bracketlevel7, color.getComment());
+              token.getText(),
+              color.getBracketlevel2(),
+              color.getBracketlevel3(),
+              color.getStrings());
+          break;
+        case PythonLexerCompat.NUMBER:
+          span.text(token.getText(), color.getLastsymi());
           break;
         case PythonLexerCompat.COMMENT:
           span.text(token.getText(), color.getComment());
@@ -133,7 +138,7 @@ public class CodeHighlighterPython implements Highlighter {
             boolean isbold = false;
             if (pretoken == PythonLexerCompat.CLASS || pretoken == PythonLexerCompat.DEF) {
               colorId = color.getMethod();
-              isbold=true;
+              isbold = true;
             } else if (pretoken == PythonLexerCompat.FROM
                 || pretoken == PythonLexerCompat.IMPORT
                 || pretoken == PythonLexerCompat.AS) {
@@ -181,7 +186,7 @@ public class CodeHighlighterPython implements Highlighter {
               }
             }
 
-            span.text(text, colorId,isbold);
+            span.text(text, colorId, isbold);
             break;
           }
         default:

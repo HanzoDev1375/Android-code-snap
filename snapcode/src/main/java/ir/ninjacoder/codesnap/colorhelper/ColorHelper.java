@@ -275,7 +275,7 @@ public class ColorHelper {
     operator = Color.parseColor("#FFDCDCAA");
     method = Color.parseColor("#FFD7BA7D");
     variable = Color.parseColor("#FF9CDCFE");
-    symbol = Color.parseColor("#FFD4D4D4");
+    symbol = Color.parseColor("#FF6AFAFF");
     comment = Color.parseColor("#FF6A9955");
     lastdot = Color.parseColor("#FFCE9178");
     lastsymi = Color.parseColor("#FFCE9178");

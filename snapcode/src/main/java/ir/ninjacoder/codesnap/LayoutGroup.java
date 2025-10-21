@@ -16,6 +16,8 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.StyleSpan;
 import androidx.annotation.RequiresApi;
+import ir.ninjacoder.codesnap.Utils.opt.IlluminationDrawable;
+import ir.ninjacoder.codesnap.Utils.opt.LightSourceDrawable;
 import ir.ninjacoder.codesnap.bracket.BracketManager;
 import ir.ninjacoder.codesnap.colorhelper.ThemeLoader;
 import ir.ninjacoder.codesnap.widget.CodeEditText;
@@ -82,7 +84,14 @@ public class LayoutGroup extends LinearLayout {
     binding.green.setBackground(ColorUtil.get(Color.YELLOW));
     color = new ColorHelper();
     manager = new BracketManager(color);
+
+    var drawable = new IlluminationDrawable();
     
+//    drawable.setRippleMinSize(10f);
+//    drawable.setRippleMaxSize(50f);
+//    drawable.setHighlightColor(Color.CYAN);
+
+    //binding.editor.getCode().setForeground(drawable);
     getCode()
         .addTextChangedListener(
             new TextWatcher() {
@@ -95,7 +104,7 @@ public class LayoutGroup extends LinearLayout {
 
               @Override
               public void afterTextChanged(Editable arg0) {
-              //  highlightText(arg0.toString(), binding.editor.getCode());
+                //  highlightText(arg0.toString(), binding.editor.getCode());
               }
             });
     color.addOnThemeChangeListener(
@@ -118,10 +127,11 @@ public class LayoutGroup extends LinearLayout {
           return true;
         });
   }
-  
-  public void setText(String text){
+
+  public void setText(String text) {
     highlightText(text, binding.editor.getCode());
   }
+
   private void highlightText(String text, EditText editText) {
     try {
       CodeImpl code = new CodeImpl();

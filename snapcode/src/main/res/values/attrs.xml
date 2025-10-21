@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="IlluminationDrawable">
+        <attr name="rippleMinSize" format="dimension" />
+        <attr name="rippleMaxSize" format="dimension" />
+        <attr name="highlight" format="integer" />
+    </declare-styleable>
+</resources>

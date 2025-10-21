@@ -40,6 +40,9 @@ public class CodeEditText extends PowerModeEditText {
   private MultiAutoCompleteTextView.Tokenizer mAutoCompleteTokenizer;
   private ArrayList<String> suggestionsList;
   private ArrayList<String> suggestionsList1;
+  private boolean codeStickyEnabled = true;
+  private Paint stickyLineNumberPaint;
+  private Paint stickyLineNumberBackgroundPaint;
 
   public interface OnTextSizeChangedListener {
     void onTextSizeChanged(float newSize);
@@ -108,7 +111,6 @@ public class CodeEditText extends PowerModeEditText {
     int index = content.indexOf(target);
     if (index == -1) return;
 
-    // از layout اندروید برای به‌دست آوردن خط و ستون استفاده می‌کنیم
     Layout layout = getLayout();
     if (layout == null) return;
 
@@ -126,7 +128,6 @@ public class CodeEditText extends PowerModeEditText {
     Layout layout = getLayout();
     if (layout == null) return;
 
-    // به دست آوردن offset دقیق از روی خط و ستون
     int lineStart = layout.getLineStart(line);
     int offset = lineStart + column;
 
@@ -141,6 +142,7 @@ public class CodeEditText extends PowerModeEditText {
 
     invalidate();
   }
+
   private int targetLengthSafe(CharSequence text, int start) {
     int end = start;
     while (end < text.length() && Character.isJavaIdentifierPart(text.charAt(end))) end++;
@@ -148,13 +150,16 @@ public class CodeEditText extends PowerModeEditText {
   }
 
   private void applyZoom() {
-
     float newSize = baseTextSize * scaleFactor;
 
     super.setTextSize(TypedValue.COMPLEX_UNIT_PX, newSize);
 
     if (lineNumberPaint != null) {
       lineNumberPaint.setTextSize(newSize);
+    }
+
+    if (stickyLineNumberPaint != null) {
+      stickyLineNumberPaint.setTextSize(newSize);
     }
 
     if (textSizeChangedListener != null) {
@@ -182,6 +187,8 @@ public class CodeEditText extends PowerModeEditText {
     setHint("Type code ");
     setHintTextColor(color.getLastsymi());
     initLineNumberPaints();
+    initStickyLineNumberPaints();
+    setCodeStickyEnabled(false);
     addTextChangedListener(
         new TextWatcher() {
           @Override
@@ -217,6 +224,27 @@ public class CodeEditText extends PowerModeEditText {
     lineNumberBackgroundPaint.setColor(Color.TRANSPARENT);
   }
 
+  private void initStickyLineNumberPaints() {
+    stickyLineNumberPaint = new Paint();
+    stickyLineNumberPaint.setAntiAlias(true);
+    stickyLineNumberPaint.setTextSize(baseTextSize * scaleFactor);
+    stickyLineNumberPaint.setColor(color.getBracketlevel1());
+    stickyLineNumberPaint.setTextAlign(Paint.Align.RIGHT);
+    stickyLineNumberPaint.setTypeface(Typeface.DEFAULT_BOLD);
+
+    stickyLineNumberBackgroundPaint = new Paint();
+    stickyLineNumberBackgroundPaint.setColor(Color.argb(200, 40, 40, 40));
+  }
+
+  public void setCodeStickyEnabled(boolean enabled) {
+    this.codeStickyEnabled = enabled;
+    invalidate();
+  }
+
+  public boolean isCodeStickyEnabled() {
+    return codeStickyEnabled;
+  }
+
   private void updateLineNumberWidth() {
     if (!showLineNumbers) {
       lineNumberWidth = 0;
@@ -240,18 +268,45 @@ public class CodeEditText extends PowerModeEditText {
 
   @Override
   protected void onDraw(Canvas canvas) {
-
     canvas.save();
 
     if (showLineNumbers) {
       drawLineNumbers(canvas);
+
+      if (codeStickyEnabled) {
+        drawStickyLineNumber(canvas);
+      }
     }
 
     canvas.clipRect(lineNumberWidth, 0, getWidth(), getHeight());
-
     super.onDraw(canvas);
-
     canvas.restore();
+  }
+
+  private void drawStickyLineNumber(Canvas canvas) {
+    if (getLayout() == null) return;
+
+    int currentLine = getCurrentLine();
+    if (currentLine < 0) return;
+
+    int baseline = getLineBounds(currentLine, null);
+    int stickyTop = getScrollY();
+    int stickyBottom = stickyTop + (int) getTextSize() + getPaddingTop();
+
+    canvas.drawRect(0, stickyTop, lineNumberWidth, stickyBottom, stickyLineNumberBackgroundPaint);
+
+    Paint separatorPaint = new Paint();
+    separatorPaint.setColor(color.getLinenumbercolor());
+    separatorPaint.setAlpha(100);
+    canvas.drawLine(
+        lineNumberWidth - 1, stickyTop, lineNumberWidth - 1, stickyBottom, separatorPaint);
+
+    String lineNumber = String.valueOf(currentLine + 1);
+    float textY =
+        stickyTop
+            + (stickyBottom - stickyTop - stickyLineNumberPaint.getTextSize()) / 2
+            + stickyLineNumberPaint.getTextSize();
+    canvas.drawText(lineNumber, lineNumberWidth - lineNumberPadding, textY, stickyLineNumberPaint);
   }
 
   private void drawLineNumbers(Canvas canvas) {
@@ -286,7 +341,6 @@ public class CodeEditText extends PowerModeEditText {
 
   private int getCurrentLine() {
     if (getLayout() == null) return 0;
-
     int selectionStart = getSelectionStart();
     return getLayout().getLineForOffset(selectionStart);
   }
@@ -303,10 +357,8 @@ public class CodeEditText extends PowerModeEditText {
     updateLineNumberWidth();
   }
 
-  /** override setTextSize‌ها تا baseTextSize به صورت ناخواسته آپدیت نشود. */
   @Override
   public void setTextSize(float size) {
-
     super.setTextSize(size);
     this.baseTextSize = getTextSize();
     this.lineNumberTextSize = baseTextSize;
@@ -315,7 +367,6 @@ public class CodeEditText extends PowerModeEditText {
 
   @Override
   public void setTextSize(int unit, float size) {
-
     super.setTextSize(unit, size);
     this.baseTextSize = getTextSize();
     this.lineNumberTextSize = baseTextSize;
@@ -497,11 +548,11 @@ public class CodeEditText extends PowerModeEditText {
   }
 
   private boolean isOpenBracket(char c) {
-    return c == '(' || c == '{' || c == '[';
+    return c == '(' || c == '{' || c == '[' || c == '<';
   }
 
   private boolean isCloseBracket(char c) {
-    return c == ')' || c == '}' || c == ']';
+    return c == ')' || c == '}' || c == ']' || c == '>';
   }
 
   private int findMatchingForward(String text, int start, char open) {

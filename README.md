@@ -16,7 +16,7 @@
 # Supported languages
 
 - [x] java
-- [x] python
+- [x] python  
 - [x] javascript
 - [x] c
 - [x] c++
@@ -27,7 +27,20 @@
 - [x] kotlin
 - [ ] typescript
 - [x] csharp
-
+- [x] gradle
+- [ ] markdown
+- [ ] go
+- [ ] swift
+- [x] dart
+- [ ] ruby
+- [ ] scala
+- [ ] perl
+- [ ] r
+- [ ] matlab
+- [ ] lua
+- [ ] yaml
+- [ ] json
+- [ ] xml
 
 ## Note
 

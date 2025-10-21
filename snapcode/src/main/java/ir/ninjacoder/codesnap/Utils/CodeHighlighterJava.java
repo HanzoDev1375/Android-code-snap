@@ -162,7 +162,7 @@ public class CodeHighlighterJava implements Highlighter {
         case JavaLexer.INT:
         case JavaLexer.LONG:
         case JavaLexer.SHORT:
-          sb.text(token.getText(), colorHelper.getOperator());
+          sb.text(token.getText(), colorHelper.getSymbol());
           break;
         case JavaLexer.BLOCK_COMMENT:
         case JavaLexer.LINE_COMMENT:
