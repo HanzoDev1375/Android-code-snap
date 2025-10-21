@@ -65,7 +65,12 @@
                 android:layout_marginTop="10dp"
                 android:id="@+id/showline"
                 android:text="show line number" />
-
+            <CheckBox
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_marginTop="10dp"
+                android:id="@+id/showiconCopy"
+                android:text="show IconCopy" />
 
         </LinearLayout>
 

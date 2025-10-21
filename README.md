@@ -25,11 +25,11 @@
 - [x] html
 - [x] css
 - [x] kotlin
-- [ ] typescript
+- [x] typescript
 - [x] csharp
 - [x] gradle
 - [ ] markdown
-- [ ] go
+- [x] go
 - [ ] swift
 - [x] dart
 - [ ] ruby

@@ -46,7 +46,10 @@ public class CodeHighlighterTs implements Highlighter {
         case TypeScriptLexer.WhiteSpaces:
           span.addNullText(text);
           break;
-
+        case TypeScriptLexer.StringLiteral:
+          span.fstring(
+              text, color.getBracketlevel1(), color.getBracketlevel2(), color.getStrings());
+          break;
         case TypeScriptLexer.CloseBrace:
         case TypeScriptLexer.OpenBrace:
         case TypeScriptLexer.RegularExpressionLiteral:
@@ -212,7 +215,7 @@ public class CodeHighlighterTs implements Highlighter {
               }
             }
 
-            span.text(token.getText(), colorNormal, isbold, Varunderline);
+            span.text(token.getText(), colorNormal, isbold);
             break;
           }
         case TypeScriptLexer.MultiLineComment:

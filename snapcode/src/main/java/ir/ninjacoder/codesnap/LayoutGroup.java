@@ -1,6 +1,8 @@
 package ir.ninjacoder.codesnap;
 
 import android.animation.LayoutTransition;
+import android.content.ClipboardManager;
+import android.content.ClipData;
 import android.content.ContentValues;
 import android.graphics.Paint;
 import android.graphics.pdf.PdfDocument;
@@ -15,8 +17,9 @@ import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.StyleSpan;
+import android.view.animation.OvershootInterpolator;
+import android.view.animation.AccelerateInterpolator;
 import androidx.annotation.RequiresApi;
-import ir.ninjacoder.codesnap.Utils.opt.IlluminationDrawable;
 import ir.ninjacoder.codesnap.Utils.opt.LightSourceDrawable;
 import ir.ninjacoder.codesnap.bracket.BracketManager;
 import ir.ninjacoder.codesnap.colorhelper.ThemeLoader;
@@ -56,6 +59,7 @@ public class LayoutGroup extends LinearLayout {
   protected ColorHelper color;
   protected String fileName;
   private BracketManager manager;
+  private boolean isShowCopyIcon = false;
   protected FormatImage img = FormatImage.PNG;
 
   public LayoutGroup(Context c) {
@@ -85,13 +89,17 @@ public class LayoutGroup extends LinearLayout {
     color = new ColorHelper();
     manager = new BracketManager(color);
 
-    var drawable = new IlluminationDrawable();
-    
-//    drawable.setRippleMinSize(10f);
-//    drawable.setRippleMaxSize(50f);
-//    drawable.setHighlightColor(Color.CYAN);
+    var drawable = new LightSourceDrawable();
+    setIsShowCopyIcon(false);
+    binding.copyicon.setOnClickListener(
+        v -> {
+          copyText();
+        });
+    drawable.setRippleMinSize(10f);
+    drawable.setRippleMaxSize(50f);
+    drawable.setHighlightColor(color.getCardstorkecolor());
 
-    //binding.editor.getCode().setForeground(drawable);
+    binding.editor.getCode().setForeground(drawable);
     getCode()
         .addTextChangedListener(
             new TextWatcher() {
@@ -136,16 +144,84 @@ public class LayoutGroup extends LinearLayout {
     try {
       CodeImpl code = new CodeImpl();
       final SpannableStringBuilder highlightedText = code.highlight(type, text, color);
-
-      // اول متن رو ساده ست کن
       editText.setText(text);
-
-      // انیمیشن بهینه‌شده
       animateOptimizedColorWave(editText, highlightedText);
 
     } catch (Exception e) {
       e.printStackTrace();
     }
+  }
+
+  void showIconCopy(boolean show) {
+    if (show) {
+      binding.copyicon.setVisibility(VISIBLE);
+      binding.copyicon.setScaleX(0.5f);
+      binding.copyicon.setScaleY(0.5f);
+      binding.copyicon.setAlpha(0f);
+      binding
+          .copyicon
+          .animate()
+          .scaleX(1f)
+          .scaleY(1f)
+          .alpha(1f)
+          .setDuration(400)
+          .setInterpolator(new OvershootInterpolator(0.8f))
+          .start();
+    } else {
+      binding
+          .copyicon
+          .animate()
+          .scaleX(0.7f)
+          .scaleY(0.7f)
+          .alpha(0f)
+          .setDuration(300)
+          .setInterpolator(new AccelerateInterpolator())
+          .withEndAction(
+              () -> {
+                binding.copyicon.setVisibility(INVISIBLE);
+                binding.copyicon.setScaleX(1f);
+                binding.copyicon.setScaleY(1f);
+                binding.copyicon.setAlpha(1f);
+              })
+          .start();
+    }
+  }
+
+  void copyText() {
+    ((ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE))
+        .setPrimaryClip(ClipData.newPlainText("clipboard", getCode().getText().toString()));
+        
+    binding
+        .copyicon
+        .animate()
+        .scaleX(0.8f)
+        .scaleY(0.8f)
+        .setDuration(150)
+        .withEndAction(
+            () -> {
+              binding.copyicon.setImageResource(R.drawable.check_24px);
+              binding.copyicon.setColorFilter(Color.GREEN);
+              binding.copyicon.animate().scaleX(1f).scaleY(1f).setDuration(150).start();
+            })
+        .start();
+    postDelayed(
+        () -> {
+          binding
+              .copyicon
+              .animate()
+              .scaleX(0.8f)
+              .scaleY(0.8f)
+              .setDuration(150)
+              .withEndAction(
+                  () -> {
+                    binding.copyicon.clearColorFilter();
+                    binding.copyicon.setImageResource(R.drawable.ic_copy_24px);
+
+                    binding.copyicon.animate().scaleX(1f).scaleY(1f).setDuration(150).start();
+                  })
+              .start();
+        },
+        1000);
   }
 
   private void animateOptimizedColorWave(
@@ -164,14 +240,10 @@ public class LayoutGroup extends LinearLayout {
               public void run() {
                 if (currentPos < totalLength) {
                   int endPos = Math.min(currentPos + chunkSize, totalLength);
-
-                  // فقط اسپن‌های مربوط به این بخش رو اعمال کن
                   Object[] spans = highlightedText.getSpans(currentPos, endPos, Object.class);
                   for (Object span : spans) {
                     int start = highlightedText.getSpanStart(span);
                     int end = highlightedText.getSpanEnd(span);
-
-                    // فقط اگر اسپن در محدوده فعلی هست
                     if (start < endPos && end > currentPos) {
                       Object newSpan = copySpan(span);
                       editableText.setSpan(newSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -185,12 +257,11 @@ public class LayoutGroup extends LinearLayout {
             });
   }
 
-  // یا این نسخه ساده‌تر و سریع‌تر:
   private void animateFastColorWave(
       final EditText editText, final SpannableStringBuilder highlightedText) {
     final Editable editableText = editText.getText();
     final int totalLength = highlightedText.length();
-    final int steps = 10; // فریم‌های کمتر
+    final int steps = 10;
     final long delay = 30;
 
     new Handler(Looper.getMainLooper())
@@ -365,7 +436,7 @@ public class LayoutGroup extends LinearLayout {
 
     try {
       View cardView = binding.card;
-
+      if (isShowCopyIcon) showIconCopy(false);
       cardView.post(
           () -> {
             try {
@@ -376,7 +447,7 @@ public class LayoutGroup extends LinearLayout {
               Canvas canvas = new Canvas(bitmap);
               cardView.draw(canvas);
               saveBitmapToMediaStore(bitmap, fileName, frm);
-
+              if (isShowCopyIcon) postDelayed(() -> showIconCopy(true), 1000);
             } catch (Exception e) {
               e.printStackTrace();
               Toast.makeText(getContext(), get(R.string.errortoshat), Toast.LENGTH_SHORT).show();
@@ -446,7 +517,7 @@ public class LayoutGroup extends LinearLayout {
         }
       }
     } else {
-      // کد برای اندروید پایین‌تر از Q (بدون PDF)
+
       try {
         File directory =
             new File(
@@ -583,5 +654,15 @@ public class LayoutGroup extends LinearLayout {
 
   private String get(int stringres) {
     return getContext().getString(stringres);
+  }
+
+  public boolean getIsShowCopyIcon() {
+    return this.isShowCopyIcon;
+  }
+
+  public void setIsShowCopyIcon(boolean isShowCopyIcon) {
+    this.isShowCopyIcon = isShowCopyIcon;
+    showIconCopy(isShowCopyIcon);
+    binding.copyicon.invalidate();
   }
 }

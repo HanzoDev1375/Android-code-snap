@@ -21,8 +21,6 @@ import androidx.core.content.ContextCompat;
 import ir.ninjacoder.code.databinding.ActivityMainBinding;
 import ir.ninjacoder.codesnap.FormatImage;
 import ir.ninjacoder.codesnap.LangType;
-import ir.ninjacoder.codesnap.Utils.CodeImpl;
-import ir.ninjacoder.codesnap.colorhelper.ColorHelper;
 import ir.ninjacoder.codesnap.colorhelper.ThemeManager;
 import ir.ninjacoder.codesnap.widget.editorbase.EffectType;
 import java.io.File;
@@ -49,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
 
     binding.btn.setOnClickListener(
         v -> {
+          
           binding.et.takeScreenshot(FormatImage.PNG);
         });
     
@@ -69,6 +68,11 @@ public class MainActivity extends AppCompatActivity {
     binding.showline.setOnCheckedChangeListener(
         (is, c) -> {
           binding.et.getEditor().showLineNumber(c);
+        });
+        
+        binding.showiconCopy.setOnCheckedChangeListener(
+        (is, c) -> {
+          binding.et.setIsShowCopyIcon(c);
         });
         String code  = """
           public class Main{

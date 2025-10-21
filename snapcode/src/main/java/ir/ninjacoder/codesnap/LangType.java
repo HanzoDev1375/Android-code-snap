@@ -16,7 +16,8 @@ public enum LangType {
   KOTLIN(".kt"),
   CSHARP(".cs"),
   GRADLE(".gradle"),
-  DART(".dart");
+  DART(".dart"),
+  GO(".go");
 
   private final String langname;
 
