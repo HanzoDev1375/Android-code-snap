@@ -36,6 +36,16 @@ public class CodeImpl implements Highlighter {
       return new CodeHighlighterDart().highlight(type, code, color);
     } else if (type == LangType.GO) {
       return new CodeHighlighterGo().highlight(type, code, color);
+    } else if (type == LangType.XML) {
+      return new CodeHighlighterXml().highlight(type, code, color);
+    }else if(type == LangType.JSON){
+      return new CodeHighlighterJson().highlight(type, code, color);
+    }else if(type == LangType.YAML){
+      return new CodeHighlighterYaml().highlight(type, code, color);
+    }else if(type == LangType.RUBY) {
+    	return new CodeHighlighterRuby().highlight(type, code, color);
+    }else if(type == LangType.MARKDOWN) {
+    	return new CodeHighlighterMarkdown().highlight(type, code, color);
     }
     return null;
   }

@@ -28,7 +28,7 @@
 - [x] typescript
 - [x] csharp
 - [x] gradle
-- [ ] markdown
+- [x] markdown(not work fix soon)
 - [x] go
 - [ ] swift
 - [x] dart
@@ -38,9 +38,9 @@
 - [ ] r
 - [ ] matlab
 - [ ] lua
-- [ ] yaml
-- [ ] json
-- [ ] xml
+- [x] yaml
+- [x] json
+- [x] xml
 
 ## Note
 

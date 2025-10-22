@@ -17,7 +17,12 @@ public enum LangType {
   CSHARP(".cs"),
   GRADLE(".gradle"),
   DART(".dart"),
-  GO(".go");
+  GO(".go"),
+  XML(".xml"),
+  JSON(".json"),
+  YAML(".yml"),
+  RUBY(".rb"),
+  MARKDOWN(".md");
 
   private final String langname;
 
