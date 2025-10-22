@@ -17,9 +17,8 @@ import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.StyleSpan;
-import android.view.animation.OvershootInterpolator;
-import android.view.animation.AccelerateInterpolator;
 import androidx.annotation.RequiresApi;
+import ir.ninjacoder.codesnap.Utils.ObjectUtils;
 import ir.ninjacoder.codesnap.Utils.opt.LightSourceDrawable;
 import ir.ninjacoder.codesnap.bracket.BracketManager;
 import ir.ninjacoder.codesnap.colorhelper.ThemeLoader;
@@ -119,6 +118,14 @@ public class LayoutGroup extends LinearLayout {
         () -> {
           updateTheme();
         });
+    binding.eyeicon.setOnClickListener(
+        v -> {
+          
+          boolean newState = !getEditor().getisMarkdownMode();
+          getEditor().toggleMarkdownView();
+          ObjectUtils.animIcon(
+              binding.eyeicon, newState ? R.drawable.eyeoff_24px : R.drawable.eyeon_24px);
+        });
 
     applyInitialTheme();
     setOnTouchListener(
@@ -146,6 +153,14 @@ public class LayoutGroup extends LinearLayout {
       final SpannableStringBuilder highlightedText = code.highlight(type, text, color);
       editText.setText(text);
       animateOptimizedColorWave(editText, highlightedText);
+      binding
+          .getRoot()
+          .post(
+              () -> {
+                binding.eyeicon.setVisibility(type == LangType.MARKDOWN ? VISIBLE : GONE);
+                // binding.editor.showMarkDownView(type == LangType.MARKDOWN);
+                binding.eyeicon.invalidate();
+              });
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -153,44 +168,14 @@ public class LayoutGroup extends LinearLayout {
   }
 
   void showIconCopy(boolean show) {
-    if (show) {
-      binding.copyicon.setVisibility(VISIBLE);
-      binding.copyicon.setScaleX(0.5f);
-      binding.copyicon.setScaleY(0.5f);
-      binding.copyicon.setAlpha(0f);
-      binding
-          .copyicon
-          .animate()
-          .scaleX(1f)
-          .scaleY(1f)
-          .alpha(1f)
-          .setDuration(400)
-          .setInterpolator(new OvershootInterpolator(0.8f))
-          .start();
-    } else {
-      binding
-          .copyicon
-          .animate()
-          .scaleX(0.7f)
-          .scaleY(0.7f)
-          .alpha(0f)
-          .setDuration(300)
-          .setInterpolator(new AccelerateInterpolator())
-          .withEndAction(
-              () -> {
-                binding.copyicon.setVisibility(INVISIBLE);
-                binding.copyicon.setScaleX(1f);
-                binding.copyicon.setScaleY(1f);
-                binding.copyicon.setAlpha(1f);
-              })
-          .start();
-    }
+    ObjectUtils.animIconShow(show, binding.copyicon);
+    ObjectUtils.animIconShow(show, binding.eyeicon);
   }
 
   void copyText() {
     ((ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE))
         .setPrimaryClip(ClipData.newPlainText("clipboard", getCode().getText().toString()));
-        
+
     binding
         .copyicon
         .animate()

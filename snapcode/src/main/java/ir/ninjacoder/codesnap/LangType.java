@@ -22,7 +22,8 @@ public enum LangType {
   JSON(".json"),
   YAML(".yml"),
   RUBY(".rb"),
-  MARKDOWN(".md");
+  MARKDOWN(".md"),
+  NONE("");
 
   private final String langname;
 

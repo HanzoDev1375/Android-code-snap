@@ -13,17 +13,20 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 public class SpanStyler extends SpannableStringBuilder {
-
+  
   public SpanStyler() {
     super();
+    init();
   }
 
   public SpanStyler(CharSequence text) {
     super(text);
+    init();
   }
 
   public SpanStyler(CharSequence text, int start, int end) {
     super(text, start, end);
+    init();
   }
 
   public SpanStyler text(String text, int color) {
@@ -32,31 +35,59 @@ public class SpanStyler extends SpannableStringBuilder {
     setSpan(new ForegroundColorSpan(color), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
     return this;
   }
+  
+  void init(){
+    
+  }
 
   public SpanStyler addNullText(String text) {
     append(text);
     return this;
   }
 
-  public SpanStyler text(String text, int color, boolean bold) {
+  public SpanStyler text(String text, int color, boolean withShadow) {
     int start = length();
     append(text);
     setSpan(new ForegroundColorSpan(color), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
-    if (bold) {
-      setSpan(new StyleSpan(Typeface.BOLD), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
+
+    if (withShadow) {
+
+      setSpan(new ShadowSpan(5f, 2f, 2f, color), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
     }
     return this;
   }
 
-  public SpanStyler text(String text, int color, boolean bold, boolean underline) {
+  public SpanStyler text(String text, int color, boolean bold, boolean withShadow) {
     int start = length();
     append(text);
     setSpan(new ForegroundColorSpan(color), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
+
     if (bold) {
       setSpan(new StyleSpan(Typeface.BOLD), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
     }
+
+    if (withShadow) {
+      setSpan(new ShadowSpan(5f, 2f, 2f, color), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+    return this;
+  }
+
+  public SpanStyler text(
+      String text, int color, boolean bold, boolean underline, boolean withShadow) {
+    int start = length();
+    append(text);
+    setSpan(new ForegroundColorSpan(color), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
+
+    if (bold) {
+      setSpan(new StyleSpan(Typeface.BOLD), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+
     if (underline) {
       setSpan(new UnderlineSpan(), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+
+    if (withShadow ) {
+      setSpan(new ShadowSpan(6f, 4f, 4f, color), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
     }
     return this;
   }

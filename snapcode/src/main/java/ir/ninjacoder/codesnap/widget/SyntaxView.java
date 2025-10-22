@@ -16,14 +16,14 @@ import android.util.AttributeSet;
 import android.view.animation.OvershootInterpolator;
 import android.view.animation.AccelerateInterpolator;
 import android.view.inputmethod.EditorInfo;
+
 import android.widget.ScrollView;
 import android.widget.TextView;
-
-import ir.ninjacoder.codesnap.LangType;
 import ir.ninjacoder.codesnap.R;
+import ir.ninjacoder.codesnap.Utils.ObjectUtils;
 import ir.ninjacoder.codesnap.colorhelper.ColorHelper;
 import ir.ninjacoder.codesnap.folding.CodeFoldingManager;
-import ir.ninjacoder.codesnap.widget.data.InlayTextSpan;
+import ir.ninjacoder.codesnap.markdownpreview.MarkDownTextHelper;
 
 public class SyntaxView extends ScrollView {
   private CodeEditText code;
@@ -32,8 +32,10 @@ public class SyntaxView extends ScrollView {
   private ColorHelper color = new ColorHelper();
   private CodeFoldingManager foldingManager;
   private boolean codeFoldingEnabled = true;
+  private TextView tv;
   private String oldText = "";
   private TextWatcher textWatcher;
+  private boolean isMarkdownMode = false;
 
   public SyntaxView(Context context) {
     super(context);
@@ -48,6 +50,7 @@ public class SyntaxView extends ScrollView {
   private void initialize(Context context) {
     inflate(context, R.layout.syntaxview, this);
     code = findViewById(R.id.code);
+    tv = findViewById(R.id.mark);
     lineCode = new LineNumberCalculator(code.getText().toString());
     foldingManager = new CodeFoldingManager(color);
     code.setTextSize(14);
@@ -55,9 +58,9 @@ public class SyntaxView extends ScrollView {
     code.setSingleLine(false);
     code.setImeOptions(EditorInfo.IME_FLAG_NO_ENTER_ACTION);
     code.setBackgroundColor(Color.TRANSPARENT);
+
     code.setSelection(code.getText().length());
     code.setLineNumberColor(color.getLinenumbercolor());
-
     applyTheme();
     updateLineNumbers();
     textWatcher =
@@ -348,5 +351,89 @@ public class SyntaxView extends ScrollView {
       }
     }
     return count;
+  }
+
+  public void showMarkDownView(boolean showMarkdown) {
+    if (showMarkdown) {
+      // Switch to Markdown view
+      if (code.getVisibility() == VISIBLE) {
+        // Animate code view out
+        code.animate()
+            .scaleX(0.7f)
+            .scaleY(0.7f)
+            .alpha(0f)
+            .setDuration(300)
+            .setInterpolator(new AccelerateInterpolator())
+            .withEndAction(
+                () -> {
+                  code.setVisibility(GONE);
+                  code.setScaleX(1f);
+                  code.setScaleY(1f);
+                  code.setAlpha(1f);
+
+                  // Show markdown view after code view hides
+                  tv.setVisibility(VISIBLE);
+                  tv.setScaleX(0.5f);
+                  tv.setScaleY(0.5f);
+                  tv.setAlpha(0f);
+                  MarkDownTextHelper.handleMarkDown(tv, code.getText().toString());
+
+                  tv.animate()
+                      .scaleX(1f)
+                      .scaleY(1f)
+                      .alpha(1f)
+                      .setDuration(400)
+                      .setInterpolator(new OvershootInterpolator(0.8f))
+                      .start();
+                })
+            .start();
+      }
+      isMarkdownMode = true;
+    } else {
+      // Switch to code view
+      if (tv.getVisibility() == VISIBLE) {
+        // Animate markdown view out
+        tv.animate()
+            .scaleX(0.7f)
+            .scaleY(0.7f)
+            .alpha(0f)
+            .setDuration(300)
+            .setInterpolator(new AccelerateInterpolator())
+            .withEndAction(
+                () -> {
+                  tv.setVisibility(GONE);
+                  tv.setScaleX(1f);
+                  tv.setScaleY(1f);
+                  tv.setAlpha(1f);
+
+                  // Show code view after markdown view hides
+                  code.setVisibility(VISIBLE);
+                  code.setScaleX(0.5f);
+                  code.setScaleY(0.5f);
+                  code.setAlpha(0f);
+
+                  code.animate()
+                      .scaleX(1f)
+                      .scaleY(1f)
+                      .alpha(1f)
+                      .setDuration(400)
+                      .setInterpolator(new OvershootInterpolator(0.8f))
+                      .start();
+                })
+            .start();
+      }
+      isMarkdownMode = false;
+    }
+
+    invalidate();
+    requestLayout();
+  }
+
+  public void toggleMarkdownView() {
+    showMarkDownView(!isMarkdownMode);
+  }
+
+  public boolean getisMarkdownMode() {
+    return this.isMarkdownMode;
   }
 }

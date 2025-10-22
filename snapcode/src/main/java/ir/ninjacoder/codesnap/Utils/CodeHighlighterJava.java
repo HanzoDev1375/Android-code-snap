@@ -173,18 +173,19 @@ public class CodeHighlighterJava implements Highlighter {
                 colorHelper.getBracketlevel1(),
                 colorHelper.getBracketlevel2(),
                 colorHelper.getComment());
-            break; 
+            break;
           }
         case JavaLexer.IDENTIFIER:
           {
             int colorNormal = colorHelper.getTextnormal();
-            boolean isClassName = false , isbold = false;
+            boolean isClassName = false, isbold = false, isShadow = false;
             if (pretoken == JavaLexer.CLASS
                 || pretoken == JavaLexer.INTERFACE
                 || pretoken == JavaLexer.ENUM
                 || pretoken == JavaLexer.EXTENDS
                 || pretoken == JavaLexer.IMPLEMENTS) {
               colorNormal = colorHelper.getMethod();
+              isShadow = true;
               isbold = true;
               isClassName = true;
             } else if (pretoken == JavaLexer.VOID
@@ -197,8 +198,8 @@ public class CodeHighlighterJava implements Highlighter {
                 || pretoken == JavaLexer.LONG
                 || pretoken == JavaLexer.SHORT
                 || pretoken == JavaLexer.IDENTIFIER) {
-                  colorNormal = colorHelper.getMethod();
-                  isbold=true;
+              colorNormal = colorHelper.getMethod();
+              isbold = true;
               if (lexer._input.LA(1) == '(') {
                 colorNormal = colorHelper.getLastsymi();
               }
@@ -206,9 +207,9 @@ public class CodeHighlighterJava implements Highlighter {
               colorNormal = colorHelper.getLastdot();
             } else if (lexer._input.LA(1) == '[' || lexer._input.LA(1) == ']') {
               colorNormal = colorHelper.getPrebrak();
-            } else if(lexer._input.LA(2) == '{'){
+            } else if (lexer._input.LA(2) == '{') {
               colorNormal = colorHelper.getBracketlevel1();
-            }else if (pretoken == JavaLexer.DOT) {
+            } else if (pretoken == JavaLexer.DOT) {
               colorNormal = colorHelper.getPredot();
             } else if (!isClassName && Character.isUpperCase(token.getText().charAt(0))) {
               Pattern pattern = Pattern.compile("^[A-Z][a-zA-Z0-9_]*$");
@@ -218,7 +219,7 @@ public class CodeHighlighterJava implements Highlighter {
               }
             }
 
-            sb.text(token.getText(), colorNormal,isbold);
+            sb.text(token.getText(), colorNormal, isbold, false, isShadow);
             break;
           }
         default:

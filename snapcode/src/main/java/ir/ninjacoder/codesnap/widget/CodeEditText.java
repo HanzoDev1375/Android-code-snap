@@ -53,7 +53,8 @@ public class CodeEditText extends PowerModeEditText {
   }
 
   private OnTextSizeChangedListener textSizeChangedListener;
-
+  private boolean isLineNumberPinned = false;
+  private int pinnedLineNumber = -1;
   private GestureDetector gestureDetector;
   private ScaleGestureDetector scaleGestureDetector;
   private float scaleFactor = 1.0f;
@@ -174,6 +175,7 @@ public class CodeEditText extends PowerModeEditText {
   private void init() {
     setHorizontallyScrolling(true);
     post(() -> resetZoom());
+    setPinLineNumber(false);
     if (mAutoCompleteTokenizer == null) mAutoCompleteTokenizer = new KeywordTokenizer();
     setTokenizer(mAutoCompleteTokenizer);
     setDropDownWidth(Resources.getSystem().getDisplayMetrics().widthPixels / 2);
@@ -181,10 +183,10 @@ public class CodeEditText extends PowerModeEditText {
 
     gestureDetector = new GestureDetector(getContext(), new GestureListener());
     scaleGestureDetector = new ScaleGestureDetector(getContext(), new ScaleListener());
-
     baseTextSize = getTextSize();
     lineNumberTextSize = baseTextSize;
     setHint("Type code ");
+
     setHintTextColor(color.getLastsymi());
     initLineNumberPaints();
     initStickyLineNumberPaints();
@@ -281,32 +283,6 @@ public class CodeEditText extends PowerModeEditText {
     canvas.clipRect(lineNumberWidth, 0, getWidth(), getHeight());
     super.onDraw(canvas);
     canvas.restore();
-  }
-
-  private void drawStickyLineNumber(Canvas canvas) {
-    if (getLayout() == null) return;
-
-    int currentLine = getCurrentLine();
-    if (currentLine < 0) return;
-
-    int baseline = getLineBounds(currentLine, null);
-    int stickyTop = getScrollY();
-    int stickyBottom = stickyTop + (int) getTextSize() + getPaddingTop();
-
-    canvas.drawRect(0, stickyTop, lineNumberWidth, stickyBottom, stickyLineNumberBackgroundPaint);
-
-    Paint separatorPaint = new Paint();
-    separatorPaint.setColor(color.getLinenumbercolor());
-    separatorPaint.setAlpha(100);
-    canvas.drawLine(
-        lineNumberWidth - 1, stickyTop, lineNumberWidth - 1, stickyBottom, separatorPaint);
-
-    String lineNumber = String.valueOf(currentLine + 1);
-    float textY =
-        stickyTop
-            + (stickyBottom - stickyTop - stickyLineNumberPaint.getTextSize()) / 2
-            + stickyLineNumberPaint.getTextSize();
-    canvas.drawText(lineNumber, lineNumberWidth - lineNumberPadding, textY, stickyLineNumberPaint);
   }
 
   private void drawLineNumbers(Canvas canvas) {
@@ -591,6 +567,8 @@ public class CodeEditText extends PowerModeEditText {
         return '}';
       case '[':
         return ']';
+      case '<':
+        return '>';
     }
     return 0;
   }
@@ -603,6 +581,8 @@ public class CodeEditText extends PowerModeEditText {
         return '{';
       case ']':
         return '[';
+      case '>':
+        return '<';
     }
     return 0;
   }
@@ -648,5 +628,57 @@ public class CodeEditText extends PowerModeEditText {
 
   public void setLineNumberTypeFace(Typeface f) {
     lineNumberBackgroundPaint.setTypeface(f);
+  }
+
+  public void setPinLineNumber(boolean pin) {
+    this.isLineNumberPinned = pin;
+    if (pin) {
+
+      pinnedLineNumber = getCurrentLine();
+    } else {
+
+      pinnedLineNumber = -1;
+    }
+    invalidate();
+  }
+
+  public boolean isLineNumberPinned() {
+    return isLineNumberPinned;
+  }
+
+  public int getPinnedLineNumber() {
+    return pinnedLineNumber;
+  }
+
+  private void drawStickyLineNumber(Canvas canvas) {
+    if (getLayout() == null) return;
+
+    int lineToShow;
+    if (isLineNumberPinned && pinnedLineNumber >= 0) {
+      lineToShow = pinnedLineNumber;
+    } else {
+      lineToShow = getCurrentLine();
+    }
+
+    if (lineToShow < 0) return;
+
+    int baseline = getLineBounds(lineToShow, null);
+    int stickyTop = getScrollY();
+    int stickyBottom = stickyTop + (int) getTextSize() + getPaddingTop();
+
+    canvas.drawRect(0, stickyTop, lineNumberWidth, stickyBottom, stickyLineNumberBackgroundPaint);
+
+    Paint separatorPaint = new Paint();
+    separatorPaint.setColor(color.getLinenumbercolor());
+    separatorPaint.setAlpha(100);
+    canvas.drawLine(
+        lineNumberWidth - 1, stickyTop, lineNumberWidth - 1, stickyBottom, separatorPaint);
+
+    String lineNumber = String.valueOf(lineToShow + 1);
+    float textY =
+        stickyTop
+            + (stickyBottom - stickyTop - stickyLineNumberPaint.getTextSize()) / 2
+            + stickyLineNumberPaint.getTextSize();
+    canvas.drawText(lineNumber, lineNumberWidth - lineNumberPadding, textY, stickyLineNumberPaint);
   }
 }

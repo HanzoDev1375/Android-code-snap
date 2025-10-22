@@ -2,6 +2,7 @@ package ir.ninjacoder.codesnap.Utils;
 
 import ir.ninjacoder.codesnap.LangType;
 import android.text.SpannableStringBuilder;
+import ir.ninjacoder.codesnap.Utils.EmptyLang;
 import ir.ninjacoder.codesnap.colorhelper.ColorHelper;
 
 public class CodeImpl implements Highlighter {
@@ -38,14 +39,16 @@ public class CodeImpl implements Highlighter {
       return new CodeHighlighterGo().highlight(type, code, color);
     } else if (type == LangType.XML) {
       return new CodeHighlighterXml().highlight(type, code, color);
-    }else if(type == LangType.JSON){
+    } else if (type == LangType.JSON) {
       return new CodeHighlighterJson().highlight(type, code, color);
-    }else if(type == LangType.YAML){
+    } else if (type == LangType.YAML) {
       return new CodeHighlighterYaml().highlight(type, code, color);
-    }else if(type == LangType.RUBY) {
-    	return new CodeHighlighterRuby().highlight(type, code, color);
-    }else if(type == LangType.MARKDOWN) {
-    	return new CodeHighlighterMarkdown().highlight(type, code, color);
+    } else if (type == LangType.RUBY) {
+      return new CodeHighlighterRuby().highlight(type, code, color);
+    } else if (type == LangType.MARKDOWN) {
+      return new CodeHighlighterMarkdown().highlight(type, code, color);
+    } else if (type == LangType.NONE) {
+      return new EmptyLang().highlight(type, code, color);
     }
     return null;
   }
