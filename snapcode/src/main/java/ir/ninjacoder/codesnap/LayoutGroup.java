@@ -91,7 +91,7 @@ public class LayoutGroup extends LinearLayout {
     var drawable = new LightSourceDrawable();
     setIsShowCopyIcon(false);
     binding.copyicon.setOnClickListener(
-        v -> {
+        __ -> {
           copyText();
         });
     drawable.setRippleMinSize(10f);
@@ -120,7 +120,6 @@ public class LayoutGroup extends LinearLayout {
         });
     binding.eyeicon.setOnClickListener(
         v -> {
-          
           boolean newState = !getEditor().getisMarkdownMode();
           getEditor().toggleMarkdownView();
           ObjectUtils.animIcon(
@@ -172,6 +171,11 @@ public class LayoutGroup extends LinearLayout {
     ObjectUtils.animIconShow(show, binding.eyeicon);
   }
 
+  public void setShowHighlighterBracket(boolean show) {
+    manager.setRainbowBracketsEnabled(show);
+    updateTheme();
+  }
+
   void copyText() {
     ((ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE))
         .setPrimaryClip(ClipData.newPlainText("clipboard", getCode().getText().toString()));
@@ -214,7 +218,7 @@ public class LayoutGroup extends LinearLayout {
     final Editable editableText = editText.getText();
     final int totalLength = highlightedText.length();
     final int chunkSize = Math.max(100, totalLength / 30); // اندازه chunk داینامیک
-    final long frameDelay = 90; // تأخیر کمتر
+    final long frameDelay = 90;
 
     new Handler(Looper.getMainLooper())
         .post(
@@ -399,23 +403,42 @@ public class LayoutGroup extends LinearLayout {
     Date now = new Date();
     switch (frm) {
       case PNG:
-        fileName = "screenshot_" + (String) DateFormat.format("yyyy-MM-dd_HH-mm-ss", now) + ".png";
+        fileName =
+            "code snap"
+                + (String) DateFormat.format("yyyy-MM-dd_HH-mm-ss", now)
+                + type.getLangname()
+                + " .png";
         break;
       case JPEG:
-        fileName = "screenshot_" + (String) DateFormat.format("yyyy-MM-dd_HH-mm-ss", now) + ".jpg";
+        fileName =
+            "code snap"
+                + (String) DateFormat.format("yyyy-MM-dd_HH-mm-ss", now)
+                + type.getLangname()
+                + " .jpg";
         break;
       case WEBP:
-        fileName = "screenshot_" + (String) DateFormat.format("yyyy-MM-dd_HH-mm-ss", now) + ".webp";
+        fileName =
+            "code snap"
+                + (String) DateFormat.format("yyyy-MM-dd_HH-mm-ss", now)
+                + type.getLangname()
+                + " .webp";
+        break;
+      case WEB_LOSSY:
+        fileName =
+            "code snap "
+                + (String) DateFormat.format("yyyy-MM-dd_HH-mm-ss", now)
+                + " weblossy.webp";
         break;
       case PDF:
         fileName =
-            "screenshot_"
+            "code snap"
                 + (String) DateFormat.format("yyyy-MM-dd_HH-mm-ss", now)
+                + " "
                 + type.getLangname()
                 + ".pdf";
         break;
       default:
-        fileName = "screenshot_" + (String) DateFormat.format("yyyy-MM-dd_HH-mm-ss", now) + ".png";
+        fileName = "code snap" + (String) DateFormat.format("yyyy-MM-dd_HH-mm-ss", now) + ".png";
         break;
     }
 
@@ -464,6 +487,7 @@ public class LayoutGroup extends LinearLayout {
           mimeType = "image/jpeg";
           break;
         case WEBP:
+        case WEB_LOSSY:
           mimeType = "image/webp";
           break;
       }
@@ -489,8 +513,9 @@ public class LayoutGroup extends LinearLayout {
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
                 break;
               case WEBP:
-                bitmap.compress(Bitmap.CompressFormat.WEBP_LOSSY, 100, outputStream);
+                bitmap.compress(Bitmap.CompressFormat.WEBP_LOSSLESS, 100, outputStream);
                 break;
+                case WEB_LOSSY: bitmap.compress(Bitmap.CompressFormat.WEBP_LOSSY,100,outputStream); break;
             }
             Toast.makeText(getContext(), get(R.string.savedshat), Toast.LENGTH_SHORT).show();
           }
@@ -522,7 +547,9 @@ public class LayoutGroup extends LinearLayout {
               bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
               break;
             case WEBP:
-              bitmap.compress(Bitmap.CompressFormat.WEBP_LOSSY, 100, outputStream);
+              bitmap.compress(Bitmap.CompressFormat.WEBP_LOSSLESS, 100, outputStream);
+              break;
+              case WEB_LOSSY: bitmap.compress(Bitmap.CompressFormat.WEBP_LOSSY, 100, outputStream);
               break;
           }
 
@@ -535,6 +562,7 @@ public class LayoutGroup extends LinearLayout {
               mimeType = "image/jpeg";
               break;
             case WEBP:
+            case WEB_LOSSY: 
               mimeType = "image/webp";
               break;
           }

@@ -2,6 +2,20 @@ package ir.ninjacoder.codesnap.markdownpreview;
 
 import android.content.Context;
 import android.graphics.drawable.Animatable;
+import android.text.style.ClickableSpan;
+import android.text.style.LeadingMarginSpan;
+import android.util.Log;
+import android.view.View;
+import android.text.TextPaint;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.text.Layout;
+import android.widget.Toast;
+import io.noties.markwon.AbstractMarkwonPlugin;
+import io.noties.markwon.MarkwonSpansFactory;
+import io.noties.markwon.utils.LeadingMarginUtils;
+import android.content.ClipboardManager;
+import android.content.ClipData;
 import android.widget.TextView;
 import android.text.SpannableStringBuilder;
 import com.bumptech.glide.RequestManager;
@@ -38,8 +52,9 @@ import ir.ninjacoder.codesnap.markdownpreview.langs.WebGrammer;
 import java.util.HashSet;
 import java.util.Set;
 import androidx.annotation.*;
-import io.noties.prism4j.annotations.PrismBundle;
+import ir.ninjacoder.codesnap.R;
 import static com.google.android.material.R.attr.*;
+import org.commonmark.node.FencedCodeBlock;
 
 // @PrismBundle(includeAll = true)
 public class MarkDownTextHelper {
@@ -58,6 +73,19 @@ public class MarkDownTextHelper {
             .usePlugin(HtmlPlugin.create(plugin -> plugin.addHandler(new SpanTagHandler())))
             .usePlugin(GlideImagesPlugin.create(new GifGlideStore(Glide.with(t.getContext()))))
             .usePlugin(TaskListPlugin.create(t.getContext()))
+            .usePlugin(
+                new AbstractMarkwonPlugin() {
+                  @Override
+                  public void configureSpansFactory(MarkwonSpansFactory.Builder builder) {
+                    builder.setFactory(
+                        FencedCodeBlock.class,
+                        (configuration, props) -> {
+                          return new Object[] {
+                            new CopyIconSpan(t.getContext().getDrawable(R.drawable.code_copy_24px))
+                          };
+                        });
+                  }
+                })
             .usePlugin(SyntaxHighlightPlugin.create(prism4j, theme))
             .build();
 
@@ -79,7 +107,7 @@ public class MarkDownTextHelper {
 
     @Override
     public int textColor() {
-      return MaterialColors.getColor(c, colorPrimary, 0);
+      return MaterialColors.getColor(c, colorPrimaryContainer, 0);
     }
 
     @Override
@@ -219,11 +247,12 @@ public class MarkDownTextHelper {
           return Prism_json.create(prism4j);
         case "java":
           return Prism_java.create(prism4j);
-          case "clike":
+        case "clike":
           return Prism_clike.create(prism4j);
-          case "groovy":
+        case "groovy":
           return Prism_groovy.create(prism4j);
-          case "xml": return Prism_xml.create(prism4j);
+        case "xml":
+          return Prism_xml.create(prism4j);
         default:
           return null;
       }
@@ -280,6 +309,79 @@ public class MarkDownTextHelper {
     @Override
     public void cancel(@NonNull Target<?> target) {
       requestManager.clear(target);
+    }
+  }
+
+  static class CopyIconSpan extends ClickableSpan implements LeadingMarginSpan {
+    private final Drawable icon;
+
+    CopyIconSpan(Drawable icon) {
+      this.icon = icon;
+      if (icon.getBounds().isEmpty()) {
+        icon.setBounds(0, 0, icon.getIntrinsicWidth(), icon.getIntrinsicHeight());
+      }
+    }
+
+    @Override
+    public void onClick(View widget) {
+
+      if (widget instanceof TextView) {
+        TextView textView = (TextView) widget;
+        Spanned spanned = (Spanned) textView.getText();
+
+        int start = spanned.getSpanStart(this);
+        int end = spanned.getSpanEnd(this);
+        String contents = spanned.subSequence(start, end).toString().trim();
+        Log.i("CopyContents", contents);
+        copyToClipboard(widget.getContext(), contents);
+        Toast.makeText(widget.getContext(), "done!", Toast.LENGTH_SHORT).show();
+      }
+    }
+
+    @Override
+    public void updateDrawState(TextPaint ds) {
+      // do not apply link styling
+    }
+
+    @Override
+    public int getLeadingMargin(boolean first) {
+      return 0;
+    }
+
+    @Override
+    public void drawLeadingMargin(
+        Canvas c,
+        Paint p,
+        int x,
+        int dir,
+        int top,
+        int baseline,
+        int bottom,
+        CharSequence text,
+        int start,
+        int end,
+        boolean first,
+        Layout layout) {
+      if (!LeadingMarginUtils.selfStart(start, text, this)) return;
+
+      int save = c.save();
+      try {
+        float w = icon.getBounds().width();
+        float left = layout.getWidth() - w - (w / 4F);
+        c.translate(left, top);
+        icon.draw(c);
+      } finally {
+        c.restoreToCount(save);
+      }
+    }
+
+    private void copyToClipboard(Context context, String text) {
+      ClipboardManager clipboard =
+          (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+      if (clipboard != null) {
+        ClipData clip = ClipData.newPlainText("Code snippet", text);
+        clipboard.setPrimaryClip(clip);
+      }
     }
   }
 }

@@ -32,7 +32,7 @@
 - [x] go
 - [ ] swift
 - [x] dart
-- [ ] ruby
+- [x] ruby
 - [ ] scala
 - [ ] perl
 - [ ] r
@@ -102,7 +102,7 @@ adding `xml` in your activity
   editor.setType(#LangType);
   
   editor.takeScreenshot();
-  
+  editor.takeScreenshot(#FormatImage); //png webp jpg pdf 
   editor.getEditor().showLineNumber(#Boolean);
   
   //set full font
@@ -117,6 +117,8 @@ adding `xml` in your activity
   editor.setTheme(#ThemeManager);
    //see other method in MainActivity
   editor.setText(#String);
+  // adding 1.1.2
+  editor.setShowHighlighterBracket(#boolean);
 ```
 
 

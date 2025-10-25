@@ -2,6 +2,7 @@ package ir.ninjacoder.code;
 
 import android.Manifest;
 import android.content.Intent;
+import android.graphics.drawable.AnimatedVectorDrawable;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.Settings;
@@ -29,6 +30,8 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
   private ActivityMainBinding binding;
+  private AnimatedVectorDrawable animatedThumb;
+  private float previousValue = 0;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -47,10 +50,9 @@ public class MainActivity extends AppCompatActivity {
 
     binding.btn.setOnClickListener(
         v -> {
-          
           binding.et.takeScreenshot(FormatImage.PNG);
         });
-    
+
     ad.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     binding.sp.setOnItemSelectedListener(
         new AdapterView.OnItemSelectedListener() {
@@ -69,23 +71,25 @@ public class MainActivity extends AppCompatActivity {
         (is, c) -> {
           binding.et.getEditor().showLineNumber(c);
         });
-        
-        binding.showiconCopy.setOnCheckedChangeListener(
+
+    binding.showiconCopy.setOnCheckedChangeListener(
         (is, c) -> {
           binding.et.setIsShowCopyIcon(c);
         });
-        String code  = """
+        
+    String code =
+        """
           public class Main{
-           
+
             public void runItem() {
               int id = 0;
               if(id == 0) System.out.println("Hello");
-             
+
             }
-          
+
           }
         """;
-     binding.et.setText(code);
+    binding.et.setText(code);
     binding
         .et
         .getEditor()
@@ -94,11 +98,12 @@ public class MainActivity extends AppCompatActivity {
         .setSoftInputMode(
             WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE
                 | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-
+    
     setupef();
 
     binding.et.setThemeCustom("/storage/emulated/0/Apktool_M/theme.json");
   }
+
 
   @Override
   protected void onDestroy() {

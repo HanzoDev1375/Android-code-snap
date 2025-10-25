@@ -219,7 +219,7 @@ public class CodeHighlighterJava implements Highlighter {
               }
             }
 
-            sb.text(token.getText(), colorNormal, isbold, false, isShadow);
+            sb.text(token.getText(), colorNormal, isbold);
             break;
           }
         default:
