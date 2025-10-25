@@ -74,8 +74,8 @@ dependencyResolutionManagement {
 ```groovy
 
 dependencies {
-	        implementation 'com.github.HanzoDev1375:Android-code-snap:1.0.1'
-}
+	 implementation 'com.github.HanzoDev1375:Android-code-snap:1.1.1'
+     }
 
 
 ```
@@ -117,7 +117,7 @@ adding `xml` in your activity
   editor.setTheme(#ThemeManager);
    //see other method in MainActivity
   editor.setText(#String);
-  // adding 1.1.2
+  // adding 1.1.1
   editor.setShowHighlighterBracket(#boolean);
 ```
 
