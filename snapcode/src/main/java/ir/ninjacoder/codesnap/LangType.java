@@ -24,6 +24,7 @@ public enum LangType {
   RUBY(".rb"),
   MARKDOWN(".md"),
   ZIG(".zig"),
+  LUA(".lua"),
   NONE("");
 
   private final String langname;

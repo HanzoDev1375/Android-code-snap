@@ -49,6 +49,8 @@ public class CodeImpl implements Highlighter {
       return new CodeHighlighterMarkdown().highlight(type, code, color);
     } else if (type == LangType.ZIG) {
       return new CodeHighlighterZig().highlight(type, code, color);
+    } else if (type == LangType.LUA) {
+      return new CodeHighlighterLua().highlight(type, code, color);
     } else if (type == LangType.NONE) {
       return new EmptyLang().highlight(type, code, color);
     }

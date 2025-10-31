@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 public class SpanStyler extends SpannableStringBuilder {
-  
+
   public SpanStyler() {
     super();
     init();
@@ -35,10 +35,8 @@ public class SpanStyler extends SpannableStringBuilder {
     setSpan(new ForegroundColorSpan(color), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
     return this;
   }
-  
-  void init(){
-    
-  }
+
+  void init() {}
 
   public SpanStyler addNullText(String text) {
     append(text);
@@ -52,7 +50,7 @@ public class SpanStyler extends SpannableStringBuilder {
 
     if (withShadow) {
 
-      setSpan(new ShadowSpan(5f, 2f, 2f, color), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
+      setSpan(new ShadowSpan(3f, 2f, 2f, color), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
     }
     return this;
   }
@@ -67,7 +65,7 @@ public class SpanStyler extends SpannableStringBuilder {
     }
 
     if (withShadow) {
-      setSpan(new ShadowSpan(5f, 2f, 2f, color), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
+      setSpan(new ShadowSpan(3f, 2f, 2f, color), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
     }
     return this;
   }
@@ -86,8 +84,8 @@ public class SpanStyler extends SpannableStringBuilder {
       setSpan(new UnderlineSpan(), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
-    if (withShadow ) {
-      setSpan(new ShadowSpan(6f, 4f, 4f, color), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
+    if (withShadow) {
+      setSpan(new ShadowSpan(3f, 4f, 4f, color), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
     }
     return this;
   }

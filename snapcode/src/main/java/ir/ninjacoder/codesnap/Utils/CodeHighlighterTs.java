@@ -191,6 +191,7 @@ public class CodeHighlighterTs implements Highlighter {
                 || pretoken == TypeScriptLexer.Instanceof
                 || pretoken == TypeScriptLexer.Let
                 || pretoken == TypeScriptLexer.Not
+                || pretoken == TypeScriptLexer.Const
                 || pretoken == TypeScriptLexer.Var
                 || pretoken == TypeScriptLexer.Abstract
                 || pretoken == TypeScriptLexer.Identifier) {
@@ -201,10 +202,18 @@ public class CodeHighlighterTs implements Highlighter {
               if (lexer._input.LA(1) == '(') {
                 colorNormal = color.getLastsymi();
               }
+            } else if (pretoken == TypeScriptLexer.Import) {
+              colorNormal = color.getUppercase();
+            } else if (pretoken == TypeScriptLexer.OpenParen) {
+              colorNormal = color.getMethod();
+            } else if (pretoken == TypeScriptLexer.LessThan) {
+              colorNormal = color.getHtmlkeyword();
             } else if (lexer._input.LA(1) == '.') {
               colorNormal = color.getLastdot();
             } else if (lexer._input.LA(1) == '[' || lexer._input.LA(1) == ']') {
               colorNormal = color.getPrebrak();
+            } else if (pretoken == TypeScriptLexer.Divide) {
+              colorNormal = color.getHtmlkeyword();
             } else if (pretoken == TypeScriptLexer.Dot) {
               colorNormal = color.getPredot();
             } else if (!isClassName && Character.isUpperCase(token.getText().charAt(0))) {
