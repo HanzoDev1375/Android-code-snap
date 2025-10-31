@@ -23,6 +23,8 @@ import ir.ninjacoder.codesnap.Utils.opt.LightSourceDrawable;
 import ir.ninjacoder.codesnap.bracket.BracketManager;
 import ir.ninjacoder.codesnap.colorhelper.ThemeLoader;
 import ir.ninjacoder.codesnap.widget.CodeEditText;
+import java.io.ByteArrayOutputStream;
+import android.util.Base64;
 import java.io.OutputStream;
 import java.io.IOException;
 import android.content.Context;
@@ -51,6 +53,11 @@ import android.os.Environment;
 import android.graphics.Bitmap;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.List;
+import android.graphics.Point;
+import java.util.ArrayList;
+import java.util.Queue;
+import java.util.LinkedList;
 
 public class LayoutGroup extends LinearLayout {
   private LayoutGroupBinding binding;
@@ -97,6 +104,7 @@ public class LayoutGroup extends LinearLayout {
     drawable.setRippleMinSize(10f);
     drawable.setRippleMaxSize(50f);
     drawable.setHighlightColor(color.getCardstorkecolor());
+    
 
     binding.editor.getCode().setForeground(drawable);
     getCode()
@@ -264,7 +272,6 @@ public class LayoutGroup extends LinearLayout {
                   float progress = (float) currentStep / steps;
                   int currentPos = (int) (totalLength * progress);
 
-                  // فقط اسپن‌های جدید رو اضافه کن
                   Object[] spans =
                       highlightedText.getSpans(currentPos - 100, currentPos, Object.class);
                   for (Object span : spans) {
@@ -437,6 +444,23 @@ public class LayoutGroup extends LinearLayout {
                 + type.getLangname()
                 + ".pdf";
         break;
+
+      case SVG:
+        fileName =
+            "code snap"
+                + (String) DateFormat.format("yyyy-MM-dd_HH-mm-ss", now)
+                + " "
+                + type.getLangname()
+                + ".svg";
+        break;
+      case VECTORDRAWABLE:
+        fileName =
+            "code snap"
+                + (String) DateFormat.format("yyyy-MM-dd_HH-mm-ss", now)
+                + " "
+                + type.getLangname()
+                + ".xml";
+        break;
       default:
         fileName = "code snap" + (String) DateFormat.format("yyyy-MM-dd_HH-mm-ss", now) + ".png";
         break;
@@ -471,6 +495,14 @@ public class LayoutGroup extends LinearLayout {
   private void saveBitmapToMediaStore(Bitmap bitmap, String fileName, FormatImage im) {
     if (im == FormatImage.PDF) {
       saveAsPdfNative(bitmap, fileName);
+      return;
+    }
+    if (im == FormatImage.SVG) {
+      saveAsSvg(bitmap, fileName);
+      return;
+    }
+    if (im == FormatImage.VECTORDRAWABLE) {
+      saveAsVector(fileName);
       return;
     }
 
@@ -515,7 +547,9 @@ public class LayoutGroup extends LinearLayout {
               case WEBP:
                 bitmap.compress(Bitmap.CompressFormat.WEBP_LOSSLESS, 100, outputStream);
                 break;
-                case WEB_LOSSY: bitmap.compress(Bitmap.CompressFormat.WEBP_LOSSY,100,outputStream); break;
+              case WEB_LOSSY:
+                bitmap.compress(Bitmap.CompressFormat.WEBP_LOSSY, 100, outputStream);
+                break;
             }
             Toast.makeText(getContext(), get(R.string.savedshat), Toast.LENGTH_SHORT).show();
           }
@@ -549,7 +583,8 @@ public class LayoutGroup extends LinearLayout {
             case WEBP:
               bitmap.compress(Bitmap.CompressFormat.WEBP_LOSSLESS, 100, outputStream);
               break;
-              case WEB_LOSSY: bitmap.compress(Bitmap.CompressFormat.WEBP_LOSSY, 100, outputStream);
+            case WEB_LOSSY:
+              bitmap.compress(Bitmap.CompressFormat.WEBP_LOSSY, 100, outputStream);
               break;
           }
 
@@ -562,7 +597,7 @@ public class LayoutGroup extends LinearLayout {
               mimeType = "image/jpeg";
               break;
             case WEBP:
-            case WEB_LOSSY: 
+            case WEB_LOSSY:
               mimeType = "image/webp";
               break;
           }
@@ -661,8 +696,301 @@ public class LayoutGroup extends LinearLayout {
     }
   }
 
+  private void saveAsSvg(Bitmap bitmap, String fileName) {
+    try {
+
+      String svgContent = createSvgFromView(bitmap);
+
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MediaStore.Files.FileColumns.DISPLAY_NAME, fileName);
+        contentValues.put(MediaStore.Files.FileColumns.MIME_TYPE, "image/svg+xml");
+        contentValues.put(
+            MediaStore.Files.FileColumns.RELATIVE_PATH,
+            Environment.DIRECTORY_PICTURES + "/AndroidCodeSnap");
+
+        Uri uri =
+            getContext()
+                .getContentResolver()
+                .insert(MediaStore.Files.getContentUri("external"), contentValues);
+
+        if (uri != null) {
+          try (OutputStream outputStream =
+              getContext().getContentResolver().openOutputStream(uri)) {
+            if (outputStream != null) {
+              outputStream.write(svgContent.getBytes("UTF-8"));
+              Toast.makeText(getContext(), "SVG saved successfully", Toast.LENGTH_SHORT).show();
+            }
+          }
+        }
+      } else {
+        File directory =
+            new File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                "AndroidCodeSnap");
+        if (!directory.exists()) {
+          directory.mkdirs();
+        }
+
+        File svgFile = new File(directory, fileName);
+        try (FileOutputStream outputStream = new FileOutputStream(svgFile)) {
+          outputStream.write(svgContent.getBytes("UTF-8"));
+
+          MediaScannerConnection.scanFile(
+              getContext(),
+              new String[] {svgFile.getAbsolutePath()},
+              new String[] {"image/svg+xml"},
+              null);
+
+          Toast.makeText(getContext(), "SVG saved successfully", Toast.LENGTH_SHORT).show();
+        }
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      Toast.makeText(getContext(), "Error saving SVG: " + e.getMessage(), Toast.LENGTH_LONG).show();
+    }
+  }
+
+  private String createSvgFromView(Bitmap bitmap) {
+    try {
+      int width = bitmap.getWidth();
+      int height = bitmap.getHeight();
+
+      String base64 = bitmapToBase64(bitmap);
+
+      String svgContent =
+          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+              + "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"\n"
+              + "     width=\""
+              + width
+              + "\" height=\""
+              + height
+              + "\"\n"
+              + "     viewBox=\"0 0 "
+              + width
+              + " "
+              + height
+              + "\">\n"
+              + "<image width=\""
+              + width
+              + "\" height=\""
+              + height
+              + "\"\n"
+              + "       xlink:href=\"data:image/png;base64,"
+              + base64
+              + "\"/>\n"
+              + "</svg>";
+
+      return svgContent;
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      return "";
+    }
+  }
+
+  private String bitmapToBase64(Bitmap bitmap) {
+    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+    byte[] byteArray = byteArrayOutputStream.toByteArray();
+    return Base64.encodeToString(byteArray, Base64.DEFAULT);
+  }
+
   public FormatImage getFormatImage() {
     return this.img;
+  }
+
+  private void saveAsVector(String fileName) {
+    try {
+      // گرفتن بیت‌مپ از ویو
+      View cardView = binding.card;
+      Bitmap bitmap =
+          Bitmap.createBitmap(cardView.getWidth(), cardView.getHeight(), Bitmap.Config.ARGB_8888);
+      Canvas canvas = new Canvas(bitmap);
+      cardView.draw(canvas);
+
+      // ساخت وکتور از بیت‌مپ
+      String vectorContent = convertBitmapToVectorPaths(bitmap);
+
+      // ذخیره‌سازی
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MediaStore.Files.FileColumns.DISPLAY_NAME, fileName);
+        contentValues.put(MediaStore.Files.FileColumns.MIME_TYPE, "text/xml");
+        contentValues.put(
+            MediaStore.Files.FileColumns.RELATIVE_PATH,
+            Environment.DIRECTORY_DOCUMENTS + "/AndroidCodeSnap");
+
+        Uri uri =
+            getContext()
+                .getContentResolver()
+                .insert(MediaStore.Files.getContentUri("external"), contentValues);
+
+        if (uri != null) {
+          try (OutputStream outputStream =
+              getContext().getContentResolver().openOutputStream(uri)) {
+            outputStream.write(vectorContent.getBytes("UTF-8"));
+            Toast.makeText(getContext(), "Vector saved", Toast.LENGTH_SHORT).show();
+          }
+        }
+      } else {
+        File directory =
+            new File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS),
+                "AndroidCodeSnap");
+        if (!directory.exists()) directory.mkdirs();
+
+        File vectorFile = new File(directory, fileName);
+        try (FileOutputStream outputStream = new FileOutputStream(vectorFile)) {
+          outputStream.write(vectorContent.getBytes("UTF-8"));
+          MediaScannerConnection.scanFile(
+              getContext(),
+              new String[] {vectorFile.getAbsolutePath()},
+              new String[] {"text/xml"},
+              null);
+          Toast.makeText(getContext(), "Vector saved", Toast.LENGTH_SHORT).show();
+        }
+      }
+
+      bitmap.recycle();
+    } catch (Exception e) {
+      e.printStackTrace();
+      Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+    }
+  }
+
+  private String convertBitmapToVectorPaths(Bitmap bitmap) {
+    StringBuilder vectorXml = new StringBuilder();
+    int width = bitmap.getWidth();
+    int height = bitmap.getHeight();
+
+    // ساختار اصلی وکتور
+    vectorXml
+        .append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
+        .append("<vector xmlns:android=\"http://schemas.android.com/apk/res/android\"\n")
+        .append("    android:width=\"")
+        .append(width)
+        .append("dp\"\n")
+        .append("    android:height=\"")
+        .append(height)
+        .append("dp\"\n")
+        .append("    android:viewportWidth=\"")
+        .append(width)
+        .append("\"\n")
+        .append("    android:viewportHeight=\"")
+        .append(height)
+        .append("\">\n");
+
+    // پس‌زمینه
+    vectorXml
+        .append("    <path\n")
+        .append("        android:fillColor=\"#")
+        .append(String.format("%08X", color.getCardbackground()))
+        .append("\"\n")
+        .append("        android:pathData=\"M0,0 L")
+        .append(width)
+        .append(",0 L")
+        .append(width)
+        .append(",")
+        .append(height)
+        .append(" L0,")
+        .append(height)
+        .append(" Z\" />\n");
+
+    // مناطق رنگی
+    StringBuilder paths = new StringBuilder();
+    int minRegionSize = 50;
+    boolean[][] visited = new boolean[width][height];
+
+    for (int y = 0; y < height; y += 2) {
+      for (int x = 0; x < width; x += 2) {
+        if (!visited[x][y]) {
+          int pixel = bitmap.getPixel(x, y);
+          int alpha = Color.alpha(pixel);
+
+          if (alpha > 100) {
+            List<Point> region = findColorRegion(bitmap, visited, x, y, pixel, 30);
+            if (region.size() > minRegionSize) {
+              String pathData = regionToPathData(region);
+              paths
+                  .append("    <path\n")
+                  .append("        android:fillColor=\"#")
+                  .append(String.format("%08X", pixel))
+                  .append("\"\n")
+                  .append("        android:pathData=\"")
+                  .append(pathData)
+                  .append("\" />\n");
+            }
+          }
+        }
+      }
+    }
+
+    vectorXml.append(paths.toString());
+    vectorXml.append("</vector>");
+
+    return vectorXml.toString();
+  }
+
+  private List<Point> findColorRegion(
+      Bitmap bitmap, boolean[][] visited, int startX, int startY, int targetColor, int tolerance) {
+    List<Point> region = new ArrayList<>();
+    Queue<Point> queue = new LinkedList<>();
+    queue.add(new Point(startX, startY));
+    visited[startX][startY] = true;
+
+    int[] dx = {-1, 1, 0, 0};
+    int[] dy = {0, 0, -1, 1};
+
+    while (!queue.isEmpty()) {
+      Point p = queue.poll();
+      region.add(p);
+
+      for (int i = 0; i < 4; i++) {
+        int nx = p.x + dx[i];
+        int ny = p.y + dy[i];
+
+        if (nx >= 0
+            && nx < bitmap.getWidth()
+            && ny >= 0
+            && ny < bitmap.getHeight()
+            && !visited[nx][ny]) {
+          int neighborColor = bitmap.getPixel(nx, ny);
+          if (colorSimilar(targetColor, neighborColor, tolerance)) {
+            visited[nx][ny] = true;
+            queue.add(new Point(nx, ny));
+          }
+        }
+      }
+    }
+
+    return region;
+  }
+
+  private boolean colorSimilar(int color1, int color2, int tolerance) {
+    return Math.abs(Color.red(color1) - Color.red(color2)) <= tolerance
+        && Math.abs(Color.green(color1) - Color.green(color2)) <= tolerance
+        && Math.abs(Color.blue(color1) - Color.blue(color2)) <= tolerance
+        && Math.abs(Color.alpha(color1) - Color.alpha(color2)) <= tolerance;
+  }
+
+  private String regionToPathData(List<Point> region) {
+    if (region.size() < 3) return "";
+
+    // پیدا کردن bounding box
+    int minX = Integer.MAX_VALUE, minY = Integer.MAX_VALUE;
+    int maxX = Integer.MIN_VALUE, maxY = Integer.MIN_VALUE;
+
+    for (Point p : region) {
+      minX = Math.min(minX, p.x);
+      minY = Math.min(minY, p.y);
+      maxX = Math.max(maxX, p.x);
+      maxY = Math.max(maxY, p.y);
+    }
+
+    // ساخت مستطیل ساده
+    return "M" + minX + "," + minY + " L" + maxX + "," + minY + " L" + maxX + "," + maxY + " L"
+        + minX + "," + maxY + " Z";
   }
 
   private String get(int stringres) {

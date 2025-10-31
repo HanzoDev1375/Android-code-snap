@@ -5,7 +5,9 @@ public enum FormatImage {
   JPEG(1),
   WEBP(2),
   PDF(3),
-  WEB_LOSSY(4);
+  WEB_LOSSY(4),
+  SVG(5),
+  VECTORDRAWABLE(6);
   int id;
 
   FormatImage(int id) {

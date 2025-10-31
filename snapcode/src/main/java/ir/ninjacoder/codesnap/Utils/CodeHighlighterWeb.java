@@ -18,6 +18,7 @@ import ir.ninjacoder.codesnap.bracket.BracketPosition;
 import ir.ninjacoder.codesnap.colorhelper.ColorHelper;
 import ir.ninjacoder.codesnap.colorhelper.css.CSSJsonColor;
 import ir.ninjacoder.codesnap.colorhelper.css.CssColorModel;
+import ir.ninjacoder.codesnap.widget.data.SpanStyler;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +32,7 @@ public class CodeHighlighterWeb implements Highlighter {
   @Override
   public SpannableStringBuilder highlight(LangType types, String code, ColorHelper color)
       throws Exception {
-    var builder = new SpannableStringBuilder();
+    SpanStyler builder = SpanStyler.create();
     var lexer = new HTMLLexer(CharStreams.fromReader(new StringReader(code)));
     Token token;
 
@@ -56,7 +57,7 @@ public class CodeHighlighterWeb implements Highlighter {
       }
       switch (type) {
         case HTMLLexer.WS:
-          builder.append(token.getText());
+          builder.addNullText(token.getText());
           break;
         case HTMLLexer.ABSTRACT:
         case HTMLLexer.ASSERT:
@@ -113,10 +114,7 @@ public class CodeHighlighterWeb implements Highlighter {
         case HTMLLexer.LONG:
         case HTMLLexer.SHORT:
         case HTMLLexer.BOOLEAN:
-          builder.append(
-              token.getText(),
-              new ForegroundColorSpan(color.getKeyword()),
-              SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+          builder.text(token.getText(), color.getKeyword());
           break;
         case HTMLLexer.DECIMAL_LITERAL:
         case HTMLLexer.OCT_LITERAL:
@@ -125,36 +123,21 @@ public class CodeHighlighterWeb implements Highlighter {
         case HTMLLexer.HEX_FLOAT_LITERAL:
         case HTMLLexer.BOOL_LITERAL:
         case HTMLLexer.NULL_LITERAL:
-          builder.append(
-              token.getText(),
-              new ForegroundColorSpan(color.getOperator()),
-              SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+          builder.text(token.getText(), color.getOperator());
           break;
         case HTMLLexer.PhpFuns:
         case HTMLLexer.CSSKEYWORD:
-          builder.append(
-              token.getText(),
-              new ForegroundColorSpan(color.getCsskeyword()),
-              SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+          builder.text(token.getText(), color.getCsskeyword());
           break;
         case HTMLLexer.CSSDOMATTR:
-          builder.append(
-              token.getText(),
-              new ForegroundColorSpan(color.getCssoprator()),
-              SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+          builder.text(token.getText(), color.getCssoprator());
           break;
         case HTMLLexer.CHATREF:
         case HTMLLexer.STRING:
-          builder.append(
-              token.getText(),
-              new ForegroundColorSpan(color.getStrings()),
-              SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+          builder.text(token.getText(), color.getStrings());
           break;
         case HTMLLexer.HtmlAttr:
-          builder.append(
-              token.getText(),
-              new ForegroundColorSpan(color.getHtmlattr()),
-              SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+          builder.text(token.getText(), color.getHtmlattr());
           break;
         case HTMLLexer.LPAREN:
         case HTMLLexer.LBRACK:
@@ -205,33 +188,28 @@ public class CodeHighlighterWeb implements Highlighter {
         case HTMLLexer.LT:
         case HTMLLexer.OPEN_SLASH:
         case HTMLLexer.SLASH_CLOSE:
-          builder.append(
-              token.getText(),
-              new ForegroundColorSpan(color.getSymbol()),
-              SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+          builder.text(token.getText(), color.getSymbol());
           break;
 
         case HTMLLexer.BLOCK_COMMENT:
         case HTMLLexer.LINE_COMMENT:
-          builder.append(
-              token.getText(),
-              new ForegroundColorSpan(color.getComment()),
-              SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+          builder.text(token.getText(), color.getComment());
           break;
         case HTMLLexer.HtmlTags:
         case HTMLLexer.HtmlTagOne:
-          builder.append(
-              token.getText(),
-              new ForegroundColorSpan(color.getHtmlkeyword()),
-              SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+          builder.text(token.getText(), color.getHtmlkeyword());
           break;
         case HTMLLexer.IDENTIFIER:
           {
             var text = token.getText();
-            int start = builder.length();
             int colorid = color.getTextnormal();
+            boolean isDep = false;
             if (ObjectUtils.getNextLexer(lexer, '.')) {
               colorid = color.getLastdot();
+            }
+            if (text.endsWith("clip")) {
+              isDep = true;
+              colorid = color.getComment();
             }
             try {
               List<CssColorModel> listcolor =
@@ -258,53 +236,37 @@ public class CodeHighlighterWeb implements Highlighter {
                     textColor = Color.WHITE;
                   }
 
-                  builder.append(text);
-                  var b = new BackgroundColorSpan(backgroundColor);
+                  // استفاده از متد backgroundColor برای پس‌زمینه
+                  builder.backgroundColor(text, backgroundColor);
 
-                  builder.setSpan(
-                      b,
-                      start,
-                      start + text.length(),
-                      SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+                  // اعمال استایل‌های اضافی
+                  int start = builder.length() - text.length();
                   builder.setSpan(
                       new StyleSpan(Typeface.BOLD),
                       start,
-                      start + text.length(),
+                      builder.length(),
                       SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
                   builder.setSpan(
                       new ForegroundColorSpan(textColor),
                       start,
-                      start + text.length(),
+                      builder.length(),
                       SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
                   colorApplied = true;
                   break;
                 }
               }
               if (!colorApplied) {
-                builder.append(text);
-                builder.setSpan(
-                    new ForegroundColorSpan(colorid),
-                    start,
-                    start + text.length(),
-                    SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+                builder.text(text, colorid, false, false, isDep);
               }
 
             } catch (Exception err) {
-              builder.append(text);
-              builder.setSpan(
-                  new ForegroundColorSpan(color.getTextnormal()),
-                  start,
-                  start + text.length(),
-                  SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+              builder.text(text, color.getTextnormal());
               Log.e("Error", err.getLocalizedMessage());
             }
             break;
           }
         default:
-          builder.append(
-              token.getText(),
-              new ForegroundColorSpan(color.getTextnormal()),
-              SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+          builder.text(token.getText(), color.getTextnormal());
           break;
       }
       if (type != HTMLLexer.WS) {

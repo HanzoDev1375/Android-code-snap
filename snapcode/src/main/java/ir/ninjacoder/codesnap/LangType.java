@@ -23,6 +23,7 @@ public enum LangType {
   YAML(".yml"),
   RUBY(".rb"),
   MARKDOWN(".md"),
+  ZIG(".zig"),
   NONE("");
 
   private final String langname;

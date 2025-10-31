@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
     binding.btn.setOnClickListener(
         v -> {
-          binding.et.takeScreenshot(FormatImage.PNG);
+          binding.et.takeScreenshot(FormatImage.VECTORDRAWABLE);
         });
 
     ad.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);

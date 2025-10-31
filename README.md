@@ -41,6 +41,7 @@
 - [x] yaml
 - [x] json
 - [x] xml
+- [x] zig
 
 ## Note
 

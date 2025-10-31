@@ -2,6 +2,7 @@ package ir.ninjacoder.codesnap.Utils;
 
 import ir.ninjacoder.codesnap.LangType;
 import android.text.SpannableStringBuilder;
+import ir.ninjacoder.codesnap.Utils.dep.CodeLexerWorker;
 import ir.ninjacoder.codesnap.antlr4.PythonLexerCompat;
 import ir.ninjacoder.codesnap.colorhelper.ColorHelper;
 import ir.ninjacoder.codesnap.widget.data.SpanStyler;
@@ -118,11 +119,7 @@ public class CodeHighlighterPython implements Highlighter {
           break;
         case PythonLexerCompat.FSTRING:
         case PythonLexerCompat.STRING:
-          span.fstring(
-              token.getText(),
-              color.getBracketlevel2(),
-              color.getBracketlevel3(),
-              color.getStrings());
+          CodeLexerWorker.fstringpy(type, color, span, token.getText(), lexer);
           break;
         case PythonLexerCompat.NUMBER:
           span.text(token.getText(), color.getLastsymi());
@@ -168,6 +165,8 @@ public class CodeHighlighterPython implements Highlighter {
               colorId = color.getPrebrak();
             } else if (ObjectUtils.getNextLexer(lexer, ':')) {
               colorId = color.getMethod();
+            } else if (lexer._input.LA("=".length()) == '=') {
+              colorId = color.getHtmlattr();
             }
 
             Set<String> builtinFuncs =

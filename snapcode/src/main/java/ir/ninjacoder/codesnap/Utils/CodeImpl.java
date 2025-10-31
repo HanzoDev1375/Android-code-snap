@@ -47,6 +47,8 @@ public class CodeImpl implements Highlighter {
       return new CodeHighlighterRuby().highlight(type, code, color);
     } else if (type == LangType.MARKDOWN) {
       return new CodeHighlighterMarkdown().highlight(type, code, color);
+    } else if (type == LangType.ZIG) {
+      return new CodeHighlighterZig().highlight(type, code, color);
     } else if (type == LangType.NONE) {
       return new EmptyLang().highlight(type, code, color);
     }

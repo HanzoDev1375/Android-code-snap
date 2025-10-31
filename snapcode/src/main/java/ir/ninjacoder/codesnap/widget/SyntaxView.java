@@ -58,7 +58,7 @@ public class SyntaxView extends ScrollView {
     code.setSingleLine(false);
     code.setImeOptions(EditorInfo.IME_FLAG_NO_ENTER_ACTION);
     code.setBackgroundColor(Color.TRANSPARENT);
-
+    setHorizontalScrollBarEnabled(true);
     code.setSelection(code.getText().length());
     code.setLineNumberColor(color.getLinenumbercolor());
     applyTheme();

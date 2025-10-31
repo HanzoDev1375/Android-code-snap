@@ -51,7 +51,7 @@ dependencies {
     implementation 'io.noties.markwon:ext-tasklist:4.6.2'
     implementation 'io.noties.markwon:image-glide:4.6.2'
     implementation 'io.noties.markwon:core:4.6.2'
-  
+   // implementation("com.caverock:androidsvg:1.4")
     implementation("io.noties.markwon:syntax-highlight:4.6.2") {
     
       exclude group: "org.jetbrains", module: "annotations"
