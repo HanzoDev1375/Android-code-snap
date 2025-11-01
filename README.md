@@ -75,7 +75,7 @@ dependencyResolutionManagement {
 ```groovy
 
 dependencies {
-	 implementation ('com.github.HanzoDev1375:Android-code-snap:1.1.1'){
+	 implementation ('com.github.HanzoDev1375:Android-code-snap:1.1.2'){
        exclude group: "org.jetbrains", module: "annotations"
        exclude group: "org.jetbrains", module: "annotations-java5"
      }
