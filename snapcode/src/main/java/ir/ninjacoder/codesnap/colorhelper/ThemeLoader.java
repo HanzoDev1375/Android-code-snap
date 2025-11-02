@@ -3,6 +3,7 @@ package ir.ninjacoder.codesnap.colorhelper;
 import android.content.Context;
 import android.graphics.Color;
 import android.widget.Toast;
+import java.io.InputStream;
 import org.json.JSONObject;
 import java.io.File;
 import java.io.FileInputStream;
@@ -82,8 +83,8 @@ public class ThemeLoader {
           color.cardstorkecolor = Color.parseColor(json.getString("cardstorkecolor"));
 
           // اصلاح شده - بدون فضای اضافی
-          color.setBracketlevel1(Color.parseColor(json.getString("bracketlevel1")));
-          color.setBracketlevel2(Color.parseColor(json.getString("bracketlevel2")));
+          color.bracketlevel1 = Color.parseColor(json.getString("bracketlevel1"));
+          color.bracketlevel2 = Color.parseColor(json.getString("bracketlevel2"));
           color.bracketlevel3 = Color.parseColor(json.getString("bracketlevel3"));
           color.bracketlevel4 = Color.parseColor(json.getString("bracketlevel4"));
           color.bracketlevel5 = Color.parseColor(json.getString("bracketlevel5"));
@@ -103,6 +104,45 @@ public class ThemeLoader {
 
   public String getPath() {
     return this.path;
+  }
+
+  public void applyThemeFromString(String assetName, ColorHelper color) {
+    try {
+
+      JSONObject json = new JSONObject(assetName);
+
+      color.keyword = Color.parseColor(json.getString("keyword"));
+      color.operator = Color.parseColor(json.getString("operator"));
+      color.method = Color.parseColor(json.getString("method"));
+      color.variable = Color.parseColor(json.getString("variable"));
+      color.symbol = Color.parseColor(json.getString("symbol"));
+      color.comment = Color.parseColor(json.getString("comment"));
+      color.lastdot = Color.parseColor(json.getString("lastdot"));
+      color.lastsymi = Color.parseColor(json.getString("lastsymi"));
+      color.uppercase = Color.parseColor(json.getString("uppercase"));
+      color.textnormal = Color.parseColor(json.getString("textnormal"));
+      color.prebrak = Color.parseColor(json.getString("prebrak"));
+      color.predot = Color.parseColor(json.getString("predot"));
+      color.strings = Color.parseColor(json.getString("strings"));
+      color.linenumbercolor = Color.parseColor(json.getString("linenumbercolor"));
+      color.bracketcolor = Color.parseColor(json.getString("bracketcolor"));
+      color.htmlkeyword = Color.parseColor(json.getString("htmlkeyword"));
+      color.htmlattr = Color.parseColor(json.getString("htmlattr"));
+      color.csskeyword = Color.parseColor(json.getString("csskeyword"));
+      color.cssoprator = Color.parseColor(json.getString("cssoprator"));
+      color.cardbackground = Color.parseColor(json.getString("cardbackground"));
+      color.cardstorkecolor = Color.parseColor(json.getString("cardstorkecolor"));
+      color.bracketlevel1 = Color.parseColor(json.getString("bracketlevel1"));
+      color.bracketlevel2 = Color.parseColor(json.getString("bracketlevel2"));
+      color.bracketlevel3 = Color.parseColor(json.getString("bracketlevel3"));
+      color.bracketlevel4 = Color.parseColor(json.getString("bracketlevel4"));
+      color.bracketlevel5 = Color.parseColor(json.getString("bracketlevel5"));
+      color.bracketlevel6 = Color.parseColor(json.getString("bracketlevel6"));
+      color.bracketlevel7 = Color.parseColor(json.getString("bracketlevel7"));
+
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 
   public void setPath(String path) {

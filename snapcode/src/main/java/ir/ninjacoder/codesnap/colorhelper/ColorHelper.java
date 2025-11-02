@@ -105,8 +105,80 @@ public class ColorHelper {
       case MOONGLOWTHEME:
         applyMoonglowTheme();
         break;
+      case BLACKNINJA:
+        theme.applyThemeFromString(ConstThemeJson.getBlackNinjaJson(), this);
+        break;
       case CUSTOM:
         customThemeFromJson();
+        break;
+      case MATRIXTHEME:
+        theme.applyThemeFromString(ConstThemeJson.getMatrixJson(), this);
+        break;
+      case GOLDTHEME:
+        theme.applyThemeFromString(ConstThemeJson.getGoldThemeJson(), this);
+        break;
+      case CYBERBLUETHEME:
+        theme.applyThemeFromString(ConstThemeJson.getCyberBlueJson(), this);
+        break;
+      case DUSKDREAM:
+        theme.applyThemeFromString(ConstThemeJson.getDuskDreamJson(), this);
+        break;
+      case MYSTICJUNGLE:
+        theme.applyThemeFromString(ConstThemeJson.getMysticJungleJson(), this);
+        break;
+      case COSMICPURPLE:
+        theme.applyThemeFromString(ConstThemeJson.getCosmicPurpleJson(), this);
+        break;
+      case SUNSETBLAZE:
+        theme.applyThemeFromString(ConstThemeJson.getSunsetBlazeJson(), this);
+        break;
+      case OCEANDEPTH:
+        theme.applyThemeFromString(ConstThemeJson.getOceanDepthJson(), this);
+        break;
+      case NEONDREAM:
+        theme.applyThemeFromString(ConstThemeJson.getNeonDreamJson(), this);
+        break;
+      case ROYALAMBER:
+        theme.applyThemeFromString(ConstThemeJson.getRoyalAmberJson(), this);
+        break;
+      case MINTCHOCOLATE:
+        theme.applyThemeFromString(ConstThemeJson.getMintChocolateJson(), this);
+        break;
+      case CYBERPINK:
+        theme.applyThemeFromString(ConstThemeJson.getCyberPinkJson(), this);
+        break;
+      case GOLDENHOUR:
+        theme.applyThemeFromString(ConstThemeJson.getGoldenHourJson(), this);
+        break;
+      case ARCTICICE:
+        theme.applyThemeFromString(ConstThemeJson.getArcticIceJson(), this);
+        break;
+      case RUBYRED:
+        theme.applyThemeFromString(ConstThemeJson.getRubyRedJson(), this);
+        break;
+      case EMERALDGREEN:
+        theme.applyThemeFromString(ConstThemeJson.getEmeraldGreenJson(), this);
+        break;
+      case SAPPHIREBLUE:
+        theme.applyThemeFromString(ConstThemeJson.getSapphireBlueJson(), this);
+        break;
+      case AMETHYSTPURPLE:
+        theme.applyThemeFromString(ConstThemeJson.getAmethystPurpleJson(), this);
+        break;
+      case CITRUSORANGE:
+        theme.applyThemeFromString(ConstThemeJson.getCitrusOrangeJson(), this);
+        break;
+      case MIDNIGHTBLUE:
+        theme.applyThemeFromString(ConstThemeJson.getMidnightBlueJson(), this);
+        break;
+      case ROSEGOLD:
+        theme.applyThemeFromString(ConstThemeJson.getRoseGoldJson(), this);
+        break;
+      case ELECTRICVIOLET:
+        theme.applyThemeFromString(ConstThemeJson.getElectricVioletJson(), this);
+        break;
+      case TROPICALSUNSET:
+        theme.applyThemeFromString(ConstThemeJson.getTropicalSunsetJson(), this);
         break;
       default:
         applyDefaultTheme();

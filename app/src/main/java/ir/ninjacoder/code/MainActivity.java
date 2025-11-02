@@ -2,6 +2,7 @@ package ir.ninjacoder.code;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.os.Build;
 import android.os.Environment;
@@ -76,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         (is, c) -> {
           binding.et.setIsShowCopyIcon(c);
         });
-        
+
     String code =
         """
           public class Main{
@@ -90,20 +91,19 @@ public class MainActivity extends AppCompatActivity {
           }
         """;
     binding.et.setText(code);
-    binding
-        .et
-        .getEditor()
-        .setFont(Typeface.createFromFile(new File("/storage/emulated/0/apk/ghostfont.ttf")));
+//    binding
+//        .et
+//        .getEditor()
+//        .setFont(Typeface.createFromFile(new File("/storage/emulated/0/apk/ghostfont.ttf")));
     getWindow()
         .setSoftInputMode(
             WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE
                 | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-    
+
     setupef();
 
     binding.et.setThemeCustom("/storage/emulated/0/Apktool_M/theme.json");
   }
-
 
   @Override
   protected void onDestroy() {
@@ -112,24 +112,7 @@ public class MainActivity extends AppCompatActivity {
   }
 
   private void setupThemeSpinner() {
-
-    List<ThemeManager> themeList = Arrays.asList(ThemeManager.values());
-
-    ArrayAdapter<ThemeManager> adapter =
-        new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, themeList);
-    binding.sptheme.setAdapter(adapter);
-
-    binding.sptheme.setOnItemSelectedListener(
-        new AdapterView.OnItemSelectedListener() {
-          @Override
-          public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            ThemeManager selectedTheme = themeList.get(position);
-            binding.et.setTheme(selectedTheme);
-          }
-
-          @Override
-          public void onNothingSelected(AdapterView<?> parent) {}
-        });
+    binding.et.setSaveThemeBySpinner(binding.sptheme);
   }
 
   void setupef() {

@@ -203,7 +203,11 @@ public class CodeHighlighterJava implements Highlighter {
               if (lexer._input.LA(1) == '(') {
                 colorNormal = colorHelper.getLastsymi();
               }
-            } else if (lexer._input.LA(1) == '.') {
+            } else if (pretoken == JavaLexer.CASE) {
+              colorNormal = colorHelper.getBracketlevel7();
+            } else if(pretoken == JavaLexer.RETURN) {
+            	colorNormal = colorHelper.getCssoprator();
+            }else if (lexer._input.LA(1) == '.') {
               colorNormal = colorHelper.getLastdot();
             } else if (lexer._input.LA(1) == '[' || lexer._input.LA(1) == ']') {
               colorNormal = colorHelper.getPrebrak();

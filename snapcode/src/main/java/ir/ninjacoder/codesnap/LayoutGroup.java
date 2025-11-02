@@ -17,6 +17,8 @@ import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.StyleSpan;
+import android.widget.AdapterView;
+import android.widget.Spinner;
 import androidx.annotation.RequiresApi;
 import ir.ninjacoder.codesnap.Utils.ObjectUtils;
 import ir.ninjacoder.codesnap.Utils.opt.LightSourceDrawable;
@@ -48,6 +50,9 @@ import ir.ninjacoder.codesnap.colorhelper.ThemeManager;
 import ir.ninjacoder.codesnap.databinding.LayoutGroupBinding;
 import ir.ninjacoder.codesnap.Utils.ColorUtil;
 import ir.ninjacoder.codesnap.widget.SyntaxView;
+import java.util.Arrays;
+import android.widget.ArrayAdapter;
+import android.content.SharedPreferences;
 import java.util.Date;
 import android.os.Environment;
 import android.graphics.Bitmap;
@@ -104,7 +109,6 @@ public class LayoutGroup extends LinearLayout {
     drawable.setRippleMinSize(10f);
     drawable.setRippleMaxSize(50f);
     drawable.setHighlightColor(color.getCardstorkecolor());
-    
 
     binding.editor.getCode().setForeground(drawable);
     getCode()
@@ -182,6 +186,33 @@ public class LayoutGroup extends LinearLayout {
   public void setShowHighlighterBracket(boolean show) {
     manager.setRainbowBracketsEnabled(show);
     updateTheme();
+  }
+
+  public void setSaveThemeBySpinner(Spinner sp) {
+    List<ThemeManager> themeList = Arrays.asList(ThemeManager.values());
+
+    ArrayAdapter<ThemeManager> adapter =
+        new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, themeList);
+    sp.setAdapter(adapter);
+    SharedPreferences prefs =
+        getContext().getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
+    int savedThemePosition = prefs.getInt("selected_theme_position", 0);
+    sp.setSelection(savedThemePosition);
+
+    sp.setOnItemSelectedListener(
+        new AdapterView.OnItemSelectedListener() {
+          @Override
+          public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            ThemeManager selectedTheme = themeList.get(position);
+            setTheme(selectedTheme);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putInt("selected_theme_position", position);
+            editor.apply();
+          }
+
+          @Override
+          public void onNothingSelected(AdapterView<?> parent) {}
+        });
   }
 
   void copyText() {
@@ -314,6 +345,7 @@ public class LayoutGroup extends LinearLayout {
   public void setType(LangType type) {
     this.type = type;
     updateHighlight();
+    
   }
 
   public boolean getFilePath(String path) {
