@@ -29,8 +29,11 @@ jobs:
     - name: Build APK
       run: ./gradlew assembleDebug
 
-    - name: Build AAR
+    - name: Build Debug AAR
       run: ./gradlew bundleDebugAar
+
+    - name: Build Release AAR
+      run: ./gradlew bundleReleaseAar
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
@@ -38,8 +41,14 @@ jobs:
         name: app-debug-apk
         path: app/build/outputs/apk/debug/app-debug.apk
 
-    - name: Upload AAR artifact
+    - name: Upload Debug AAR artifact
       uses: actions/upload-artifact@v4
       with:
-        name: app-debug-aar
-        path: app/build/outputs/aar/app-debug.aar
+        name: snapcode-debug-aar
+        path: snapcode/build/outputs/aar/snapcode-debug.aar
+
+    - name: Upload Release AAR artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: snapcode-release-aar
+        path: snapcode/build/outputs/aar/snapcode-release.aar
