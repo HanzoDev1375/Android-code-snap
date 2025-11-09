@@ -1,24 +1,39 @@
 package ir.ninjacoder.codesnap.widget;
 
-import android.animation.Animator;
+import android.animation.*;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
+import android.content.ClipData;
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.Point;
+import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.text.Editable;
 import android.text.InputType;
+import android.text.Layout;
 import android.text.SpannableStringBuilder;
 import android.text.TextWatcher;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.Spannable;
 import android.util.AttributeSet;
+import android.view.DragEvent;
+import android.view.View;
 import android.view.animation.OvershootInterpolator;
 import android.view.animation.AccelerateInterpolator;
 import android.view.inputmethod.EditorInfo;
 
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
+import com.google.android.material.tooltip.TooltipDrawable;
 import ir.ninjacoder.codesnap.R;
 import ir.ninjacoder.codesnap.Utils.ObjectUtils;
 import ir.ninjacoder.codesnap.colorhelper.ColorHelper;
@@ -36,6 +51,11 @@ public class SyntaxView extends ScrollView {
   private String oldText = "";
   private TextWatcher textWatcher;
   private boolean isMarkdownMode = false;
+  private TooltipDrawable tooltip;
+  private boolean isTooltipShowing = false;
+  private int originalStart = -1;
+  private int originalEnd = -1;
+  private String originalText = "";
 
   public SyntaxView(Context context) {
     super(context);
@@ -63,6 +83,123 @@ public class SyntaxView extends ScrollView {
     code.setLineNumberColor(color.getLinenumbercolor());
     applyTheme();
     updateLineNumbers();
+
+    code.setOnLongClickListener(
+        v -> {
+          int start = code.getSelectionStart();
+          int end = code.getSelectionEnd();
+
+          if (start != end) {
+            String selectedText = code.getText().toString().substring(start, end);
+
+            originalStart = start;
+            originalEnd = end;
+            originalText = selectedText;
+
+            ClipData data = ClipData.newPlainText("text", selectedText);
+            View.DragShadowBuilder shadow = new CustomDragShadowBuilder(code, start, end);
+            v.startDragAndDrop(data, shadow, null, View.DRAG_FLAG_OPAQUE);
+
+            return true;
+          }
+          return false;
+        });
+    code.setOnDragListener(
+        new View.OnDragListener() {
+          private ValueAnimator cursorAnimator;
+
+          @Override
+          public boolean onDrag(View v, DragEvent event) {
+            switch (event.getAction()) {
+              case DragEvent.ACTION_DRAG_STARTED:
+                animateCursorAlpha(0.3f, 1.0f, 200);
+                return true;
+
+              case DragEvent.ACTION_DRAG_ENTERED:
+                animateBackgroundColor(0x1067C8F5, 300);
+                return true;
+
+              case DragEvent.ACTION_DRAG_LOCATION:
+                int pos = code.getOffsetForPosition(event.getX(), event.getY());
+                animateCursorPosition(pos);
+                return true;
+
+              case DragEvent.ACTION_DRAG_EXITED:
+                animateBackgroundColor(Color.TRANSPARENT, 200);
+                return true;
+
+              case DragEvent.ACTION_DROP:
+                ClipData.Item item = event.getClipData().getItemAt(0);
+                String draggedText = item.getText().toString();
+
+                animateBackgroundColor(0x3067C8F5, 150);
+
+                int dropPos = code.getSelectionStart();
+                code.getText().insert(dropPos, draggedText);
+
+                animateCursorAlpha(1.0f, 0.3f, 100);
+                animateCursorAlpha(0.3f, 1.0f, 100);
+
+                originalStart = -1;
+                originalEnd = -1;
+                originalText = "";
+
+                return true;
+
+              case DragEvent.ACTION_DRAG_ENDED:
+                if (originalStart != -1 && originalEnd != -1) {
+                  code.getText().insert(originalStart, originalText);
+                  code.setSelection(originalStart + originalText.length());
+                }
+
+                animateBackgroundColor(Color.TRANSPARENT, 300);
+                animateCursorAlpha(code.getAlpha(), 1.0f, 200);
+
+                originalStart = -1;
+                originalEnd = -1;
+                originalText = "";
+
+                return true;
+            }
+            return true;
+          }
+
+          private void animateBackgroundColor(int targetColor, int duration) {
+            ValueAnimator colorAnimator =
+                ValueAnimator.ofObject(
+                    new ArgbEvaluator(), ((TextView) code).getHighlightColor(), targetColor);
+            colorAnimator.setDuration(duration);
+            colorAnimator.addUpdateListener(
+                animator -> {
+                  ((TextView) code).setHighlightColor((int) animator.getAnimatedValue());
+                });
+            colorAnimator.start();
+          }
+
+          private void animateCursorAlpha(float from, float to, int duration) {
+            if (cursorAnimator != null && cursorAnimator.isRunning()) {
+              cursorAnimator.cancel();
+            }
+
+            cursorAnimator = ValueAnimator.ofFloat(from, to);
+            cursorAnimator.setDuration(duration);
+            cursorAnimator.addUpdateListener(
+                animator -> {
+                  float alpha = (float) animator.getAnimatedValue();
+                  code.setAlpha(alpha);
+                });
+            cursorAnimator.start();
+          }
+
+          private void animateCursorPosition(int newPos) {
+            AnimatorSet set = new AnimatorSet();
+            ObjectAnimator cursorAnim = ObjectAnimator.ofInt(code, "selectionStart", newPos);
+            ObjectAnimator cursorAnim2 = ObjectAnimator.ofInt(code, "selectionEnd", newPos);
+            set.playTogether(cursorAnim, cursorAnim2);
+            set.setDuration(50);
+            set.start();
+          }
+        });
     textWatcher =
         new TextWatcher() {
           @Override
@@ -435,5 +572,46 @@ public class SyntaxView extends ScrollView {
 
   public boolean getisMarkdownMode() {
     return this.isMarkdownMode;
+  }
+
+  private static class CustomDragShadowBuilder extends View.DragShadowBuilder {
+    private final Paint paint;
+    private final Paint bgPaint;
+    private final Rect bounds;
+    private final String selectedText;
+
+    public CustomDragShadowBuilder(View view, int start, int end) {
+      super(view);
+      TextView textView = (TextView) view;
+      this.selectedText = textView.getText().subSequence(start, end).toString();
+      float textSize = textView.getTextSize();
+
+      paint = new Paint();
+      paint.setTextSize(textSize);
+      paint.setColor(Color.WHITE);
+      paint.setAntiAlias(true);
+      paint.setStyle(Paint.Style.FILL);
+
+      bgPaint = new Paint();
+      bgPaint.setColor(0xCC2196F3);
+      bgPaint.setAntiAlias(true);
+      bgPaint.setStyle(Paint.Style.FILL);
+
+      bounds = new Rect();
+      paint.getTextBounds(selectedText, 0, selectedText.length(), bounds);
+    }
+
+    @Override
+    public void onDrawShadow(Canvas canvas) {
+      RectF rect = new RectF(0, 0, bounds.width() + 32, bounds.height() + 24);
+      canvas.drawRoundRect(rect, 16, 16, bgPaint);
+      canvas.drawText(selectedText, 16, bounds.height() + 8, paint);
+    }
+
+    @Override
+    public void onProvideShadowMetrics(Point shadowSize, Point shadowTouchPoint) {
+      shadowSize.set(bounds.width() + 48, bounds.height() + 32);
+      shadowTouchPoint.set(shadowSize.x / 2, shadowSize.y / 2);
+    }
   }
 }

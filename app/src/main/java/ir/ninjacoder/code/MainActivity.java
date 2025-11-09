@@ -31,8 +31,6 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
   private ActivityMainBinding binding;
-  private AnimatedVectorDrawable animatedThumb;
-  private float previousValue = 0;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {

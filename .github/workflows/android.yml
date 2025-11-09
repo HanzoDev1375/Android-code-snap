@@ -29,9 +29,17 @@ jobs:
     - name: Build APK
       run: ./gradlew assembleDebug
 
+    - name: Build AAR
+      run: ./gradlew bundleDebugAar
+
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
         name: app-debug-apk
         path: app/build/outputs/apk/debug/app-debug.apk
-        
+
+    - name: Upload AAR artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-debug-aar
+        path: app/build/outputs/aar/app-debug.aar

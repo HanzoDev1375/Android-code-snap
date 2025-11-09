@@ -3,6 +3,12 @@ pluginManagement {
     gradlePluginPortal()
     google()
     mavenCentral()
+    google()
+    mavenCentral()
+    gradlePluginPortal()
+    maven { url 'https://jitpack.io' }
+    maven { url 'https://oss.jfrog.org/artifactory/oss-snapshot-local' }
+   
   }
 }
 

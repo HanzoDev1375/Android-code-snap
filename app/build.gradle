@@ -55,4 +55,5 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.2.1")
     implementation("androidx.appcompat:appcompat:1.7.1")
     implementation project(path: ":snapcode")
+    implementation 'ch.usi.si.seart:java-tree-sitter:1.12.0'
 }

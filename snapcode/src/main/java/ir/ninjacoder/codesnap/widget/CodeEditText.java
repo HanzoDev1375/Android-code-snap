@@ -681,4 +681,9 @@ public class CodeEditText extends PowerModeEditText {
             + stickyLineNumberPaint.getTextSize();
     canvas.drawText(lineNumber, lineNumberWidth - lineNumberPadding, textY, stickyLineNumberPaint);
   }
+
+
+  public interface OnSelectionChangedListener {
+    void onSelectionChanged(int selStart, int selEnd);
+  }
 }
