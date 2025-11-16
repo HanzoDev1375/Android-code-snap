@@ -13,7 +13,6 @@ import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
-import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.StyleSpan;
@@ -111,21 +110,7 @@ public class LayoutGroup extends LinearLayout {
     drawable.setHighlightColor(color.getCardstorkecolor());
 
     binding.editor.getCode().setForeground(drawable);
-    getCode()
-        .addTextChangedListener(
-            new TextWatcher() {
-
-              @Override
-              public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {}
-
-              @Override
-              public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {}
-
-              @Override
-              public void afterTextChanged(Editable arg0) {
-                //  highlightText(arg0.toString(), binding.editor.getCode());
-              }
-            });
+    
     color.addOnThemeChangeListener(
         () -> {
           updateTheme();

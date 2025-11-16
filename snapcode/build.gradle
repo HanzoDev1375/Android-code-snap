@@ -67,7 +67,6 @@ afterEvaluate {
     publishing {
         publications {
             aar(MavenPublication) {
-                // خروجی AAR
                 artifact(bundleReleaseAar)
 
                 groupId = 'com.github.HanzoDev1375'
