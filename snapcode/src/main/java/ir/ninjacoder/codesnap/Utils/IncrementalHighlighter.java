@@ -47,22 +47,17 @@ public class IncrementalHighlighter implements TextWatcher {
     public void afterTextChanged(Editable s) {
         executor.submit(() -> {
             try {
-                // Define a region to re-highlight, with some context
-                int start = Math.max(0, changeStart - 200);
-                int end = Math.min(s.length(), changeEnd + 200);
-
-                String regionToHighlight = s.subSequence(start, end).toString();
-
-                CharSequence highlightedRegion = highlighter.highlight(langType, regionToHighlight, colorHelper);
-
+                SpannableStringBuilder highlighted = (SpannableStringBuilder) highlighter.highlight(langType, s.toString(), colorHelper);
                 handler.post(() -> {
-                    // Remove old spans only in the affected region
-                    Object[] spans = s.getSpans(start, end, Object.class);
+                    Object[] spans = s.getSpans(0, s.length(), Object.class);
                     for (Object span : spans) {
                         s.removeSpan(span);
                     }
-                    // Apply new spans
-                    s.replace(start, end, highlightedRegion);
+
+                    Object[] newSpans = highlighted.getSpans(0, highlighted.length(), Object.class);
+                    for (Object span : newSpans) {
+                        s.setSpan(span, highlighted.getSpanStart(span), highlighted.getSpanEnd(span), highlighted.getSpanFlags(span));
+                    }
                 });
             } catch (Exception e) {
                 // Handle exception
