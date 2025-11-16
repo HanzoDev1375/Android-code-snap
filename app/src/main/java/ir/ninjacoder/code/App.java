@@ -11,6 +11,5 @@ public class App extends Application {
     super.onCreate();
     ThemeLoader.init(this);
     // TODO: Implement this method
-    LibraryLoader.load();
   }
 }
