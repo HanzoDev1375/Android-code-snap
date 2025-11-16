@@ -47,6 +47,11 @@ public enum LangType {
   }
 
   public boolean hasFile(String file) {
-    return Arrays.stream(LangType.values()).allMatch(it -> file.endsWith(it.getLangname()));
+    for (LangType lang : LangType.values()) {
+        if (file.endsWith(lang.getLangname())) {
+            return true;
+        }
+    }
+    return false;
   }
 }
