@@ -68,6 +68,7 @@ public class CodeEditText extends PowerModeEditText {
   private int lineNumberWidth = 0;
   private Paint lineNumberPaint;
   private Paint lineNumberBackgroundPaint;
+  private Paint separatorPaint;
   private int lineNumberPadding = 16;
   private float baseTextSize;
   private float lineNumberTextSize;
@@ -168,8 +169,8 @@ public class CodeEditText extends PowerModeEditText {
     }
 
     updateLineNumberWidth();
-    requestLayout();
-    invalidate();
+    // requestLayout();
+    // invalidate();
   }
 
   private void init() {
@@ -189,6 +190,9 @@ public class CodeEditText extends PowerModeEditText {
 
     setHintTextColor(color.getLastsymi());
     initLineNumberPaints();
+    separatorPaint = new Paint();
+    separatorPaint.setColor(color.getLinenumbercolor());
+    separatorPaint.setAlpha(50);
     initStickyLineNumberPaints();
     setCodeStickyEnabled(false);
     addTextChangedListener(
@@ -257,6 +261,8 @@ public class CodeEditText extends PowerModeEditText {
     int lineCount = getLineCount();
     int maxDigits = Math.max(1, String.valueOf(Math.max(lineCount, 1)).length());
 
+    if (lineNumberPaint == null) return; // Prevent crash
+
     float charWidth = lineNumberPaint.measureText("0");
     float textWidth = charWidth * (maxDigits + 1);
     lineNumberWidth = (int) textWidth + lineNumberPadding * 2;
@@ -294,12 +300,13 @@ public class CodeEditText extends PowerModeEditText {
 
     canvas.drawRect(0, 0, lineNumberWidth, getHeight(), lineNumberBackgroundPaint);
 
-    Paint separatorPaint = new Paint();
-    separatorPaint.setColor(color.getLinenumbercolor());
-    separatorPaint.setAlpha(50);
     canvas.drawLine(lineNumberWidth - 1, 0, lineNumberWidth - 1, getHeight(), separatorPaint);
 
-    for (int i = 0; i < lineCount; i++) {
+    Layout layout = getLayout();
+    int firstLine = layout.getLineForVertical(getScrollY());
+    int lastLine = layout.getLineForVertical(getScrollY() + getHeight());
+
+    for (int i = firstLine; i <= lastLine && i < lineCount; i++) {
       baseline = getLineBounds(i, null);
 
       if (i == currentLine) {
@@ -429,8 +436,9 @@ public class CodeEditText extends PowerModeEditText {
     @Override
     public void onScaleEnd(ScaleGestureDetector detector) {
       isZooming = false;
-      invalidate();
+      // invalidate(); // This will be handled by the zoom logic now
       super.onScaleEnd(detector);
+      postInvalidate(); // More efficient redraw
     }
   }
 

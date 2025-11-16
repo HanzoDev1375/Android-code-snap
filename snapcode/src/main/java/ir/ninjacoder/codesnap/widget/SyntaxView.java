@@ -36,6 +36,14 @@ import android.widget.Toast;
 import com.google.android.material.tooltip.TooltipDrawable;
 import ir.ninjacoder.codesnap.R;
 import ir.ninjacoder.codesnap.Utils.ObjectUtils;
+import ir.ninjacoder.codesnap.Utils.IncrementalHighlighter;
+import ir.ninjacoder.codesnap.LangType;
+import ir.ninjacoder.codesnap.Utils.Highlighter;
+import ir.ninjacoder.codesnap.Utils.CodeImpl;
+import ir.ninjacoder.codesnap.Utils.IncrementalHighlighter;
+import ir.ninjacoder.codesnap.LangType;
+import ir.ninjacoder.codesnap.Utils.Highlighter;
+import ir.ninjacoder.codesnap.Utils.CodeImpl;
 import ir.ninjacoder.codesnap.colorhelper.ColorHelper;
 import ir.ninjacoder.codesnap.folding.CodeFoldingManager;
 import ir.ninjacoder.codesnap.markdownpreview.MarkDownTextHelper;
@@ -50,6 +58,7 @@ public class SyntaxView extends ScrollView {
   private TextView tv;
   private String oldText = "";
   private TextWatcher textWatcher;
+  private IncrementalHighlighter incrementalHighlighter;
   private boolean isMarkdownMode = false;
   private TooltipDrawable tooltip;
   private boolean isTooltipShowing = false;
@@ -234,7 +243,13 @@ public class SyntaxView extends ScrollView {
           }
         };
 
-    code.addTextChangedListener(textWatcher);
+    // code.addTextChangedListener(textWatcher);
+  }
+
+  public void setLangType(LangType langType) {
+      Highlighter highlighter = new CodeImpl();
+      incrementalHighlighter = new IncrementalHighlighter(highlighter, langType, color);
+      incrementalHighlighter.attach(code.getText());
   }
 
   private char getLastDifference(String a, String b) {
@@ -291,7 +306,13 @@ public class SyntaxView extends ScrollView {
       code.setSelection(newSelection);
     }
 
-    code.addTextChangedListener(textWatcher);
+    // code.addTextChangedListener(textWatcher);
+  }
+
+  public void setLangType(LangType langType) {
+      Highlighter highlighter = new CodeImpl();
+      incrementalHighlighter = new IncrementalHighlighter(highlighter, langType, color);
+      incrementalHighlighter.attach(code.getText());
   }
 
   private int calculateNewCursorPosition(String originalText, String foldedText, int originalPos) {

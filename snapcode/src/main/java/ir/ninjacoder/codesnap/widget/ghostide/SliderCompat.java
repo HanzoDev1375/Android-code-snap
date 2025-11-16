@@ -7,7 +7,6 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RotateDrawable;
 import com.google.android.material.color.MaterialColors;
-import com.google.android.material.shape.MaterialShapes;
 import com.google.android.material.slider.Slider;
 import android.util.AttributeSet;
 import ir.ninjacoder.codesnap.R;
