@@ -111,21 +111,6 @@ public class LayoutGroup extends LinearLayout {
     drawable.setHighlightColor(color.getCardstorkecolor());
 
     binding.editor.getCode().setForeground(drawable);
-    getCode()
-        .addTextChangedListener(
-            new TextWatcher() {
-
-              @Override
-              public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {}
-
-              @Override
-              public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {}
-
-              @Override
-              public void afterTextChanged(Editable arg0) {
-                //  highlightText(arg0.toString(), binding.editor.getCode());
-              }
-            });
     color.addOnThemeChangeListener(
         () -> {
           updateTheme();
@@ -159,23 +144,15 @@ public class LayoutGroup extends LinearLayout {
   }
 
   private void highlightText(String text, EditText editText) {
-    try {
-      CodeImpl code = new CodeImpl();
-      final SpannableStringBuilder highlightedText = code.highlight(type, text, color);
-      editText.setText(text);
-      animateOptimizedColorWave(editText, highlightedText);
-      binding
-          .getRoot()
-          .post(
-              () -> {
-                binding.eyeicon.setVisibility(type == LangType.MARKDOWN ? VISIBLE : GONE);
-                // binding.editor.showMarkDownView(type == LangType.MARKDOWN);
-                binding.eyeicon.invalidate();
-              });
-
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+    editText.setText(text);
+    binding
+        .getRoot()
+        .post(
+            () -> {
+              binding.eyeicon.setVisibility(type == LangType.MARKDOWN ? VISIBLE : GONE);
+              // binding.editor.showMarkDownView(type == LangType.MARKDOWN);
+              binding.eyeicon.invalidate();
+            });
   }
 
   void showIconCopy(boolean show) {
@@ -344,6 +321,7 @@ public class LayoutGroup extends LinearLayout {
 
   public void setType(LangType type) {
     this.type = type;
+    binding.editor.setLangType(type);
     updateHighlight();
     
   }

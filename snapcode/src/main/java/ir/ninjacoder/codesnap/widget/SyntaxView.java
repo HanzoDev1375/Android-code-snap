@@ -50,6 +50,7 @@ public class SyntaxView extends ScrollView {
   private TextView tv;
   private String oldText = "";
   private TextWatcher textWatcher;
+  private IncrementalHighlighter incrementalHighlighter;
   private boolean isMarkdownMode = false;
   private TooltipDrawable tooltip;
   private boolean isTooltipShowing = false;
@@ -234,7 +235,13 @@ public class SyntaxView extends ScrollView {
           }
         };
 
-    code.addTextChangedListener(textWatcher);
+    // code.addTextChangedListener(textWatcher);
+  }
+
+  public void setLangType(LangType langType) {
+      Highlighter highlighter = new CodeImpl();
+      incrementalHighlighter = new IncrementalHighlighter(highlighter, langType, color);
+      incrementalHighlighter.attach(code.getText());
   }
 
   private char getLastDifference(String a, String b) {

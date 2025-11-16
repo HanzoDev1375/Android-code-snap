@@ -9,9 +9,9 @@ android {
 
     defaultConfig {
         minSdk 21
-        targetSdk 34
-        versionCode 1
-        versionName "1.1.1"
+        targetSdk 35
+        versionCode VERSION_CODE.toInteger()
+        versionName VERSION_NAME
         consumerProguardFiles "consumer-rules.pro"
     }
 
@@ -30,7 +30,7 @@ android {
 
     lint {
         checkReleaseBuilds = false
-        abortOnError = false
+        abortOnError = true
     }
 
     compileOptions {
@@ -43,8 +43,8 @@ android {
    Dependencies
 ────────────────── */
 dependencies {
-    implementation("com.google.android.material:material:1.14.0-alpha06")
-    runtimeOnly 'androidx.graphics:graphics-shapes:1.1.0-alpha01'
+    implementation("com.google.android.material:material:1.11.0")
+    runtimeOnly 'androidx.graphics:graphics-shapes:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'org.antlr:antlr4:4.13.2'
@@ -60,7 +60,7 @@ dependencies {
         exclude group: "org.jetbrains", module: "annotations-java5"
     }
 
-    implementation("com.github.bumptech.glide:glide:5.0.0-rc01")
+    implementation("com.github.bumptech.glide:glide:5.0.5")
 }
 
 afterEvaluate {
@@ -72,7 +72,7 @@ afterEvaluate {
 
                 groupId = 'com.github.HanzoDev1375'
                 artifactId = 'CodeSnap'
-                version = '1.1.1'
+                version = VERSION_NAME
 
                 pom {
                     withXml {

@@ -13,8 +13,8 @@ android {
         applicationId "ir.ninjacoder.code"
         minSdk 21
         targetSdk 35
-        versionCode 1
-        versionName "1.0"
+        versionCode VERSION_CODE.toInteger()
+        versionName VERSION_NAME
         
         vectorDrawables { 
             useSupportLibrary true
@@ -42,7 +42,7 @@ android {
     
     lintOptions {
         checkReleaseBuilds false
-        abortOnError false
+        abortOnError true
     }
     
 }
@@ -50,8 +50,8 @@ android {
 dependencies {
 
  
-    implementation("com.google.android.material:material:1.14.0-alpha06")
-    runtimeOnly 'androidx.graphics:graphics-shapes:1.1.0-alpha01' 
+    implementation("com.google.android.material:material:1.11.0")
+    runtimeOnly 'androidx.graphics:graphics-shapes:1.1.0'
     implementation("androidx.constraintlayout:constraintlayout:2.2.1")
     implementation("androidx.appcompat:appcompat:1.7.1")
     implementation project(path: ":snapcode")
