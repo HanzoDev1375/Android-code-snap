@@ -168,8 +168,8 @@ public class CodeEditText extends PowerModeEditText {
     }
 
     updateLineNumberWidth();
-    requestLayout();
-    invalidate();
+    // requestLayout();
+    // invalidate();
   }
 
   private void init() {
@@ -256,6 +256,8 @@ public class CodeEditText extends PowerModeEditText {
 
     int lineCount = getLineCount();
     int maxDigits = Math.max(1, String.valueOf(Math.max(lineCount, 1)).length());
+
+    if (lineNumberPaint == null) return; // Prevent crash
 
     float charWidth = lineNumberPaint.measureText("0");
     float textWidth = charWidth * (maxDigits + 1);
@@ -429,8 +431,9 @@ public class CodeEditText extends PowerModeEditText {
     @Override
     public void onScaleEnd(ScaleGestureDetector detector) {
       isZooming = false;
-      invalidate();
+      // invalidate(); // This will be handled by the zoom logic now
       super.onScaleEnd(detector);
+      postInvalidate(); // More efficient redraw
     }
   }
 
