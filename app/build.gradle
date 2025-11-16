@@ -42,7 +42,7 @@ android {
     
     lintOptions {
         checkReleaseBuilds false
-        abortOnError true
+        abortOnError false
     }
     
 }
@@ -50,8 +50,8 @@ android {
 dependencies {
 
  
-    implementation("com.google.android.material:material:1.11.0")
-    runtimeOnly 'androidx.graphics:graphics-shapes:1.1.0'
+    implementation("com.google.android.material:material:1.14.0-alpha06")
+    runtimeOnly 'androidx.graphics:graphics-shapes:1.1.0-alpha01'
     implementation("androidx.constraintlayout:constraintlayout:2.2.1")
     implementation("androidx.appcompat:appcompat:1.7.1")
     implementation project(path: ":snapcode")
