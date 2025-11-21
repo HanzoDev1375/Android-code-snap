@@ -417,15 +417,15 @@ IDENTIFIER
    ;
 
 LINE_COMMENT
-   : '//' ~ [\r\n]* -> skip
+   : '//' ~ [\r\n]* -> channel (HIDDEN)
    ;
 
 BLOCK_COMMENT
-   : '/*' .*? '*/' -> skip
+   : '/*' .*? '*/' -> channel(HIDDEN)
    ;
 
 DOC_COMMENT
-   : '/**' .*? '*/' -> skip
+   : '/**' .*? '*/' -> channel(HIDDEN)
    ;
 
 WS

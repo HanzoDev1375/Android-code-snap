@@ -4,6 +4,7 @@ import android.animation.LayoutTransition;
 import android.content.ClipboardManager;
 import android.content.ClipData;
 import android.content.ContentValues;
+import android.content.SharedPreferences;
 import android.graphics.Paint;
 import android.graphics.pdf.PdfDocument;
 import android.os.Build;
@@ -13,10 +14,12 @@ import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
+import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.StyleSpan;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import androidx.annotation.RequiresApi;
 import ir.ninjacoder.codesnap.Utils.ObjectUtils;
@@ -50,8 +53,6 @@ import ir.ninjacoder.codesnap.databinding.LayoutGroupBinding;
 import ir.ninjacoder.codesnap.Utils.ColorUtil;
 import ir.ninjacoder.codesnap.widget.SyntaxView;
 import java.util.Arrays;
-import android.widget.ArrayAdapter;
-import android.content.SharedPreferences;
 import java.util.Date;
 import android.os.Environment;
 import android.graphics.Bitmap;
@@ -110,7 +111,21 @@ public class LayoutGroup extends LinearLayout {
     drawable.setHighlightColor(color.getCardstorkecolor());
 
     binding.editor.getCode().setForeground(drawable);
-    
+    getCode()
+        .addTextChangedListener(
+            new TextWatcher() {
+
+              @Override
+              public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {}
+
+              @Override
+              public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {}
+
+              @Override
+              public void afterTextChanged(Editable arg0) {
+                //  highlightText(arg0.toString(), binding.editor.getCode());
+              }
+            });
     color.addOnThemeChangeListener(
         () -> {
           updateTheme();
@@ -171,33 +186,6 @@ public class LayoutGroup extends LinearLayout {
   public void setShowHighlighterBracket(boolean show) {
     manager.setRainbowBracketsEnabled(show);
     updateTheme();
-  }
-
-  public void setSaveThemeBySpinner(Spinner sp) {
-    List<ThemeManager> themeList = Arrays.asList(ThemeManager.values());
-
-    ArrayAdapter<ThemeManager> adapter =
-        new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, themeList);
-    sp.setAdapter(adapter);
-    SharedPreferences prefs =
-        getContext().getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
-    int savedThemePosition = prefs.getInt("selected_theme_position", 0);
-    sp.setSelection(savedThemePosition);
-
-    sp.setOnItemSelectedListener(
-        new AdapterView.OnItemSelectedListener() {
-          @Override
-          public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            ThemeManager selectedTheme = themeList.get(position);
-            setTheme(selectedTheme);
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putInt("selected_theme_position", position);
-            editor.apply();
-          }
-
-          @Override
-          public void onNothingSelected(AdapterView<?> parent) {}
-        });
   }
 
   void copyText() {
@@ -330,7 +318,6 @@ public class LayoutGroup extends LinearLayout {
   public void setType(LangType type) {
     this.type = type;
     updateHighlight();
-    
   }
 
   public boolean getFilePath(String path) {
@@ -1022,5 +1009,32 @@ public class LayoutGroup extends LinearLayout {
     this.isShowCopyIcon = isShowCopyIcon;
     showIconCopy(isShowCopyIcon);
     binding.copyicon.invalidate();
+  }
+
+  public void setSaveThemeBySpinner(Spinner sp) {
+    List<ThemeManager> themeList = Arrays.asList(ThemeManager.values());
+
+    ArrayAdapter<ThemeManager> adapter =
+        new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, themeList);
+    sp.setAdapter(adapter);
+    SharedPreferences prefs =
+        getContext().getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
+    int savedThemePosition = prefs.getInt("selected_theme_position", 0);
+    sp.setSelection(savedThemePosition);
+
+    sp.setOnItemSelectedListener(
+        new AdapterView.OnItemSelectedListener() {
+          @Override
+          public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            ThemeManager selectedTheme = themeList.get(position);
+            setTheme(selectedTheme);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putInt("selected_theme_position", position);
+            editor.apply();
+          }
+
+          @Override
+          public void onNothingSelected(AdapterView<?> parent) {}
+        });
   }
 }

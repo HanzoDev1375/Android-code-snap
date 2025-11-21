@@ -1,4 +1,4 @@
-// Generated from /storage/emulated/0/apktest/GradleLexer.g4 by ANTLR 4.13.2
+// Generated from /storage/emulated/0/AndroidIDEProjects/Code Snap/snapcode/src/main/java/ir/ninjacoder/codesnap/antlr4/gradle/GradleLexer.g4 by ANTLR 4.13.2
 package ir.ninjacoder.codesnap.antlr4.gradle;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
@@ -752,7 +752,7 @@ public class GradleLexer extends Lexer {
 		"\u0000\u03dc\u00d2\u0001\u0000\u0000\u0000\u03dd\u03df\u0007\u0006\u0000"+
 		"\u0000\u03de\u03dd\u0001\u0000\u0000\u0000\u03df\u03e0\u0001\u0000\u0000"+
 		"\u0000\u03e0\u03de\u0001\u0000\u0000\u0000\u03e0\u03e1\u0001\u0000\u0000"+
-		"\u0000\u03e1\u03e2\u0001\u0000\u0000\u0000\u03e2\u03e3\u0006i\u0001\u0000"+
+		"\u0000\u03e1\u03e2\u0001\u0000\u0000\u0000\u03e2\u03e3\u0006i\u0000\u0000"+
 		"\u03e3\u00d4\u0001\u0000\u0000\u0000\u03e4\u03e7\u0003\u00d7k\u0000\u03e5"+
 		"\u03e7\u0007\u0002\u0000\u0000\u03e6\u03e4\u0001\u0000\u0000\u0000\u03e6"+
 		"\u03e5\u0001\u0000\u0000\u0000\u03e7\u00d6\u0001\u0000\u0000\u0000\u03e8"+
@@ -761,8 +761,8 @@ public class GradleLexer extends Lexer {
 		"\u0000\u0000\u0000\u03ec\u03e9\u0001\u0000\u0000\u0000\u03ec\u03ea\u0001"+
 		"\u0000\u0000\u0000\u03ed\u00d8\u0001\u0000\u0000\u0000\u0017\u0000\u01c6"+
 		"\u0357\u0360\u036c\u0376\u0383\u0388\u038e\u0392\u0398\u039b\u03a0\u03a3"+
-		"\u03a7\u03ac\u03b2\u03bb\u03c6\u03d5\u03e0\u03e6\u03ec\u0002\u0006\u0000"+
-		"\u0000\u0000\u0001\u0000";
+		"\u03a7\u03ac\u03b2\u03bb\u03c6\u03d5\u03e0\u03e6\u03ec\u0001\u0000\u0001"+
+		"\u0000";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

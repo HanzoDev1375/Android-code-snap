@@ -69,11 +69,11 @@ public class CodeHighlighterGradle implements Highlighter {
         case GradleLexer.TRIPLE_QUOTE_STRING:
           span.text(text, color.getStrings());
           break;
-        
-        
+
         case GradleLexer.DEPENDENCIES:
         case GradleLexer.PLUGINS:
-        span.text(text,color.getMethod(),true); break;
+          span.text(text, color.getMethod(), true);
+          break;
 
         case GradleLexer.INTEGER:
         case GradleLexer.FLOAT:
@@ -143,7 +143,6 @@ public class CodeHighlighterGradle implements Highlighter {
         case GradleLexer.DOC_COMMENT:
           span.text(text, color.getComment());
           break;
-
         case GradleLexer.IDENTIFIER:
           {
             int colorNormal = color.getTextnormal();
@@ -152,39 +151,46 @@ public class CodeHighlighterGradle implements Highlighter {
             if (pretoken == GradleLexer.TASK) {
               colorNormal = color.getMethod();
               isBold = true;
-
             } else if (pretoken == GradleLexer.PROJECT
                 || pretoken == GradleLexer.APPLY
                 || pretoken == GradleLexer.REPOSITORIES
                 || pretoken == GradleLexer.BUILDSCRIPT) {
               colorNormal = color.getPredot();
-
             } else if (pretoken == GradleLexer.IMPLEMENTATION
                 || pretoken == GradleLexer.COMPILE_ONLY
                 || pretoken == GradleLexer.RUNTIME_ONLY
-                || pretoken == GradleLexer.TEST_IMPLEMENTATION) {
+                || pretoken == GradleLexer.TEST_IMPLEMENTATION
+                || pretoken == GradleLexer.API
+                || pretoken == GradleLexer.KAPT
+                || pretoken == GradleLexer.ANNOTATION_PROCESSOR) {
               colorNormal = color.getLastsymi();
               isBold = true;
-
             } else if (pretoken == GradleLexer.DEF
                 || pretoken == GradleLexer.CLASS
                 || pretoken == GradleLexer.IMPORT
-                || pretoken == GradleLexer.IMPLEMENTS) {
-
+                || pretoken == GradleLexer.IMPLEMENTS
+                || pretoken == GradleLexer.EXTENDS) {
               colorNormal = color.getMethod();
-            } else if (lexer._input.LA(2) == '{' || lexer._input.LA("{".length()) == '{') {
+            } else if (pretoken == GradleLexer.DOT) {
               colorNormal = color.getMethod();
               isBold = true;
-
-            } else if (lexer._input.LA(1) == '.') {
+            } else if (isNextChar(lexer, '.')) {
               colorNormal = color.getLastsymi();
-            } else if (pretoken == GradleLexer.DOT) {
-              colorNormal = color.getPredot();
-            } else if (Character.isUpperCase(text.charAt(0))) {
-              Pattern pattern = Pattern.compile("^[A-Z][a-zA-Z0-9_]*$");
-              if (pattern.matcher(text).matches()) {
-                colorNormal = color.getUppercase();
-              }
+            } else if (isNextChar(lexer, ':')) {
+              colorNormal = color.getVariable();
+            } else if (isNextChar(lexer, '(')) {
+              colorNormal = color.getMethod();
+              isBold = true;
+            } else if (isGradleMethod(text)) {
+              colorNormal = color.getMethod();
+              isBold = true;
+            } else if (isGradleConfiguration(text)) {
+              colorNormal = color.getOperator();
+              isBold = true;
+            } else if (isUpperCaseIdentifier(text)) {
+              colorNormal = color.getUppercase();
+            }else if(isGradleOther(text)) {
+            	colorNormal = color.getCssoprator();
             }
 
             span.text(text, colorNormal, isBold);
@@ -199,5 +205,69 @@ public class CodeHighlighterGradle implements Highlighter {
     }
 
     return span;
+  }
+
+  private boolean isNextChar(GradleLexer lexer, char expectedChar) {
+    try {
+      int nextChar = lexer._input.LA(1);
+      return nextChar == expectedChar;
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
+  private boolean isGradleMethod(String text) {
+    return text.equals("allDependencies")
+        || text.equals("each")
+        || text.equals("appendNode")
+        || text.equals("all")
+        || text.equals("configure")
+        || text.equals("withType")
+        || text.equals("getDependencies")
+        || text.equals("getByName")
+        || text.equals("matching")
+        || text.equals("setGroup")
+        || text.equals("setVersion")
+        || text.endsWith("Node")
+        || text.startsWith("get")
+        || text.startsWith("set");
+  }
+
+  private boolean isGradleConfiguration(String text) {
+    return text.equals("configurations")
+        || text.equals("dependencies")
+        || text.equals("plugins")
+        || text.equals("repositories")
+        || text.equals("buildscript")
+        || text.equals("artifacts")
+        || text.equals("publishing")
+        || text.equals("android")
+        || text.equals("java")
+        || text.equals("kotlin");
+  }
+
+  private boolean isGradleOther(String text) {
+    return text.equals("dependencyResolutionManagement")
+        || text.equals("pluginManagement")
+        || text.equals("debug")
+        || text.equals("release")
+        || text.equals("namespace")
+        || text.equals("sourceCompatibility")
+        || text.equals("targetCompatibility")
+        || text.equals("viewBinding");
+  }
+
+  private boolean isUpperCaseIdentifier(String text) {
+    if (text == null || text.isEmpty() || !Character.isUpperCase(text.charAt(0))) {
+      return false;
+    }
+
+    for (int i = 1; i < text.length(); i++) {
+      char c = text.charAt(i);
+      if (!Character.isLetterOrDigit(c) && c != '_') {
+        return false;
+      }
+    }
+    return true;
   }
 }
