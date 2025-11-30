@@ -99,7 +99,9 @@ public class MainActivity extends AppCompatActivity {
                 | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
     setupef();
-
+     binding.et.setPaddingStroke(4);
+     binding.et.setIconRgbMod(true);
+     binding.et.setCardRgb(true);
     binding.et.setThemeCustom("/storage/emulated/0/Apktool_M/theme.json");
   }
 

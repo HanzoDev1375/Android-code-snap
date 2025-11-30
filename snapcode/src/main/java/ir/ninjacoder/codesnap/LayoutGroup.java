@@ -1,11 +1,14 @@
 package ir.ninjacoder.codesnap;
 
+import android.animation.ArgbEvaluator;
 import android.animation.LayoutTransition;
+import android.animation.ValueAnimator;
 import android.content.ClipboardManager;
 import android.content.ClipData;
 import android.content.ContentValues;
 import android.content.SharedPreferences;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
 import android.graphics.pdf.PdfDocument;
 import android.os.Build;
 import android.os.Handler;
@@ -71,6 +74,7 @@ public class LayoutGroup extends LinearLayout {
   protected String fileName;
   private BracketManager manager;
   private boolean isShowCopyIcon = false;
+  private boolean iconRgbMod = false, isRgbCard;
   protected FormatImage img = FormatImage.PNG;
 
   public LayoutGroup(Context c) {
@@ -90,6 +94,7 @@ public class LayoutGroup extends LinearLayout {
       removeAllViews();
       addView(binding.getRoot());
     }
+    
 
     setLayoutParams(
         new ViewGroup.LayoutParams(
@@ -152,10 +157,61 @@ public class LayoutGroup extends LinearLayout {
           }
           return true;
         });
+        setStorkeAnimator();
   }
 
   public void setText(String text) {
     highlightText(text, binding.editor.getCode());
+  }
+
+  public void setPaddingStroke(int f) {
+    binding.card.setStrokeWidth(f);
+  }
+
+  void setStorkeAnimator() {
+
+    Handler handler = new Handler();
+    ArgbEvaluator evaluator = new ArgbEvaluator();
+    int[] colorPalette = {
+      color.getBracketcolor(),
+      color.getBracketlevel1(),
+      color.getBracketlevel2(),
+      color.getBracketlevel3(),
+      color.getBracketlevel4(),
+      color.getBracketlevel5(),
+      color.getBracketlevel6()
+    };
+    final int[] currentIndex = {0};
+
+    Runnable runnable =
+        new Runnable() {
+          @Override
+          public void run() {
+            int endColor = colorPalette[currentIndex[0]];
+            int startColor =
+                colorPalette[(currentIndex[0] - 1 + colorPalette.length) % colorPalette.length];
+
+            ValueAnimator animator = ValueAnimator.ofObject(evaluator, startColor, endColor);
+            animator.setDuration(1000);
+            animator.addUpdateListener(
+                new ValueAnimator.AnimatorUpdateListener() {
+                  @Override
+                  public void onAnimationUpdate(ValueAnimator animator) {
+                    int color = (int) animator.getAnimatedValue();
+                    if (isRgbCard) binding.card.setStrokeColor(color);
+                    if (iconRgbMod) {
+                      binding.copyicon.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+                      binding.eyeicon.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+                    }
+                  }
+                });
+            animator.start();
+
+            currentIndex[0] = (currentIndex[0] + 1) % colorPalette.length;
+            handler.postDelayed(this, 1000);
+          }
+        };
+    handler.post(runnable);
   }
 
   private void highlightText(String text, EditText editText) {
@@ -366,6 +422,7 @@ public class LayoutGroup extends LinearLayout {
     updateHighlight();
     manager.updateRainbowColors();
     setLayoutChange();
+    
   }
 
   @Override
@@ -1036,5 +1093,11 @@ public class LayoutGroup extends LinearLayout {
           @Override
           public void onNothingSelected(AdapterView<?> parent) {}
         });
+  }
+  public void setIconRgbMod(boolean iconRgbMod) {
+    this.iconRgbMod = iconRgbMod;
+  }
+  public void setCardRgb(boolean isRgbCard) {
+    this.isRgbCard = isRgbCard;
   }
 }
