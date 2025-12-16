@@ -243,9 +243,9 @@ public class SyntaxView extends ScrollView {
   }
 
   public void setLangType(LangType langType) {
-      Highlighter highlighter = new CodeImpl();
-      incrementalHighlighter = new IncrementalHighlighter(highlighter, langType, color);
-      incrementalHighlighter.attach(code.getText());
+    Highlighter highlighter = new CodeImpl();
+    incrementalHighlighter = new IncrementalHighlighter(highlighter, langType, color);
+    incrementalHighlighter.attach(code.getText());
   }
 
   private char getLastDifference(String a, String b) {
@@ -501,7 +501,7 @@ public class SyntaxView extends ScrollView {
     return count;
   }
 
-  public void showMarkDownView(boolean showMarkdown) {
+  public void showMarkDownView(boolean showMarkdown, LangType type) {
     if (showMarkdown) {
       // Switch to Markdown view
       if (code.getVisibility() == VISIBLE) {
@@ -524,7 +524,12 @@ public class SyntaxView extends ScrollView {
                   tv.setScaleX(0.5f);
                   tv.setScaleY(0.5f);
                   tv.setAlpha(0f);
-                  MarkDownTextHelper.handleMarkDown(tv, code.getText().toString());
+                  MarkDownTextHelper.handleMarkDown(
+                      tv,
+                      "```"
+                          + type.getLangname().replace(".", "")
+                          + code.getText().toString()
+                          + "```");
 
                   tv.animate()
                       .scaleX(1f)
@@ -577,8 +582,8 @@ public class SyntaxView extends ScrollView {
     requestLayout();
   }
 
-  public void toggleMarkdownView() {
-    showMarkDownView(!isMarkdownMode);
+  public void toggleMarkdownView(LangType type) {
+    showMarkDownView(!isMarkdownMode, type);
   }
 
   public boolean getisMarkdownMode() {

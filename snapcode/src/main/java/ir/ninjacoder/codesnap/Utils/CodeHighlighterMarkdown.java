@@ -4,78 +4,104 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import ir.ninjacoder.codesnap.LangType;
+import ir.ninjacoder.codesnap.antlr4.md.MarkDownLexer;
 import ir.ninjacoder.codesnap.colorhelper.ColorHelper;
+import ir.ninjacoder.codesnap.widget.data.SpanStyler;
+import java.io.StringReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.Token;
 
 public class CodeHighlighterMarkdown implements Highlighter {
 
-  private static final HighlightRule[] RULES = {
-    new HighlightRule(Pattern.compile("<!--[\\s\\S]*?-->"), 7), // HTML Comments
-    new HighlightRule(Pattern.compile("</?[a-zA-Z][^>]*>"), 8), // HTML tags
-    new HighlightRule(Pattern.compile("`{3}[\\s\\S]*?`{3}"), 3), // Code blocks
-    new HighlightRule(Pattern.compile("!?\\[.*?\\]\\(.*?\\)"), 4), // Links
-    new HighlightRule(Pattern.compile("^#{1,6}\\s+.*$", Pattern.MULTILINE), 1), // Headers
-    new HighlightRule(
-        Pattern.compile("\\*\\*\\*.*?\\*\\*\\*|\\*\\*.*?\\*\\*|\\*.*?\\*"), 2), // Bold/Italic
-    new HighlightRule(Pattern.compile("`[^`]*`"), 3), // Inline code
-    new HighlightRule(Pattern.compile("^\\s*[-*+]\\s+.*$", Pattern.MULTILINE), 5), // List bullets
-    new HighlightRule(Pattern.compile("^\\s*\\d+\\.\\s+.*$", Pattern.MULTILINE), 5), // Numbered lists
-    new HighlightRule(Pattern.compile("\\[[ x]\\]"), 6), // Checkboxes
-    new HighlightRule(Pattern.compile("---"), 9) // Horizontal rules
-  };
-
   @Override
   public SpannableStringBuilder highlight(LangType types, String code, ColorHelper color) {
-    SpannableStringBuilder builder = new SpannableStringBuilder(code);
+    SpanStyler builder = SpanStyler.create();
+    try {
+      var lexer = new MarkDownLexer(CharStreams.fromReader(new StringReader(code)));
+      int pretoken = -1;
+      int type;
+      Token token;
 
-    for (HighlightRule rule : RULES) {
-      Matcher matcher = rule.pattern.matcher(code);
-      while (matcher.find()) {
-        int ruleColor = getColorForRule(rule.type, color);
-        builder.setSpan(
-            new ForegroundColorSpan(ruleColor),
-            matcher.start(),
-            matcher.end(),
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+      while ((token = lexer.nextToken()) != null) {
+        type = token.getType();
+        String text = token.getText();
+        if (type == MarkDownLexer.EOF) {
+          break;
+        }
+        switch (type) {
+          case MarkDownLexer.WS:
+            builder.addNullText(text);
+            break;
+          case MarkDownLexer.BACKTIKMASER:
+            builder.text(text, color.getOperator());
+            break;
+          case MarkDownLexer.BOLD:
+            builder.text(text, color.getKeyword(), true, false, false);
+            break;
+
+          case MarkDownLexer.HEADER1:
+          case MarkDownLexer.HEADER2:
+          case MarkDownLexer.HEADER3:
+          case MarkDownLexer.HEADER4:
+          case MarkDownLexer.HEADER5:
+          case MarkDownLexer.HEADER6:
+            builder.text(text, color.getCssoprator());
+            break;
+          case MarkDownLexer.ITALIC:
+            builder.text(text, color.getMethod());
+            break;
+          case MarkDownLexer.HTMLCLOSE:
+          case MarkDownLexer.SLASH:
+          case MarkDownLexer.HTMLOPEN:
+            builder.text(text, color.getSymbol());
+            break;
+          case MarkDownLexer.STRING:
+            builder.text(text, color.getStrings());
+            break;
+          case MarkDownLexer.LINK:
+          case MarkDownLexer.LINKMASET:
+            builder.text(text, color.getCsskeyword());
+            break;
+          case MarkDownLexer.LANGTYPE:
+            builder.text(text, color.getStrings());
+            break;
+          case MarkDownLexer.BOXOFF:
+          case MarkDownLexer.BOXON:
+          builder.text(text,color.getBracketlevel3()); break;
+          case MarkDownLexer.ID:
+            {
+              int i = color.getTextnormal();
+              if (pretoken == MarkDownLexer.HEADER1
+                  || pretoken == MarkDownLexer.HEADER2
+                  || pretoken == MarkDownLexer.HEADER3
+                  || pretoken == MarkDownLexer.HEADER4
+                  || pretoken == MarkDownLexer.HEADER5
+                  || pretoken == MarkDownLexer.HEADER6) {
+                i = color.getSymbol();
+              }
+              if(pretoken == MarkDownLexer.BOXOFF|| pretoken == MarkDownLexer.BOXON) {
+              	i = color.getBracketlevel5();
+              }
+
+              builder.text(text, i);
+
+              break;
+            }
+
+          default:
+            builder.text(text, color.getTextnormal());
+            break;
+        }
+        if (pretoken != MarkDownLexer.WS) {
+          pretoken = type;
+        }
       }
+    } catch (Exception err) {
+
     }
 
     return builder;
-  }
-
-  private int getColorForRule(int type, ColorHelper color) {
-    switch (type) {
-      case 1:
-        return color.getSymbol(); // Headers
-      case 2:
-        return color.getOperator(); // Bold/Italic
-      case 3:
-        return color.getComment(); // Code
-      case 4:
-        return color.getSymbol(); // Links
-      case 5:
-        return color.getCsskeyword(); // Lists
-      case 6:
-        return color.getOperator(); // Checkboxes
-      case 7:
-        return color.getComment(); // HTML Comments
-      case 8:
-        return color.getHtmlkeyword(); // HTML tags
-      case 9:
-        return color.getLastsymi(); // Horizontal rules
-      default:
-        return color.getTextnormal();
-    }
-  }
-
-  static class HighlightRule {
-    Pattern pattern;
-    int type;
-
-    HighlightRule(Pattern pattern, int type) {
-      this.pattern = pattern;
-      this.type = type;
-    }
   }
 }

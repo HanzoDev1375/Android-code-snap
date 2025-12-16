@@ -87,14 +87,13 @@ public class LayoutGroup extends LinearLayout {
     init();
   }
 
-  public void init() {
+  void init() {
     setOrientation(VERTICAL);
     binding = LayoutGroupBinding.inflate(LayoutInflater.from(getContext()), this, true);
     if (binding != null) {
       removeAllViews();
       addView(binding.getRoot());
     }
-    
 
     setLayoutParams(
         new ViewGroup.LayoutParams(
@@ -138,7 +137,7 @@ public class LayoutGroup extends LinearLayout {
     binding.eyeicon.setOnClickListener(
         v -> {
           boolean newState = !getEditor().getisMarkdownMode();
-          getEditor().toggleMarkdownView();
+          getEditor().toggleMarkdownView(type);
           ObjectUtils.animIcon(
               binding.eyeicon, newState ? R.drawable.eyeoff_24px : R.drawable.eyeon_24px);
         });
@@ -157,7 +156,7 @@ public class LayoutGroup extends LinearLayout {
           }
           return true;
         });
-        setStorkeAnimator();
+    setStorkeAnimator();
   }
 
   public void setText(String text) {
@@ -422,7 +421,6 @@ public class LayoutGroup extends LinearLayout {
     updateHighlight();
     manager.updateRainbowColors();
     setLayoutChange();
-    
   }
 
   @Override
@@ -1068,6 +1066,24 @@ public class LayoutGroup extends LinearLayout {
     binding.copyicon.invalidate();
   }
 
+  public void setLangGroup(Spinner sp) {
+    List<LangType> list = Arrays.asList(LangType.values());
+    var ad =
+        new ArrayAdapter<LangType>(sp.getContext(), android.R.layout.simple_spinner_item, list);
+    sp.setAdapter(ad);
+    //  ad.setDropDownViewResource(android.R.layout.simple_spinner_item);
+    sp.setOnItemSelectedListener(
+        new AdapterView.OnItemSelectedListener() {
+          @Override
+          public void onItemSelected(AdapterView<?> ad, View v, int position, long l) {
+            setType(list.get(position));
+          }
+
+          @Override
+          public void onNothingSelected(AdapterView<?> ad) {}
+        });
+  }
+
   public void setSaveThemeBySpinner(Spinner sp) {
     List<ThemeManager> themeList = Arrays.asList(ThemeManager.values());
 
@@ -1094,9 +1110,11 @@ public class LayoutGroup extends LinearLayout {
           public void onNothingSelected(AdapterView<?> parent) {}
         });
   }
+
   public void setIconRgbMod(boolean iconRgbMod) {
     this.iconRgbMod = iconRgbMod;
   }
+
   public void setCardRgb(boolean isRgbCard) {
     this.isRgbCard = isRgbCard;
   }

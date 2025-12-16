@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <ir.ninjacoder.codesnap.LayoutGroup
+        android:id="@+id/group"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Switches -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="8dp">
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/sw_icons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="icon rgb" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/sw_rgb"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="RgbCard" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/sw_line"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ShowLineNumber" />
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/sw_iconcopy"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ShowIconCopy" />
+    </LinearLayout>
+
+    <!-- Material Slider -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="set Stroke Card:"
+        android:paddingStart="4dp"
+        android:paddingBottom="4dp" />
+
+    <com.google.android.material.slider.Slider
+        android:id="@+id/strokeSlider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+    />
+    <Spinner
+        android:id="@+id/sptheme"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp" />
+    <Spinner
+        android:id="@+id/splang"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp" />
+    <!-- Button -->
+    <Button
+        android:id="@+id/shot"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:text="OK"
+        android:layout_gravity="center_horizontal"
+        android:padding="8dp" />
+
+</LinearLayout>

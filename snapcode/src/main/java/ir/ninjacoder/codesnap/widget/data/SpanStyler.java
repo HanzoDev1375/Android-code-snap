@@ -386,4 +386,12 @@ public class SpanStyler extends SpannableStringBuilder {
   public static SpanStyler from(CharSequence text) {
     return new SpanStyler(text);
   }
+
+  public SpanStyler textWithBackground(String text, int textColor, int bgColor) {
+    int start = length();
+    append(text);
+    setSpan(new ForegroundColorSpan(textColor), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
+    setSpan(new BackgroundColorSpan(bgColor), start, length(), SPAN_EXCLUSIVE_EXCLUSIVE);
+    return this;
+  }
 }

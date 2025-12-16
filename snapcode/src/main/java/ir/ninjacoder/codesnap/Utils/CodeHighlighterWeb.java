@@ -12,6 +12,7 @@ import com.google.gson.reflect.TypeToken;
 import ir.ninjacoder.codesnap.LangType;
 import android.text.SpannableStringBuilder;
 import ir.ninjacoder.codesnap.Utils.ObjectUtils;
+import ir.ninjacoder.codesnap.Utils.dep.CodeLexerWorker;
 import ir.ninjacoder.codesnap.antlr4.web.HTMLLexer;
 import ir.ninjacoder.codesnap.bracket.BracketManager;
 import ir.ninjacoder.codesnap.bracket.BracketPosition;
@@ -134,10 +135,19 @@ public class CodeHighlighterWeb implements Highlighter {
           break;
         case HTMLLexer.CHATREF:
         case HTMLLexer.STRING:
-          builder.text(token.getText(), color.getStrings());
+          builder.backtik(
+              token.getText(),
+              color.getBracketcolor(),
+              color.getBracketlevel2(),
+              color.getBracketlevel3(),
+              color.getOperator(),
+              color.getStrings());
           break;
         case HTMLLexer.HtmlAttr:
           builder.text(token.getText(), color.getHtmlattr());
+          break;
+        case HTMLLexer.JSREGEX:
+          builder.text(token.getText(), color.getOperator());
           break;
         case HTMLLexer.LPAREN:
         case HTMLLexer.LBRACK:
@@ -165,7 +175,6 @@ public class CodeHighlighterWeb implements Highlighter {
         case HTMLLexer.BITOR:
         case HTMLLexer.CARET:
         case HTMLLexer.MOD:
-        case HTMLLexer.HASH:
         case HTMLLexer.ADD_ASSIGN:
         case HTMLLexer.SUB_ASSIGN:
         case HTMLLexer.MUL_ASSIGN:
@@ -255,9 +264,17 @@ public class CodeHighlighterWeb implements Highlighter {
                   break;
                 }
               }
+              
+              if(pretoken == HTMLLexer.DOT) {
+              	colorid = color.getVariable();
+              }
+              if(pretoken == HTMLLexer.CONST || pretoken == HTMLLexer.LET) {
+              	colorid = color.getOperator();
+              }
               if (!colorApplied) {
                 builder.text(text, colorid, false, false, isDep);
               }
+              
 
             } catch (Exception err) {
               builder.text(text, color.getTextnormal());

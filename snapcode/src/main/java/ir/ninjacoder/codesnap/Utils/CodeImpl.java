@@ -51,6 +51,10 @@ public class CodeImpl implements Highlighter {
       return new CodeHighlighterZig().highlight(type, code, color);
     } else if (type == LangType.LUA) {
       return new CodeHighlighterLua().highlight(type, code, color);
+    } else if (type == LangType.MATLAB) {
+      return new CodeHighlighterMatlab().highlight(type, code, color);
+    } else if (type == LangType.DIFF) {
+      return new CodeHighlighterDiff().highlight(type, code, color);
     } else if (type == LangType.NONE) {
       return new EmptyLang().highlight(type, code, color);
     }

@@ -24,6 +24,7 @@ import ir.ninjacoder.code.databinding.ActivityMainBinding;
 import ir.ninjacoder.codesnap.FormatImage;
 import ir.ninjacoder.codesnap.LangType;
 import ir.ninjacoder.codesnap.colorhelper.ThemeManager;
+import ir.ninjacoder.codesnap.view.CodeSnapBottomSheet;
 import ir.ninjacoder.codesnap.widget.editorbase.EffectType;
 import java.io.File;
 import java.util.Arrays;
@@ -49,7 +50,8 @@ public class MainActivity extends AppCompatActivity {
 
     binding.btn.setOnClickListener(
         v -> {
-          binding.et.takeScreenshot();
+      //    binding.et.takeScreenshot();
+          new CodeSnapBottomSheet("", MainActivity.this);
         });
 
     ad.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -89,19 +91,19 @@ public class MainActivity extends AppCompatActivity {
           }
         """;
     binding.et.setText(code);
-//    binding
-//        .et
-//        .getEditor()
-//        .setFont(Typeface.createFromFile(new File("/storage/emulated/0/apk/ghostfont.ttf")));
+    //    binding
+    //        .et
+    //        .getEditor()
+    //        .setFont(Typeface.createFromFile(new File("/storage/emulated/0/apk/ghostfont.ttf")));
     getWindow()
         .setSoftInputMode(
             WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE
                 | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
     setupef();
-     binding.et.setPaddingStroke(4);
-     binding.et.setIconRgbMod(true);
-     binding.et.setCardRgb(true);
+    binding.et.setPaddingStroke(4);
+    binding.et.setIconRgbMod(true);
+    binding.et.setCardRgb(true);
     binding.et.setThemeCustom("/storage/emulated/0/Apktool_M/theme.json");
   }
 

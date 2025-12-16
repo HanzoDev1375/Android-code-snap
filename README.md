@@ -37,7 +37,7 @@
 - [ ] perl
 - [ ] r
 - [ ] matlab
-- [ ] lua
+- [x] lua
 - [x] yaml
 - [x] json
 - [x] xml
@@ -123,8 +123,23 @@ adding `xml` in your activity
   editor.setText(#String);
   // adding 1.1.1
   editor.setShowHighlighterBracket(#boolean);
+  //adding 1.1.2
+  editor.setPaddingStroke(#int);
+  editor.setIsShowCopyIcon(#boolean);
+  editor.setLangGroup(#Spinner);
+  editor.setSaveThemeBySpinner(#Spinner);
+  editor.setIconRgbMod(#boolean);
+  
+  
+  
 ```
+### Code snap bottomsheet dialog mod 
 
+```java
+
+ var code = new CodeSnapBottomSheet(#PathString, #Context);
+
+```
 
 ### Custom Theme
 

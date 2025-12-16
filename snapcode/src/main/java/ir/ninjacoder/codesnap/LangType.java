@@ -25,6 +25,8 @@ public enum LangType {
   MARKDOWN(".md"),
   ZIG(".zig"),
   LUA(".lua"),
+  MATLAB(".y"),
+  DIFF(".path"),
   NONE("");
 
   private final String langname;
@@ -48,9 +50,9 @@ public enum LangType {
 
   public boolean hasFile(String file) {
     for (LangType lang : LangType.values()) {
-        if (file.endsWith(lang.getLangname())) {
-            return true;
-        }
+      if (file.endsWith(lang.getLangname())) {
+        return true;
+      }
     }
     return false;
   }
