@@ -1,0 +1,50 @@
+{
+  "allFiles": [
+    {
+      "file": "/storage/emulated/0/AndroidIDEProjects/Code Snap/README.md",
+      "selection": {
+        "end": {
+          "column": 10,
+          "index": 896,
+          "line": 44
+        },
+        "start": {
+          "column": 10,
+          "index": 896,
+          "line": 44
+        }
+      }
+    },
+    {
+      "file": "/storage/emulated/0/AndroidIDEProjects/Code Snap/snapcode/build.gradle",
+      "selection": {
+        "end": {
+          "column": 0,
+          "index": 0,
+          "line": 0
+        },
+        "start": {
+          "column": 0,
+          "index": 0,
+          "line": 0
+        }
+      }
+    },
+    {
+      "file": "/storage/emulated/0/AndroidIDEProjects/Code Snap/gradle.properties",
+      "selection": {
+        "end": {
+          "column": 18,
+          "index": 436,
+          "line": 11
+        },
+        "start": {
+          "column": 18,
+          "index": 436,
+          "line": 11
+        }
+      }
+    }
+  ],
+  "selectedFile": "/storage/emulated/0/AndroidIDEProjects/Code Snap/README.md"
+}

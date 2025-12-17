@@ -42,6 +42,7 @@
 - [x] json
 - [x] xml
 - [x] zig
+- [x] diff
 
 ## Note
 
