@@ -1,6 +1,7 @@
 package ir.ninjacoder.codesnap.widget;
 
 import android.content.Context;
+import android.graphics.Path;
 import android.text.Editable;
 import android.text.Layout;
 import android.text.Spannable;
@@ -21,6 +22,9 @@ import android.graphics.Color;
 import android.content.res.Resources;
 import android.widget.MultiAutoCompleteTextView;
 import ir.ninjacoder.codesnap.widget.data.*;
+import java.util.List;
+import ir.ninjacoder.codesnap.diagnostics.Diagnostic;
+import ir.ninjacoder.codesnap.diagnostics.DiagnosticsState;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.ArrayList;
@@ -272,6 +276,7 @@ public class CodeEditText extends PowerModeEditText {
 
   @Override
   protected void onDraw(Canvas canvas) {
+
     canvas.save();
 
     if (showLineNumbers) {
@@ -283,8 +288,107 @@ public class CodeEditText extends PowerModeEditText {
     }
 
     canvas.clipRect(lineNumberWidth, 0, getWidth(), getHeight());
+
     super.onDraw(canvas);
+
+    // مهم — بعد از super
+    drawDiagnostics(canvas);
+
     canvas.restore();
+  }
+
+  private void drawDiagnostics(Canvas canvas) {
+    Layout layout = getLayout();
+    Editable text = getText();
+
+    if (layout == null || text == null) return;
+
+    Paint wavePaint = new Paint();
+    wavePaint.setStyle(Paint.Style.STROKE);
+    wavePaint.setStrokeWidth(3f * scaleFactor);
+    wavePaint.setAntiAlias(true);
+
+    int scrollY = getScrollY();
+    int paddingLeft = getTotalPaddingLeft();
+
+    for (Diagnostic d : diagnostics) {
+      int start = Math.max(0, Math.min(d.getStart(), text.length()));
+      int end = Math.max(0, Math.min(d.getEnd(), text.length()));
+
+      if (start >= end) continue;
+
+      wavePaint.setColor(d.getState().getColor());
+
+      // گروه‌بندی کاراکترها بر اساس خط
+      int currentLine = layout.getLineForOffset(start);
+      float waveStartX = layout.getPrimaryHorizontal(start) + paddingLeft;
+      float lastX = waveStartX;
+      int lastLine = currentLine;
+
+      for (int i = start + 1; i <= end; i++) {
+        if (i < text.length()) {
+          int line = layout.getLineForOffset(i);
+
+          // اگر خط تغییر کرد یا به انتهای محدوده رسیدیم
+          if (line != lastLine || i == end) {
+            float waveEndX;
+            if (i == end) {
+              waveEndX = layout.getPrimaryHorizontal(i) + paddingLeft;
+            } else {
+              waveEndX = layout.getPrimaryHorizontal(i - 1) + paddingLeft;
+            }
+
+            // موقعیت موج برای این خط
+            int lineBottom = layout.getLineBottom(lastLine) + scrollY;
+            float waveY = lineBottom - (4 * scaleFactor);
+
+            // کشیدن موج برای این بخش
+            drawContinuousWave(canvas, waveStartX, waveEndX, waveY, wavePaint);
+
+            // ریست برای خط بعدی
+            if (line != lastLine) {
+              waveStartX = layout.getPrimaryHorizontal(i) + paddingLeft;
+              lastLine = line;
+            }
+          }
+          lastX = layout.getPrimaryHorizontal(i) + paddingLeft;
+        }
+      }
+
+      // کشیدن آخرین بخش
+      if (end < text.length()) {
+        float waveEndX = layout.getPrimaryHorizontal(end) + paddingLeft;
+        int lineBottom = layout.getLineBottom(lastLine) + scrollY;
+        float waveY = lineBottom - (4 * scaleFactor);
+        drawContinuousWave(canvas, waveStartX, waveEndX, waveY, wavePaint);
+      }
+    }
+  }
+
+  private void drawContinuousWave(Canvas canvas, float startX, float endX, float y, Paint paint) {
+    if (startX >= endX) return;
+
+    Path path = new Path();
+    path.moveTo(startX, y);
+
+    float totalWidth = endX - startX;
+    float wavelength = 16f * scaleFactor;
+    float amplitude = 4f * scaleFactor;
+
+    int segments = (int) Math.ceil(totalWidth / wavelength);
+
+    for (int i = 0; i < segments; i++) {
+      float segmentStart = startX + i * wavelength;
+      float segmentEnd = Math.min(segmentStart + wavelength, endX);
+      float segmentWidth = segmentEnd - segmentStart;
+
+      if (segmentWidth > 0) {
+        path.rQuadTo(segmentWidth / 4, -amplitude, segmentWidth / 2, 0);
+        path.rQuadTo(segmentWidth / 4, amplitude, segmentWidth / 2, 0);
+      }
+    }
+
+    canvas.drawPath(path, paint);
   }
 
   private void drawLineNumbers(Canvas canvas) {
@@ -685,8 +789,28 @@ public class CodeEditText extends PowerModeEditText {
     canvas.drawText(lineNumber, lineNumberWidth - lineNumberPadding, textY, stickyLineNumberPaint);
   }
 
-
   public interface OnSelectionChangedListener {
     void onSelectionChanged(int selStart, int selEnd);
+  }
+
+  private List<Diagnostic> diagnostics = new ArrayList<>();
+
+  public void addDiagnostic(int start, int end, String message, DiagnosticsState state) {
+    diagnostics.add(new Diagnostic(start, end, message, state));
+    invalidate();
+  }
+
+  public void addDiagnostics(List<Diagnostic> list) {
+    diagnostics.addAll(list);
+    invalidate();
+  }
+
+  public void clearAllDiagnostics() {
+    diagnostics.clear();
+    invalidate();
+  }
+
+  public List<Diagnostic> getAllDiagnostics() {
+    return new ArrayList<>(diagnostics);
   }
 }

@@ -1,85 +1,126 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-     xmlns:android="http://schemas.android.com/apk/res/android"
-     xmlns:app="http://schemas.android.com/apk/res-auto"
-     android:layout_height="match_parent"
-     android:layout_width="match_parent"
-     android:orientation="vertical"
-     android:fitsSystemWindows="true">
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:fitsSystemWindows="true">
 
-    <Spinner
-         android:layout_height="wrap_content"
-         android:layout_width="match_parent"
-         android:layout_marginBottom="5dp"
-         android:layout_marginTop="5dp"
-         android:id="@+id/sp">
+    <LinearLayout
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:fitsSystemWindows="true">
 
-    </Spinner>
+        <Spinner
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
+            android:id="@+id/sp">
 
-    <Spinner
-         android:layout_height="wrap_content"
-         android:layout_width="match_parent"
-         android:layout_marginBottom="5dp"
-         android:layout_marginTop="5dp"
-         android:id="@+id/sptheme">
+        </Spinner>
 
-    </Spinner>
+        <Spinner
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
+            android:id="@+id/sptheme">
 
-    <Spinner
-         android:layout_height="wrap_content"
-         android:layout_width="match_parent"
-         android:layout_marginBottom="5dp"
-         android:layout_marginTop="5dp"
-         android:id="@+id/speff">
+        </Spinner>
 
-    </Spinner>
+        <Spinner
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
+            android:id="@+id/speff">
 
-    <ScrollView
-         android:layout_height="match_parent"
-         android:layout_width="match_parent">
+        </Spinner>
 
-        <LinearLayout
-             android:layout_height="match_parent"
-             android:layout_width="match_parent"
-             android:orientation="vertical">
+        <ScrollView
+            android:layout_height="match_parent"
+            android:layout_width="match_parent">
 
-            <ir.ninjacoder.codesnap.LayoutGroup
-                 android:layout_height="wrap_content"
-                 android:layout_width="match_parent"
-                 android:layout_marginEnd="8dp"
-                 android:layout_marginStart="8dp"
-                 android:id="@+id/et"
-                 android:layout_gravity="center" />
+            <LinearLayout
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:orientation="vertical">
 
-            <Button
-                 android:layout_height="wrap_content"
-                 android:layout_width="wrap_content"
-                 android:layout_marginBottom="10dp"
-                 android:layout_marginTop="10dp"
-                 android:text="screenshot"
-                 android:id="@+id/btn" />
+                <ir.ninjacoder.codesnap.LayoutGroup
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="8dp"
+                    android:id="@+id/et"
+                    android:layout_gravity="center" />
 
-            <CheckBox
-                 android:layout_height="wrap_content"
-                 android:layout_width="wrap_content"
-                 android:layout_marginTop="10dp"
-                 android:id="@+id/showline"
-                 android:text="show line number" />
+                <Button
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginTop="10dp"
+                    android:text="screenshot"
+                    android:id="@+id/btn" />
 
-            <CheckBox
-                 android:layout_height="wrap_content"
-                 android:layout_width="wrap_content"
-                 android:layout_marginTop="10dp"
-                 android:id="@+id/showiconCopy"
-                 android:text="show IconCopy" />
+                <CheckBox
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:id="@+id/showline"
+                    android:text="show line number" />
 
-            <ir.ninjacoder.codesnap.widget.ghostide.SliderCompat
-                 android:layout_height="match_parent"
-                 android:layout_width="wrap_content"
-                 android:id="@+id/sl" />
+                <CheckBox
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:id="@+id/showiconCopy"
+                    android:text="show IconCopy" />
+                <ir.ninjacoder.code.markwon.MarkDownTextView
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:id="@+id/markwon"
+                    android:text="show IconCopy" />
+                <ir.ninjacoder.codesnap.widget.ghostide.SliderCompat
+                    android:layout_height="match_parent"
+                    android:layout_width="wrap_content"
+                    android:id="@+id/sl" />
 
-        </LinearLayout>
+            </LinearLayout>
 
-    </ScrollView>
+        </ScrollView>
 
-</LinearLayout>
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_height="56dp"
+        android:layout_width="56dp"
+        android:gravity="center"
+        android:background="@android:color/transparent"
+        android:clickable="true"
+        android:elevation="8dp"
+        android:layout_margin="16dp"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:focusable="true"
+        android:id="@+id/glassFabRoot"
+        android:layout_gravity="bottom|end">
+
+        <com.qmdeve.liquidglass.widget.LiquidGlassView
+            android:layout_height="56dp"
+            android:layout_width="56dp"
+            android:id="@+id/glassBackground" />
+
+        <ImageView
+            android:layout_height="24dp"
+            android:layout_width="24dp"
+            android:src="@drawable/ic_arrow_back_black_24"
+            android:contentDescription="افزودن"
+            android:id="@+id/fabIcon"
+            android:layout_gravity="center" />
+
+    </FrameLayout>
+
+</FrameLayout>

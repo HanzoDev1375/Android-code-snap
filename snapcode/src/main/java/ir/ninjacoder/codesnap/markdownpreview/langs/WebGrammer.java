@@ -28,7 +28,6 @@ public class WebGrammer {
         token("attr-value", pattern(compile("=\\s*(\"[^\"]*\"|'[^']*'|[^\\s>]+)"))),
         token("entity", pattern(compile("&#?[a-z0-9]+;", CASE_INSENSITIVE))),
         token("string", pattern(compile("([\"'`])(?:\\\\.|(?!\\1)[^\\\\\\r\\n])*\\1"))),
-
         token(
             "js-keyword",
             pattern(

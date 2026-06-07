@@ -1,0 +1,22 @@
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_height="wrap_content"
+  android:layout_width="match_parent"
+  android:orientation="vertical">
+  <LinearLayout
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:padding="3dp">
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+      android:id="@+id/prograssbar"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="3dp"
+      android:layout_marginLeft="2dp"
+      android:layout_marginRight="1dp"
+      android:layout_marginTop="5dp"
+      android:layout_width="wrap_content" />
+  </LinearLayout>
+</LinearLayout>

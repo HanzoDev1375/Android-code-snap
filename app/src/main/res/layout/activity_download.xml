@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     android:layout_height="match_parent"
+     android:layout_width="match_parent"
+     android:gravity="center"
+     android:padding="24dp"
+     android:orientation="vertical">
+
+    <TextView
+         android:layout_height="wrap_content"
+         android:layout_width="wrap_content"
+         android:textSize="18sp"
+         android:id="@+id/tv_status"
+         android:text="وضعیت: آماده" />
+
+    <ProgressBar
+         android:layout_height="30dp"
+         android:layout_width="match_parent"
+         android:max="100"
+         style="?android:attr/progressBarStyleHorizontal"
+         android:layout_marginTop="16dp"
+         android:id="@+id/progress_bar" />
+
+    <TextView
+         android:layout_height="wrap_content"
+         android:layout_width="wrap_content"
+         android:textSize="24sp"
+         android:id="@+id/tv_percent"
+         android:text="0%"
+         android:textStyle="bold" />
+
+    <TextView
+         android:layout_height="wrap_content"
+         android:layout_width="wrap_content"
+         android:id="@+id/tv_size"
+         android:text="0MB / 0MB" />
+
+    <LinearLayout
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:gravity="center"
+         android:orientation="horizontal"
+         android:layout_marginTop="32dp">
+
+        <Button
+             android:layout_height="wrap_content"
+             android:layout_width="wrap_content"
+             android:id="@+id/btn_start"
+             android:text="شروع" />
+
+        <Button
+             android:layout_height="wrap_content"
+             android:layout_width="wrap_content"
+             android:id="@+id/btn_pause"
+             android:text="توقف" />
+
+        <Button
+             android:layout_height="wrap_content"
+             android:layout_width="wrap_content"
+             android:id="@+id/btn_resume"
+             android:text="ادامه" />
+
+        <Button
+             android:layout_height="wrap_content"
+             android:layout_width="wrap_content"
+             android:id="@+id/btn_cancel"
+             android:text="لغو" />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,4 +1,5 @@
 package ir.ninjacoder.codesnap.markdownpreview.langs;
+
 import org.jetbrains.annotations.NotNull;
 
 import io.noties.prism4j.GrammarUtils;

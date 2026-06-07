@@ -195,8 +195,10 @@ public class CodeHighlighterWeb implements Highlighter {
         case HTMLLexer.AT:
         case HTMLLexer.GT:
         case HTMLLexer.LT:
+		  
         case HTMLLexer.OPEN_SLASH:
         case HTMLLexer.SLASH_CLOSE:
+		      
           builder.text(token.getText(), color.getSymbol());
           break;
 

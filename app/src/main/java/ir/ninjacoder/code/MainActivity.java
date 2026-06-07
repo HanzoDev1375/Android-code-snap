@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
@@ -24,6 +25,8 @@ import ir.ninjacoder.code.databinding.ActivityMainBinding;
 import ir.ninjacoder.codesnap.FormatImage;
 import ir.ninjacoder.codesnap.LangType;
 import ir.ninjacoder.codesnap.colorhelper.ThemeManager;
+import ir.ninjacoder.codesnap.diagnostics.DiagnosticsState;
+import ir.ninjacoder.codesnap.dialog.ProgressDialog;
 import ir.ninjacoder.codesnap.view.CodeSnapBottomSheet;
 import ir.ninjacoder.codesnap.widget.editorbase.EffectType;
 import java.io.File;
@@ -42,6 +45,15 @@ public class MainActivity extends AppCompatActivity {
 
     // set content view to binding's root
     setContentView(binding.getRoot());
+    binding.btn.setOnLongClickListener(
+        v -> {
+          var f = new ProgressDialog(MainActivity.this);
+          f.setTitle("Hello");
+          f.setMessage("User");
+          f.show();
+
+          return false;
+        });
     checkAndRequestPermissions();
     List<LangType> list = Arrays.asList(LangType.values());
     var ad =
@@ -50,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
 
     binding.btn.setOnClickListener(
         v -> {
-      //    binding.et.takeScreenshot();
+          //    binding.et.takeScreenshot();
           new CodeSnapBottomSheet("", MainActivity.this);
         });
 
@@ -75,9 +87,29 @@ public class MainActivity extends AppCompatActivity {
 
     binding.showiconCopy.setOnCheckedChangeListener(
         (is, c) -> {
+          startActivity(new Intent(getApplicationContext(), DownloadActivity.class));
           binding.et.setIsShowCopyIcon(c);
+          binding.et.getEditor().getCode().addDiagnostic(1, 4, "Error", DiagnosticsState.ERROR);
+          binding.et.getEditor().getCode().addDiagnostic(5, 100, "Error", DiagnosticsState.WARNING);
+          //   binding.et.getEditor().getCode().addDiagnostic(8,20,"Error",DiagnosticsState.TYPO);
         });
+    String md =
+        """
+    # سلام دنیا
 
+    این یک **متن بولد** و *ایتالیک* است.
+
+    - آیتم اول
+    - آیتم دوم
+    - [x] hello word
+    ```java
+    class Hsi{}
+    ```
+
+    [کلیک کن](https://google.com)
+    """;
+
+    binding.markwon.setMarkdown(md);
     String code =
         """
           public class Main{
@@ -104,6 +136,8 @@ public class MainActivity extends AppCompatActivity {
     binding.et.setPaddingStroke(4);
     binding.et.setIconRgbMod(true);
     binding.et.setCardRgb(true);
+
+    //  binding.glassBackground.bind(binding.glassFabRoot);
     binding.et.setThemeCustom("/storage/emulated/0/Apktool_M/theme.json");
   }
 
@@ -141,10 +175,10 @@ public class MainActivity extends AppCompatActivity {
   }
 
   private void checkAndRequestPermissions() {
-    // برای اندروید 11 (API 30) و بالاتر - مدیریت تمام فایل‌ها
+
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
       if (!Environment.isExternalStorageManager()) {
-        // فقط اگر مجوز مدیریت فایل وجود ندارد، درخواست شود
+
         try {
           Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
           Uri uri = Uri.parse("package:" + getPackageName());

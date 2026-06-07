@@ -1,7 +1,10 @@
 package ir.ninjacoder.codesnap.markdownpreview;
 
 import android.content.Context;
+import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.graphics.drawable.Animatable;
+import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
 import android.text.style.LeadingMarginSpan;
 import android.util.Log;
@@ -12,7 +15,13 @@ import android.graphics.Paint;
 import android.text.Layout;
 import android.widget.Toast;
 import io.noties.markwon.AbstractMarkwonPlugin;
+import io.noties.markwon.MarkwonConfiguration;
+import io.noties.markwon.MarkwonConfiguration.Builder;
 import io.noties.markwon.MarkwonSpansFactory;
+import io.noties.markwon.core.CoreProps;
+import io.noties.markwon.core.MarkwonTheme;
+import io.noties.markwon.core.spans.CodeBlockSpan;
+import io.noties.markwon.core.spans.LinkSpan;
 import io.noties.markwon.utils.LeadingMarginUtils;
 import android.content.ClipboardManager;
 import android.content.ClipData;
@@ -55,6 +64,7 @@ import androidx.annotation.*;
 import ir.ninjacoder.codesnap.R;
 import static com.google.android.material.R.attr.*;
 import org.commonmark.node.FencedCodeBlock;
+import org.commonmark.node.Link;
 
 // @PrismBundle(includeAll = true)
 public class MarkDownTextHelper {
@@ -78,12 +88,29 @@ public class MarkDownTextHelper {
                   @Override
                   public void configureSpansFactory(MarkwonSpansFactory.Builder builder) {
                     builder.setFactory(
+                        Link.class,
+                        (configuration, props) ->
+                            new DottedUnderlineSpan(props.get(CoreProps.LINK_DESTINATION)));
+
+                    builder.setFactory(
                         FencedCodeBlock.class,
                         (configuration, props) -> {
+                          // ایجاد Theme مشابه MarkwonTheme
+
                           return new Object[] {
                             new CopyIconSpan(t.getContext().getDrawable(R.drawable.code_copy_24px))
                           };
                         });
+                  }
+
+                  @Override
+                  public void configureTheme(@NonNull MarkwonTheme.Builder builder) {
+                    builder.codeBlockBackgroundColor(Color.parseColor("#fff820"));
+                  }
+
+                  @Override
+                  public void configureConfiguration(MarkwonConfiguration.Builder build) {
+                    //build.syntaxHighlight(theme);
                   }
                 })
             .usePlugin(SyntaxHighlightPlugin.create(prism4j, theme))
@@ -102,7 +129,7 @@ public class MarkDownTextHelper {
 
     @Override
     public int background() {
-      return MaterialColors.getColor(c, colorSurface, 0);
+      return 0;
     }
 
     @Override
@@ -314,38 +341,14 @@ public class MarkDownTextHelper {
 
   static class CopyIconSpan extends ClickableSpan implements LeadingMarginSpan {
     private final Drawable icon;
+    private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Rect rect = new Rect();
 
     CopyIconSpan(Drawable icon) {
-      this.icon = icon;
+      this.icon = icon.mutate();
       if (icon.getBounds().isEmpty()) {
         icon.setBounds(0, 0, icon.getIntrinsicWidth(), icon.getIntrinsicHeight());
       }
-    }
-
-    @Override
-    public void onClick(View widget) {
-
-      if (widget instanceof TextView) {
-        TextView textView = (TextView) widget;
-        Spanned spanned = (Spanned) textView.getText();
-
-        int start = spanned.getSpanStart(this);
-        int end = spanned.getSpanEnd(this);
-        String contents = spanned.subSequence(start, end).toString().trim();
-        Log.i("CopyContents", contents);
-        copyToClipboard(widget.getContext(), contents);
-        Toast.makeText(widget.getContext(), "done!", Toast.LENGTH_SHORT).show();
-      }
-    }
-
-    @Override
-    public void updateDrawState(TextPaint ds) {
-      // do not apply link styling
-    }
-
-    @Override
-    public int getLeadingMargin(boolean first) {
-      return 0;
     }
 
     @Override
@@ -366,20 +369,50 @@ public class MarkDownTextHelper {
 
       int save = c.save();
       try {
+        // رسم آیکون در گوشه سمت راست بالا
         float w = icon.getBounds().width();
-        float left = layout.getWidth() - w - (w / 4F);
-        c.translate(left, top);
+        float h = icon.getBounds().height();
+        float left = layout.getWidth() - w - 16; // 16 پیکسل فاصله از لبه
+        float iconTop = top + 16; // 16 پیکسل فاصله از بالا
+
+        icon.clearColorFilter();
+        icon.setTint(Color.WHITE);
+
+        c.translate(left, iconTop);
         icon.draw(c);
       } finally {
         c.restoreToCount(save);
       }
     }
 
+    @Override
+    public void onClick(View widget) {
+      if (widget instanceof TextView) {
+        TextView textView = (TextView) widget;
+        Spanned spanned = (Spanned) textView.getText();
+
+        int start = spanned.getSpanStart(this);
+        int end = spanned.getSpanEnd(this);
+        String contents = spanned.subSequence(start, end).toString().trim();
+
+        copyToClipboard(widget.getContext(), contents);
+        Toast.makeText(widget.getContext(), "Copied!", Toast.LENGTH_SHORT).show();
+      }
+    }
+
+    @Override
+    public void updateDrawState(TextPaint ds) {}
+
+    @Override
+    public int getLeadingMargin(boolean first) {
+      return 0;
+    }
+
     private void copyToClipboard(Context context, String text) {
       ClipboardManager clipboard =
           (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
       if (clipboard != null) {
-        ClipData clip = ClipData.newPlainText("Code snippet", text);
+        ClipData clip = ClipData.newPlainText("Code", text);
         clipboard.setPrimaryClip(clip);
       }
     }

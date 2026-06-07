@@ -524,12 +524,7 @@ public class SyntaxView extends ScrollView {
                   tv.setScaleX(0.5f);
                   tv.setScaleY(0.5f);
                   tv.setAlpha(0f);
-                  MarkDownTextHelper.handleMarkDown(
-                      tv,
-                      "```"
-                          + type.getLangname().replace(".", "")
-                          + code.getText().toString()
-                          + "```");
+                  MarkDownTextHelper.handleMarkDown(tv, code.getText().toString());
 
                   tv.animate()
                       .scaleX(1f)
